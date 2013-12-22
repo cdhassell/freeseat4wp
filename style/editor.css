@@ -1,0 +1,103 @@
+.map {
+     width: 90%;
+     height: 70%;
+     border-style: solid;
+     border-width: 0.1em;
+     border-color: black;
+     position: relative;
+     overflow: auto;
+     font-size: small;
+ }
+
+.map div {
+     display:inline-block;
+     position:absolute;
+     width: 1.8em;
+     height: 1.8em;
+     border-right: solid;
+     border-bottom: solid;
+     border-width: 0.1em;
+     border-color: gray;
+     padding-left: 0.1em;
+     padding-top: 0.1em;
+     overflow: hidden;
+ }
+
+.withNumbers .seatExtra {
+     display: none;
+ }
+
+.withExtra .seatNumber {
+     display: none;
+ }
+
+.inline-row {
+     display:inline-block;
+ }
+
+.inline-row div {
+     position: relative;
+    vertical-align: bottom;
+     text-align: center;
+     display:inline-block;
+     width: 30px;
+     height: 30px;
+     cursor: pointer;
+     border-right: solid;
+     border-bottom: solid;
+     border-width: 0.1em;
+     border-color: gray;
+     padding-left: 0.1em;
+     padding-top: 0.1em;
+ }
+
+.rowhead {
+    border-style: none !important;
+}
+
+.rowheadhead {
+    border-style: none !important;
+}
+
+.map input {
+     border: solid 1px lightgrey;
+     background-color: transparent;
+ }
+
+.blank {
+    background-color: white;
+}
+
+.select {
+    border-style: dashed !important;
+    border-color: black  !important;
+     border-width: 2px !important;
+}
+
+.paste {
+     background: url(../icons/editpaste.png) no-repeat;
+ }
+
+.numbers {
+    font-size: x-small;
+ }
+
+.extra {
+    font-size: x-small;
+ }
+
+.options {
+     display:none;
+ }
+
+.currentTool {
+    border-style: solid !important;
+    border-color: salmon !important;
+     border-width: 5px !important;
+     position: absolute !important;
+     left: -5px;
+     top: -5px;
+     width: 27px;
+     height: 27px;
+     z-index: -1;
+ }

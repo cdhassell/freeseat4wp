@@ -1,0 +1,23 @@
+body { color: #384349; background: #fffffc; font-family : "Lucida Grande",Verdana,Helvetica,sans-serif;   margin: 0; }
+h1 { margin: 0; }
+h2 { font-variant : small-caps; margin-left : 0.5em; }
+a { color : #e02000; text-decoration : none; }
+a:hover { color : darkviolet; text-decoration : underline; }
+p { color: #384349; }
+p.main { margin-left : 2em; margin-right : 3em; text-align : justify; }
+p.temph { font-size : 18pt; font-style: italic; font-weight: bolder; color : black; }
+p.highlight { text-align : center; font-size : 16pt; font-style: italic; font-weight: bolder; color : black; background-color: yellow; } 
+p.warning { color : maroon; font-variant : courier; text-align : center; font-weight : bolder; }
+span.warning { color : darkred; background-color: lightyellow; font-weight : bolder; }
+div.bookid { float: left; padding-right: 2em; padding-bottom: 3em; clear: both; }
+@media print { div.dontprint { display : none; } }
+div.wide {	padding: 0 2em 0 2em; margin: 0; page-break-after: always; }
+div.ticket2 { border : 1px; border-style : solid; margin: 1em; padding: 1em; clear: both; }
+.title { padding-left : 2em; padding-right : 2em; text-align : center; }
+table.summary { border-collapse: collapse; margin-left: 2em; margin-right: 2em; }
+td.zoneextra { font-size: small; }
+td.bookid { font-size: big; padding: 0 2em 0 1em; font-weight: 900; }
+td.col, td.row { font-size: 150%; padding: 0 1em; font-weight: 900; }
+td.class, td.cat, td.price { padding: 0 1em; }
+th.ticket { font-weight: normal; background-color: black; color: white; }
+

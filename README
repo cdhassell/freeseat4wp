@@ -1,0 +1,38 @@
+This is the "FreeSeat" Archive, a web application for managing tickets
+booking and sales. This is version 1.4.0
+
+$Id: README 374 2011-08-28 11:59:46Z tendays $
+
+http://freeseat.sf.net/
+
+Quick legalese before we start :
+
+Copyright (c) 2010 Maxime Gamboni. Modification and Redistribution is
+permitted under the terms of the GNU GPL version 2 (see "COPYING") or,
+at your option, any later version of the said license, provided this
+notice and the COPYING files are left unchanged.
+
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+General Public License for more details.
+
+Trade marks mentionned in this file and elsewhere are owned by their
+respective owners. (That seems tautological to me but
+legalese-speaking people like saying that so I'll just follow)
+
+If you use this program it would be nice if you sent me an email I
+would be happy to hear what you think of it and what you it for ...
+You can contact me at tendays at users point sourceforge point net.
+
+Also, if you are running a (non-trivially) modified version, please
+include on the publicly accessible side of the application a link
+providing access to the modified source code. (E.g. next to (or
+replacing) the "Powered by" link printed by show_foot(), in
+format.php).
+
+Or even better, send your changes to me (e.g. as a support request on
+the sf.net website) so that I may consider including them in the main
+distribution.
+
+Read the INSTALL file for installation instructions. Merely unpacking the archive under a webserver document root is NOT ENOUGH.

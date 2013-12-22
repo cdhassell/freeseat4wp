@@ -1,0 +1,86 @@
+Information and a few guidelines for writing FreeSeat plugins. If you
+write a plugin that doesn't follow these I'll either (if I'm in a good
+mood) correct it or (if I have other things to do) ask you to correct
+it before I accept it in the main archive.
+
+Even if you intend to keep it for yourself (but why would you want
+that?) I believe these will make it easier for you to maintain your
+plugin while freeseat evolves.
+
+Plugins add features to FreeSeat through "hooks" which are listed in
+the hooks.txt file. You implement your plugin with functions that
+match the signature of some of those hooks, and, once your plugin is
+enabled in config.php, those functions will be called when the hook
+points are met. This permits enhancing or extending FreeSeat without
+having to touch a single line of code in the main archive.
+
+I took inspiration and even copy-pasted a few functions from
+SquirrelMail to implement the FreeSeat plugin system. They have my
+gratitude, and if you have already written plugins for SquirrelMail
+you'll feel right at home.
+
+TO CREATE A PLUGIN
+
+Make a new directory in the "plugins" directory, create setup.php and
+info.php pages in that directory. Follow the model of other plugins
+for the exact syntax. The "freeseat_plugin_init_(your plugin name
+here)" function registers your functions to hooks. The info.php should
+provide basic information about your plugin that the (not yet ready to
+use) config plugin will use when displaying the list of available
+plugins.
+
+SOME GUIDELINES in no particular order
+
+1) All files required by your plugin should be contained in its
+   plugins/$yourpluginname directory. This includes css files, images,
+   configuration entries, extra sql scripts, documentation, javascript
+   files and everything. People should be able to unpack your plugin
+   in the plugins directory, enable it, and go. (There will soon be
+   hooks for adding configuration options, sql statements to run at
+   install time, etc)
+
+2) Do not explicitly refer to resources (files, functions, etc)
+   provided by other plugins, but use hooks instead. If two plugins
+   would need to share a resource (such as an image file, a css entry,
+   etc), then consider moving said resource into its own plugin and
+   creating a hook to access it (you may create a support request if
+   you have this problem and my answer makes no sense). Another option
+   is to have that resource be a standard/global FreeSeat resource
+   instead (for instance a css class or a simple helper function that
+   could be used in many different contexts). If you need that, post a
+   feature request.
+
+(A possible exception to the above is when using a hook provided by a
+plugin, in that case it may make sense to use resources provided by
+that plugin. An example is the config_form hook from the config plugin
+that is typically implemented by calling the confirm_form function
+from the config plugin. But I'm not even sure I'll keep it that way.)
+
+3) All php functions, css classes, configuration, global and session
+   variables, hooks, extra sql tables and columns defined by your
+   plugin should start with the plugin name, followed by an underscore
+   if something follows it (so, if your plugin requires one extra
+   mysql table, then the table could be just named like your plugin,
+   no need for a _table after it or whatever).
+
+4) your plugin should not cause any php warnings or php notices to be
+   thrown.
+
+5) If you need a new hook in the main freeseat code and/or in another
+   plugin, post a feature request in the sourceforge project page and
+   I'll add it myself, possibly changing the exact name, location and
+   signature. If installing your plugin requires changing even a
+   single line of code somewhere, that would defeat the entire purpose
+   of plugins.
+
+6) If your plugin defines its own pages, remember to call the
+   ensure_plugin function so that those pages aren't reachable when
+   the plugin isn't enabled, and set FS_PATH to ../../. As a
+   convention, the "main" page of your plugin should be called
+   index.php so that it can be reached with an url like
+   http://.../ticketing/plugins/$yourpluginname/. Use the show_head
+   and show_foot functions if the page returns html code (and not just
+   raw text or an image or whatever).
+
+7) if your plugin itself defines new hooks, tell me so I may document
+   it along with the others.

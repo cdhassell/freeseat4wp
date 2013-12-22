@@ -1,0 +1,37 @@
+<?php
+
+$FS_PATH = plugin_dir_path( __FILE__ ) . '../';
+require_once ($FS_PATH . "vars.php");
+
+require_once ($FS_PATH . "functions/mysql.php");
+require_once ($FS_PATH . "functions/tools.php");
+
+/** Copyright (C) 2010 Maxime Gamboni. See COPYING for
+copying/warranty info.
+
+$Id$
+
+functions related to getting/setting configuration
+*/
+
+
+/** Return the contents of the config table (First row ; there "should" not be more).
+    You can then modify the returned assoc array and store it back using set_config. */
+function get_config( $key = null ) {
+	if (isset($key)) {
+  		return get_option( $key );
+	}
+	$config = array();
+	foreach( array( 'closing_ccard', 'shakedelay_ccard', 'paydelay_ccard', 'max_seats', 'groupdiscount_min', 'groupdiscount' ) as $option ) {
+		$config[ $option ] = get_option( $option );
+	}
+	return $config;
+}
+
+function set_config( $config ) {
+	foreach( $config as $option => $value ) {
+		update_option( $option, $value );
+	}
+	return true;
+}
+

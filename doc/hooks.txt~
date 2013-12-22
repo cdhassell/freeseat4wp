@@ -1,0 +1,186 @@
+This file lists all hooks currently supported by freeseat.
+
+The (concat) tag indicates the plugin should return a string, and
+outputs of all plugins will be concatenated.
+
+The (exists) tag indicates that the plugin should return a Boolean
+indicating whether it provided a certain functionality, or whether an
+error occurred (the meaning of the output value varies from hook to
+hook, see below). The calling code then gets to know if at least one
+plugin returned true and acts accordingly.
+
+The (sum) tag indicates that the plugin should return an integer, and 
+the outputs of all plugins will be summed and returned by the hook function.
+
+Some hooks are followed by a variable name indicating they must take
+one parameter. The parameter is called $void when it is not used
+(i.e. is always null, but implementing functions must declare it
+anyway).
+
+*** adminprint_line
+Called near the end of adminprint's output to add output on the same line.
+
+*** adminprint_process
+Called near the end of adminprint's output to add output on the same line.
+
+*** book_hook ($bookid)
+Called near the end of the book() function in functions/booking.php. 
+$bookid is passed from the book function.
+
+*** bookinglist_pagebottom
+called near the bottom of the bookinglist
+
+*** bookinglist_process
+Called when the bookinglist receives a POST query (may not output anything!)
+
+*** (concat) booking_return ($booking)
+Allow plugins pdftickets and barcode to cooperate. Called by pdftickets to
+get output from barcode which dompdf code can handle. $booking is the first
+ticket purchased.
+
+*** (concat) bookinglist_tableheader ($void)
+Permits adding <th> headers to the bookinglist table. Must have a
+corresponding  bookinglist_tablerow with as many <td>s.
+
+*** (concat) bookinglist_tablerow ($b)
+Called for each row in the booking list table. $b: the booking entry
+to display.
+
+*** ccard_checkamount ($transid)
+Must return (from the external credit card processor) the amount
+corresponding to the given transaction id.
+
+*** ccard_confirm_button
+Displays a "confirm" button on the confirm.php page if the user is
+about to request a credit card payment.
+
+*** (exists) ccard_exists ($void)
+Must return true if credit card payment is supported.
+
+*** (exists) ccard_ipn_auth ($void)
+Must return true if the HTTP client is authorised to notify credit
+card payments.
+
+*** ccard_partner
+Called in pay.php when credit card payment is possible. May be used to
+display the credit card partner logo or link to their website.
+
+*** ccard_paymentform
+Called in finish.php to create the <form> containing payment
+information (typically as hidden fields), that must then be submitted
+to the credit card partner.
+
+*** (exists) ccard_readparams ($void)
+Called in ccard_confirm.php to retrieve transaction information
+(typically from _GET or _POST fields) and record it into the global
+variables $groupid, $transid and $unsafeamount. the Return true if
+parameters could be retrieved successfully.
+
+*** config_db
+Produce (html-escaped) mysql code to setup database tables and grants
+required by your plugin (Do not run the mysql statements, just echo
+them to the client), in such a way that, after the printed code is
+executed, your config_missingdb will return false.
+- When this hook is called we are already connected to the database.
+- You may assume that when your *mysql* code is run, the base tables
+  (given in FS_PATH/tables.sql) are available, so for instance you can
+  use ALTER TABLE to add columns.
+- However you may NOT assume the base tables are available at the time
+  your *php* code is run. Moreover, if your config_missingdb returns
+  false this may still be called, and must not print anything.
+- It is recommended you use the config_include_sql function for this
+  hook.
+
+*** config_form ($form)
+When $form is true, must generate a form letting the user configure
+your plugin. When $form is false, must process the corresponding POST
+parameters and produce the corresponding (html-escaped) php code for
+inclusion in config.php. Most plugins implementing this will just call
+the config_form *function* in plugins/config/functions.php, with the
+right config-dist parameter.
+
+*** (exists) config_missingdb ($void)
+Called by the config plugin when deciding if the database is correctly
+set up. Return true if the database we're connected to doesn't contain
+tables or columns or grants required by your plugin. Do not attempt to
+fix the problem, that's the job of config_db)
+
+*** confirm_bottom
+Called near the bottom of the confirm.php page
+
+*** confirm_process
+Called when receiving data from confirm.php (i.e. this hook is
+actually called in finish.php). Must not output anything.
+
+*** front_page_admin
+Called in the admin section of the main page when the admin is logged
+in.
+
+*** front_page_public
+Called in the main index.php page below the spectacle booking lists.
+
+*** front_page_showlist ($spectacle)
+Called to display information about available spectacles on the front page.
+
+*** (concat) get_print ($data)
+Called to add extra information to the end of print_booked_seats() in 
+functions/format.php.  $data parameter is an array of seats booked by 
+the user.
+
+*** (sum) get_total ($data)
+Called to add or subtract from the total price charged to the user for
+his tickets.  Any numbers returned by plugins on this hook are totaled and
+subtracted from the total price.  $data parameter is an array of seats booked
+by the user.
+
+*** (exists) pay_page_top
+Called at the top of pay.php.  If the result is true, kill_booking_done()
+is not called.  If no plugins use this hook, the normal process occurs.  
+Used to preserve booking data when entering the payment process.
+
+*** seatmap_top
+Called above the seatmaps in seats.php
+
+*** ticket_finalise
+Called after tickets have been printed. Plugins rendering tickets with
+ticket_render should display the content of the $legal_info variable
+when this hook is called.
+
+*** (exists) ticket_left($booking)
+Called by the htmltickets plugin on the left of each ticket where the
+booking id is normally displayed. Plugins providing a replacement for
+standard booking id display should return true.
+
+*** ticket_prepare
+Called once when the program is about to display a series of tickets
+with ticket_render. A corresponding ticket_finalise is called when all
+ticket_render have been called.
+
+*** ticket_render ($booking)
+Called when a ticket should be provided to the user.
+
+*** ticket_finalise_override
+Called after tickets have been printed. Ticketing-printing plugins may 
+request to override ticket rendering from other plugins by implementing 
+the _override hooks, and returning true in ticket_prepare_override. Most 
+ticket printing routines should only implement the non-override hooks. Of 
+course if more than one plugin requests overriding ticket rendering, all 
+such plugins will be run side by side.
+
+*** ticket_prepare_override
+Called once when the program is about to display a series of tickets
+with ticket_render. Ticketing-printing plugins may request to override 
+ticket rendering from other plugins by implementing the _override hooks, 
+and returning true in ticket_prepare_override. Most ticket printing 
+routines should only implement the non-override hooks. Of course if more 
+than one plugin requests overriding ticket rendering, all such plugins 
+will be run side by side.
+
+*** ticket_render_override ($booking)
+Called when a ticket should be provided to the user.  Ticketing-printing 
+plugins may request to override ticket rendering from other plugins by 
+implementing the _override hooks, and returning true in 
+ticket_prepare_override. Most ticket printing routines should only implement 
+the non-override hooks. Of course if more than one plugin requests overriding 
+ticket rendering, all such plugins will be run side by side.
+

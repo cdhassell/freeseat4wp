@@ -1,0 +1,53 @@
+<?php
+
+/* 
+Copyright (C) 2010 Maxime Gamboni. See COPYING for copying/warranty
+info. 
+
+$Id$
+*/
+
+define ('FS_PATH','../../');
+
+require_once (FS_PATH . "vars.php");
+
+require_once (FS_PATH . "functions/plugins.php");
+require_once (FS_PATH . "functions/booking.php");
+require_once (FS_PATH . "functions/session.php");
+require_once (FS_PATH . "functions/tools.php");
+
+ensure_plugin('csvdump');
+
+db_connect();
+
+if (!admin_mode()) {
+  kaboom($lang["access_denied"]);
+  show_head(true);
+  show_foot();
+  exit;
+}
+
+header("Content-Type: text/x-csv");
+
+$list = get_bookings("");
+
+$first = true;
+foreach ($list as $n => $l) {
+  if ($first) {
+    $sep = '';
+    foreach ($l as $k => $v) {
+      echo "$sep\"$k\"";
+      $sep = ',';
+    }
+    echo "\n";
+    $first = false;
+  }
+  $sep = '';
+  foreach ($l as $k => $v) {
+    echo "$sep\"$v\"";
+    $sep = ',';
+  }
+  echo "\n";
+}
+
+?>

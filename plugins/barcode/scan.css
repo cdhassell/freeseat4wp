@@ -1,0 +1,17 @@
+.scan_result {
+    margin:auto;
+    font-weight: bold;
+    width: 20em;
+}
+
+.good_scan {
+    color: green;
+}
+
+.bad_scan {
+    color: red;
+}
+
+.ready {
+    color: black;
+}

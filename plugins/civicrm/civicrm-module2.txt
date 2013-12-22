@@ -1,0 +1,38 @@
+Civicrm integration version 2.
+
+In Freeseat:
+    When creating a show, choose the civicrm event.
+    Make sure that event exists, create if not.
+    Save event id with show.
+    When patron buys tickets, record as a participant.
+    
+
+Participant data record:
+"values" => [
+	"contact_id":"4985",
+	"contact_type":"Individual",
+	"contact_sub_type":null,
+	"sort_name":"Payne, Jurdan",
+	"display_name":"Jurdan Payne",
+	"event_id":"7",
+	"event_title":"Ragtime",
+	"event_start_date":"2007-07-20 19:00:00",
+	"event_end_date":"2007-07-29 19:00:00",
+	"participant_id":"31",
+	"participant_fee_level":null,
+	"participant_fee_amount":null,
+	"participant_fee_currency":"USD",
+	"event_type":"Show",
+	"participant_status_id":"2",
+	"participant_status":"Attended",
+	"participant_role_id":"18",
+	"participant_register_date":"2007-07-20 19:00:00",
+	"participant_source":null,
+	"participant_note":"Played Booker T. Washington",
+	"participant_is_pay_later":"0",
+	"participant_is_test":"0",
+	"participant_registered_by_id":null,
+	"participant_discount_name":null,
+	"participant_campaign_id":null,
+	"id":"31"
+]
