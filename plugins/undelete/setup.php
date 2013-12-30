@@ -1,10 +1,5 @@
 <?php
 
-$FS_PATH = plugin_dir_path( __FILE__ ) . '../../';
-require_once ( $FS_PATH . "functions/seat.php");
-require_once ( $FS_PATH . "functions/shows.php");
-require_once ( $FS_PATH . "functions/booking.php");
-require_once ( $FS_PATH . "functions/tools.php");
 
 function freeseat_plugin_init_undelete() {
     global $freeseat_plugin_hooks;
@@ -14,15 +9,14 @@ function freeseat_plugin_init_undelete() {
 }
 
 function undelete_run() {
-  global $lang, $FS_PATH;
+  global $lang;
   if (isset($_POST["rebook"])) {
     $ap = $_SESSION["adminpass"];
 
     unlock_seats();
 
-    $_SESSION = array(); // we make sure there is no stall personal info
-    // or seat selection or whatever (that could
-    // give weird errors)
+    $_SESSION = array(); // we make sure there is no stale personal info
+    // or seat selection or whatever (that could give weird errors)
 
     $_SESSION["adminpass"] = $ap;
 
@@ -82,7 +76,7 @@ function undelete_run() {
       $_SESSION["nreduced"] = $nred;
       $_SESSION["ninvite"] = $ninvite;
       $_SESSION["messages"] = $messages;
-      header("Location: ". $FS_PATH ."confirm.php");
+      header("Location: ". FS_PATH ."confirm.php");
       exit;
     }
   }
@@ -102,4 +96,3 @@ function undelete_buttons() {
   }
 }
 
-?>

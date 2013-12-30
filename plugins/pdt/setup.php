@@ -13,13 +13,6 @@ Requires that Payment Data Return and Automatic Return are set to ON in your
 PayPal account, and that you set $PDT_auth_token in config.php.
 **/
 
-$FS_PATH = plugin_dir_path( __FILE__ ) . '../../';
-require_once ( $FS_PATH . "vars.php");
-
-require_once ( $FS_PATH . "functions/format.php");
-require_once ( $FS_PATH . "functions/tools.php");
-require_once ( $FS_PATH . 'plugins/config/functions.php');
-
 
 function freeseat_plugin_init_pdt() {
     global $freeseat_plugin_hooks;

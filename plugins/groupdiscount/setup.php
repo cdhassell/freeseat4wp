@@ -1,13 +1,5 @@
 <?php
 
-$FS_PATH = plugin_dir_path( __FILE__ ) . '../../';
-
-require_once ( $FS_PATH . "vars.php");
-
-require_once ( $FS_PATH . "functions/tools.php");
-require_once ( $FS_PATH . "functions/money.php");
-require_once ( $FS_PATH . "functions/format.php");
-include_once ( $FS_PATH . 'plugins/config/functions.php');
 
 /*
  *   Setup for group discounts in freeseat
@@ -52,29 +44,34 @@ function groupdiscount_print($data) {
   return $line;
 }
 
-function groupdiscount_post() {
-  global $config;
-  if (isset($_POST['groupdiscount_min']))
-    $config['groupdiscount_min'] = abs($_POST['groupdiscount_min']);
-
-  if (isset($_POST['groupdiscount']))
-      $config['groupdiscount'] = string_to_price($_POST['groupdiscount']);
+function groupdiscount_post( &$options ) {
+	// change to use WP post-form validation
+	// called in freeseat_validate_options()
+	if ( is_array( $options ) && isset( $options[ 'groupdiscount' ] ) ) 
+		$options['groupdiscount'] = string_to_price($options['groupdiscount']);
+	return $options;
 }
 
-function groupdiscount_editparams() {
-  global $lang, $currency, $config;
+function groupdiscount_editparams($options) {
+	global $lang, $currency;
+	// the options parameter should be an array 
+	if ( !isset( $options['groupdiscount'] ) ) $options['groupdiscount'] = '100';
+	if ( !isset( $options['groupdiscount_min'] ) ) $options['groupdiscount_min'] = 15;
 ?>  
 <!-- group discount stuff -->
-<tr><td><p><?php echo $lang['groupdiscount_min']; ?></p>
-  <td><p><input name="groupdiscount_min" size="3" value="<?php  //"; // emacs cookie
-  echo $config['groupdiscount_min'].'">&nbsp;'.$lang["seats"];
-?>
-</p>
-<tr><td><p><?php echo $lang['groupdiscount']; ?></p>
-<td><p><?php echo $currency; ?>
-<input name="groupdiscount" size="3" value="<?php echo price_to_string($config['groupdiscount']); ?>" />
-&nbsp;<?php echo $lang['groupdiscount_perseat']; ?>
-</p>
+<tr>
+	<td></td>
+	<td>
+		<?php echo $lang['groupdiscount_min']; ?><br /> 
+		<input type="number" min="0" name="freeseat_options[groupdiscount_min]" size="6" value="<?php echo $options['groupdiscount_min'].'">&nbsp;'.$lang["seats"]; ?>
+	</td>
+	<td>
+		<?php echo $lang['groupdiscount']; ?> 
+		<?php echo $currency; ?> 
+		<input type="number" min="0" name="freeseat_options[groupdiscount]" size="6" value="<?php echo price_to_string($options['groupdiscount']); ?>" />&nbsp;<?php echo $lang['groupdiscount_perseat']; ?>
+	</td>
+	<td></td>
+</tr>
 <?php
 }
 

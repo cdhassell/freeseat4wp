@@ -14,7 +14,7 @@ display a seat of the given class on a seatmap */
         color: black;
         text-align: center;
         margin: 0;
-        padding: 1px;
+        padding: 3px;
         line-height: 0.9;
  }
 .cls2, td.cls2 p, td.cls2 p a { 
@@ -22,7 +22,7 @@ display a seat of the given class on a seatmap */
         color: black;
         text-align: center;     
         margin: 0;
-        padding: 1px;   
+        padding: 3px;   
         line-height: 0.9;
  }
 .cls3, td.cls3 p, td.cls3 p a { 
@@ -30,7 +30,7 @@ display a seat of the given class on a seatmap */
         color: black;
         text-align: center;
         margin: 0;
-        padding: 1px;
+        padding: 3px;
         line-height: 0.9; 
 }
 .cls4, td.cls4 p, td.cls4 p a { 
@@ -38,7 +38,7 @@ display a seat of the given class on a seatmap */
         color: black;
         text-align: center;
         margin: 0;
-        padding: 1px;
+        padding: 3px;
         line-height: 0.9;
 }
 /* Used in the colour key when there's more than one seat category */
@@ -47,8 +47,8 @@ display a seat of the given class on a seatmap */
 }
 
 .clsdisabled, .clsdisabled p, td.clsdisabled p a {
-	background-color: white;
-	color: white;
+	background-color: transparent;
+	color: transparent;
 	margin: 0;
 	padding: 1px;
 	line-height: 0.9;

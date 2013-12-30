@@ -7,9 +7,9 @@ function freeseat_plugin_init_csvdump() {
 }
 
 function csvdump_link() {
-  global $lang, $FS_PATH;
+  global $lang;
   echo '<ul><li><p class="main">';
-  printf($lang["dump_csv"],'<a href="'. $FS_PATH .'plugins/csvdump/">','</a>');
+  printf($lang["dump_csv"],'<a href="'. FS_PATH .'plugins/csvdump/">','</a>');
   echo '</p></ul>';
 }
 

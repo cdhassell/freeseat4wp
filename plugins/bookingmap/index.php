@@ -1,14 +1,5 @@
 <?php
 
-$FS_PATH = plugin_dir_path( __FILE__ ) . '../../';
-
-require_once ( $FS_PATH . "vars.php");
-
-require_once ( $FS_PATH . "functions/plugins.php" );
-require_once ( $FS_PATH . "functions/booking.php" );
-require_once ( $FS_PATH . "functions/format.php" );
-require_once ( $FS_PATH . "functions/spectacle.php" );
-require_once ( $FS_PATH . "functions/tools.php" );
 
 /** Copyright (C) 2010 Maxime Gamboni. See COPYING for
 copying/warranty info.
@@ -74,9 +65,9 @@ show_head(true);
 echo '<h2>'.$lang["bookingmap"].'</h2><p class="main">';
 show_show_info($sh,false);
 echo '<p class="main"><ul><li><p>';
-printf($lang["seeasalist"],'[<a href="'. $FS_PATH .'bookinglist.php?showid='.$sh['id'].'">','</a>]');
+printf($lang["seeasalist"],'[<a href="'. FS_PATH .'bookinglist.php?showid='.$sh['id'].'">','</a>]');
 echo '</p><li><p>';
-printf($lang["bookagain"],'[<a href="'. $FS_PATH .'seats.php?showid='.$sh['id'].'">','</a>]');
+printf($lang["bookagain"],'[<a href="'. FS_PATH .'seats.php?showid='.$sh['id'].'">','</a>]');
 echo '</p></ul></p><table><tr><td><p class="main">';
 echo $lang["legend"];
 echo '</p>';

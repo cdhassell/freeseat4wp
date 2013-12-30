@@ -1,4 +1,36 @@
-// $plugins = array( 'autopay', 'bookingmap', 'config', 'disableseats', 'remail', 'seatedit', 'pdftickets','showedit', 'adminprint', 'bocatickets', 'postpay', 'showlist', 'paypal', 'groupdiscount', 'castpw', 'barcode', 'extendbooking','csvnames', 'civicrm' ); 
+/* $plugins = array( 
+
+'adminprint', 		// no change
+'autopay',			// no change
+'barcode', 		// ?
+'bocatickets', 		// ?
+'bookingmap', 		// index page -> admin menu
+'castpw', 			// delete, use WP page access
+'civicrm'			// drupal -> wp
+'config', 			// delete not needed
+'csvdump',			// ?
+'csvnames', 		// ?
+'disableseats', 		// index page -> admin menu
+'extendbooking',		// no change
+'groupdiscount', 	// no change
+'htmltickets',		// delete not needed
+'klikandpay',		// ?
+'paypal', 			// ? new code with PPPro?
+'pdt',			// ?
+'pdftickets',		// index page -> email
+'postpay', 		// ?
+'remail', 			// index page -> ?
+'seatedit', 		// delete not needed
+'showedit', 		// delete merged
+'showlist', 		// delete merged
+'UScleanup'		// no change
+
+ ); */
+
+/*
+
+*/
+
 $plugins = '';
 $language = "english";
 $ticket_logo = 'HCPAClogo250.jpg';

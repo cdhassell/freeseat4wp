@@ -1,9 +1,5 @@
 <?php
 
-/*
-$FS_PATH = plugin_dir_path( __FILE__ ) . '../';
-require_once ($FS_PATH . 'functions/tools.php');
-*/
 
 /** Copyright (C) 2010 Maxime Gamboni. See COPYING for
 copying/warranty info.
@@ -17,9 +13,8 @@ global $freeseat_plugin_hooks;
 $freeseat_plugin_hooks = array();
 
 function use_plugin ($name) {
-	global $FS_PATH;
-    if (file_exists($FS_PATH . "plugins/$name/setup.php")) {
-        include_once($FS_PATH . "plugins/$name/setup.php");
+    if (file_exists( FS_PATH . "plugins/$name/setup.php" )) {
+        include_once( FS_PATH . "plugins/$name/setup.php" );
         $function = "freeseat_plugin_init_$name";
         if (function_exists($function)) {
             $function();
@@ -63,8 +58,10 @@ function do_hook_exists($name, $param=null) {
 }
 
 /** Run all code registered for the given hook with the given
- parameter.  Returns whatever the last of them returned. */
-function do_hook_function($name, $parm=null) {
+ parameter.  Returns whatever the last of them returned. 
+ For WP changed to call by reference to facilitate input 
+ validation in options.php  */
+function do_hook_function($name, &$parm=null) {
     global $freeseat_plugin_hooks;
     $ret = NULL;
 
@@ -161,11 +158,11 @@ function ensure_plugin ($name) {
 
  $name: your plugin name. */
 function init_language($name) {
-  global $language, $lang, $FS_PATH;
-  if (file_exists($FS_PATH . "plugins/$name/languages/$language.php")) {
-    include_once($FS_PATH . "plugins/$name/languages/$language.php");
+  global $language, $lang;
+  if (file_exists( FS_PATH . "plugins/$name/languages/$language.php" ) ) {
+    include_once( FS_PATH . "plugins/$name/languages/$language.php" );
   } else {
-    require_once($FS_PATH . "plugins/$name/languages/english.php");
+    require_once( FS_PATH . "plugins/$name/languages/english.php" );
   }
 }
 
@@ -176,9 +173,7 @@ function init_language($name) {
 /* On startup, register all plugins configured for use. */
 if (isset($plugins) && is_array($plugins)) {
     foreach ($plugins as $name) {
-      //      echo "<!-- using plugin $name -->";
-        use_plugin($name);
+		// echo "<!-- using plugin $name -->";
+		use_plugin($name);
     }
 }
-
-

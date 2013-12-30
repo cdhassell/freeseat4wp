@@ -1,11 +1,5 @@
 <?php
 
-/*
-$FS_PATH = plugin_dir_path( __FILE__ ) . '../';
-require_once ($FS_PATH . "vars.php");
-require_once ($FS_PATH . "functions/tools.php");
-*/
-
 /** Copyright (C) 2010 Maxime Gamboni. See COPYING for
 copying/warranty info.
 

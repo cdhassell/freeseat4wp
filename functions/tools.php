@@ -1,22 +1,10 @@
 <?php
 
-/*
-$FS_PATH = plugin_dir_path( __FILE__ ) . '../';
-
-require_once ($FS_PATH . "vars.php");
-
-require_once ($FS_PATH . "functions/format.php");
-*/
 
 /** Copyright (C) 2010 Maxime Gamboni. See COPYING for
 copying/warranty info.
 $Id: tools.php 350 2011-06-05 08:32:03Z tendays $
 */
-
-/* We keep time in a global variable so that if we need time more than
-   once in a single script execution, the same value will be returned
-   */
-$now = time();
 
 /** Replace strange chars by underscores in $s.**/
 function make_reasonable($s) {
@@ -102,9 +90,9 @@ function prepare_log($setrole) {
 }
 
 function sys_log($s) {
-  global $role, $logfile, $loghandle, $FS_PATH;
+  global $role, $logfile, $loghandle;
   if ( $logfile ) {
-    $loghandle = fopen( $FS_PATH . $logfile, "a" );
+    $loghandle = fopen( FS_PATH . $logfile, "a" );
     $timestamp = date( 'D d M Y h:i A' );
     fwrite( $loghandle, "$timestamp : $role : $s\n" ); 
     fclose( $loghandle );

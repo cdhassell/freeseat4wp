@@ -1,18 +1,11 @@
 <?php
 
-$FS_PATH = plugin_dir_path( __FILE__ ) . '../../';
-
-require_once ( $FS_PATH . "vars.php");
-require_once ( $FS_PATH . "functions/plugins.php");
-require_once ( $FS_PATH . "functions/format.php");
-require_once ( $FS_PATH . "functions/money.php");
-require_once ( $FS_PATH . "functions/tools.php");
 
 // Dompdf will throw errors on PHP 4.x. 
 if (version_compare(PHP_VERSION, '5.0.0', '>')) 
-  require_once $FS_PATH . "plugins/pdftickets/dompdf/dompdf_config.inc.php";
+  require_once FS_PATH . "plugins/pdftickets/dompdf/dompdf_config.inc.php";
 else 
-  fatal_error("PHP version 5 is required for the pdfticket plugin");
+  wp_die("PHP version 5 is required for the Freeseat-pdfticket plugin");
 
   /** pdftickets/setup.php
    *
@@ -64,12 +57,12 @@ function pdftickets_finalise() {
   echo "<h2>".$lang['pdftickets_thankyou']."</h2><p class='main'></p>";  
   echo "<p class='main'><table><tr><td>";
   echo "<div id='download-image'>";
-  echo "<img src='".$FS_PATH."plugins/pdftickets/down.png"."'></div></td><td><p>";
-  printf($lang["pdftickets_download_link"],'[<a href="'.$FS_PATH.'plugins/pdftickets/?key='.$pdftickets_id.'">','</a>]');
+  echo "<img src='".FS_PATH."plugins/pdftickets/down.png"."'></div></td><td><p>";
+  printf($lang["pdftickets_download_link"],'[<a href="'.FS_PATH.'plugins/pdftickets/?key='.$pdftickets_id.'">','</a>]');
   echo '</p>';
   if (isset($_SESSION['email']) && is_email_ok($_SESSION['email'])) {
     echo '<p>';
-    printf($lang["pdftickets_email_link"],'[<a href="'.$FS_PATH.'plugins/pdftickets/?key='.$pdftickets_id. '&mode=mail">','</a>]',$_SESSION['email'])."<div id='mailsent'></div>";
+    printf($lang["pdftickets_email_link"],'[<a href="'.FS_PATH.'plugins/pdftickets/?key='.$pdftickets_id. '&mode=mail">','</a>]',$_SESSION['email'])."<div id='mailsent'></div>";
     if (isset($_SESSION['pdftickets_emailsent'])) echo "&nbsp;&nbsp;&nbsp;<b> Sent!</b>";
     echo '</p>';
   }

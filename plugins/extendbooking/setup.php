@@ -1,10 +1,5 @@
 <?php
 
-$FS_PATH = plugin_dir_path( __FILE__ ) . '../../';
-
-require_once ( $FS_PATH . "vars.php");
-require_once ( $FS_PATH . "functions/plugins.php");
-require_once ( $FS_PATH . "functions/tools.php");
 
 function freeseat_plugin_init_extendbooking() {
     global $freeseat_plugin_hooks;
@@ -24,17 +19,13 @@ function extendbooking_process() {
       $id = $booking['bookid'];
       if ($st == ST_SHAKEN || $st == ST_BOOKED) {
         $sql = "update booking set timestamp=NOW(), state=".ST_BOOKED." where id=$id";
-        if (!mysql_query($sql)) myboom();
+        if (!freeseat_query($sql)) myboom();
       }
     }
   }
 }
 
 function extendbooking_button() {
-  global $lang;
-  
-  echo '<ul><li><p class="main">';
-  printf($lang["extendbooking_extend"],'<input type="submit" name="extend" value="','">');
-  echo '</p></li></ul>';
+	echo ' <input class="button button-primary" type="submit" name="extend" value="'.__('Extend expiration').'" />';
 }
 

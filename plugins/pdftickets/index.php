@@ -1,18 +1,5 @@
 <?php
 
-$FS_PATH = plugin_dir_path( __FILE__ ) . '../../';
-
-require_once($FS_PATH . "vars.php");
-require_once($FS_PATH . 'functions/booking.php');
-require_once($FS_PATH . 'functions/format.php');
-require_once($FS_PATH . 'functions/money.php');
-require_once($FS_PATH . 'functions/mysql.php');
-require_once($FS_PATH . 'functions/plugins.php');
-require_once($FS_PATH . 'functions/shows.php');
-require_once($FS_PATH . 'functions/session.php');
-require_once($FS_PATH . 'functions/spectacle.php');
-require_once($FS_PATH . 'functions/tools.php');
-require_once($FS_PATH . 'functions/send.php');
 
 // this code is called to download a PDF file to the user
 
@@ -62,7 +49,7 @@ if (count($showids) == 0)
 
 // start accumulating html with the header and css
 $html = "<html><head><style>";
-$html .= file_get_contents( $FS_PATH . "plugins/pdftickets/ticket.css", FILE_USE_INCLUDE_PATH);
+$html .= file_get_contents( FS_PATH . "plugins/pdftickets/ticket.css", FILE_USE_INCLUDE_PATH);
 $html .= "</style></head><body>";
 // create a separate page with tickets for each show in the pdf
 // tickets.css should have a div.wide { page-break-after: always; }
@@ -111,7 +98,7 @@ $pdf = $dompdf->output();
 
 if (isset($_GET["mode"]) && strcmp($_GET["mode"],'mail')==0) {
   // write contents to file
-  $attach_path = $FS_PATH . "files/mytickets" . $_SESSION["groupid"] . ".pdf" );
+  $attach_path = FS_PATH . "files/mytickets" . $_SESSION["groupid"] . ".pdf" );
   $eml = $_SESSION['email'];
   sys_log("User emailing tickets to $eml");
   file_put_contents($attach_path,$pdf);

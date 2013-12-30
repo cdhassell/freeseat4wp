@@ -21,12 +21,12 @@ function freeseat_plugin_init_disableseats() {
 }
 
 function disableseats_linkfromseats() {
-  global $lang, $sh, $FS_PATH;
+  global $lang, $sh;
 
   if (admin_mode()) {
     echo '<p class="main">';
     printf($lang["seedisabledseats"],
-'[<a href="'. $FS_PATH . 'plugins/disableseats/index.php?showid='.$sh['id'].'">','</a>]');
+'[<a href="'. FS_PATH . 'plugins/disableseats/index.php?showid='.$sh['id'].'">','</a>]');
     echo '</p>';
   }
 }

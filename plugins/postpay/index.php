@@ -11,16 +11,7 @@ CREATE TABLE IF NOT EXISTS `postpay_keys` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 */
-$FS_PATH = plugin_dir_path( __FILE__ ) . '../../';
 
-require_once ( $FS_PATH . "vars.php");
-
-require_once ( $FS_PATH . "functions/booking.php");
-require_once ( $FS_PATH . "functions/format.php");
-require_once ( $FS_PATH . "functions/send.php");
-require_once ( $FS_PATH . "functions/session.php");
-require_once ( $FS_PATH . "functions/spectacle.php");
-require_once ( $FS_PATH . "functions/tools.php");
 
 function postpay_rebook($groupid,$seat) {
 	// this function changes the groupid of bookings to a new group 
@@ -178,7 +169,7 @@ function postpay_process() {
         // we are setting this var so that finish.php will not try to call book() again on these seats
         $_SESSION["booking_done"] = ST_BOOKED;
         $_SESSION["postpay"] = true;
-        header("Location: ".$FS_PATH."finish.php");	// then go back to get the payment
+        header("Location: ".FS_PATH."finish.php");	// then go back to get the payment
         exit;
       } else {
         // we should not get here since we don't send a link in the email if there are no tickets
@@ -212,7 +203,7 @@ echo '</form>';
 
 echo  "<p class='main'>".sprintf
 ($lang["backto"],
- '[<a href="'. $FS_PATH .'index.php">'.$lang["link_index"].'</a>]')
+ '[<a href="'. FS_PATH .'index.php">'.$lang["link_index"].'</a>]')
 ."</p>";
  show_foot();
 

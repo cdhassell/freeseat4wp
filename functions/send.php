@@ -4,11 +4,6 @@
 Wordpress mailer function
 */
 
-/*
-$FS_PATH = plugin_dir_path( __FILE__ ) . '../';
-require_once ($FS_PATH . "vars.php");
-require_once ($FS_PATH . "functions/tools.php");
-*/
 
 function send_message( $from, $to, $subject, $body, $attachment = NULL ) {
 	global $smtp_server, $sender_name, $unsecure_login, $lang;

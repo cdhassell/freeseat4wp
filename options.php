@@ -17,6 +17,8 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+/* Modified for FreeSeat by twowheeler */
+
 // ------------------------------------------------------------------------
 // REGISTER HOOKS & CALLBACK FUNCTIONS:
 // ------------------------------------------------------------------------
@@ -62,14 +64,15 @@ function freeseat_add_defaults() {
 			'paydelay_ccard' => 3,
 			'shakedelay_ccard' => 2,
 			'closing_ccard' => 60,
-			'disabled_ccard' => false,
+			'disabled_ccard' => true,
 			'opening_cash' => 0,
 			'closing_cash' => 0,
 			'disabled_cash' => false,
-			'paydelay_post' => 3,
+			'paydelay_post' => 5,
+			'shakedelay_post' => 3,
 			'closing_post' => 60,
 			'disabled_post' => true,
-			'groupdiscount' => 1.00,
+			'groupdiscount' => '100',
 			'groupdiscount_min' => 15,
 			'language' => 'english',
 			'ticket_logo' => '',
@@ -77,7 +80,7 @@ function freeseat_add_defaults() {
 			'auto_email_signature' => 'Sincerely, Will',
 			'pref_country_code' => 'US',
 			'pref_state_code' => 'PA',
-			'lowpriceconditions' => 'Children up to 12 years old are eligible for a reduced price.',
+			'lowpriceconditions' => 'Children\'s discount up to 12 years old.',
 			'legal_info' => array( 'No refunds or exchanges' ),
 			'tickettext_opening' => 'The Globe Theatre Company Presents',
 			'tickettext_closing' => array( 'The Globe Theatre', '21 New Globe Walk', 'Bankside, London' ),
@@ -87,8 +90,9 @@ function freeseat_add_defaults() {
 			'currency' => '$',
 			'default_area_code' => '717',
 			'USPS_user' => 'my-USPS-account',
-			'paypal_account' => 'tickets@theglobe.org',
+			'paypal_account' => 'tickets@theglobe.org',	
 			'paypal_auth_token' => 'a very long string of characters from your paypal account',
+			'plugins' => array( 'autopay', 'extendbooking', 'bookingnotes', 'groupdiscount' ),
 		);
 		update_option('freeseat_options', $arr);
 	}
@@ -129,9 +133,14 @@ function freeseat_add_options_page() {
 
 // Render the options form
 function freeseat_params() {
+	global $freeseat_available_plugins, $us_states, $countries, $moneyfactor, $freeseat_plugin_hooks;
+	$freeseat_plugin_groups = array();
+	foreach ( $freeseat_available_plugins as $name => $details ) {
+		$freeseat_plugin_groups[$details['category']][$name] = $details;
+	}
+
 	?>
 	<div class="wrap">
-		
 		<!-- Display Plugin Icon, Header, and Description -->
 		<div class="icon32" id="icon-options-general"><br></div>
 		<h2>FreeSeat System Settings</h2>
@@ -140,175 +149,247 @@ function freeseat_params() {
 		<form method="post" action="options.php">
 			<?php settings_fields('freeseat_plugin_options'); ?>
 			<?php $options = get_option('freeseat_options'); ?>
-
+			
 			<!-- Table Structure Containing Form Controls -->
 			<!-- Each Plugin Option Defined on a New Table Row -->
 			<table class="form-table">
-				<tr>
-					<th scope="row">
-						<?php _e( 'Minutes before the show to close online reservations' ); ?>
+				<tr valign="top" style="border-top:#dddddd 1px solid;"><!-- Major Heading -->
+					<th scope="col">
+						<h3>
+							<?php _e( 'FreeSeat Plugins' ); ?>
+						</h3>
 					</th>
-					<td> 
-						<input type="number" min="0" size="6" name="freeseat_options[closing_ccard]" value="<?php echo $options['closing_ccard']; ?>" />
+					<td colspan="3">
+						<p><i><?php _e( "Hover over a checkbox to get a full explanation of each plugin" ); ?></i></p>
 					</td>
-				</tr>			
-
+				</tr>
 				<tr>
-					<th scope="row">
-						<?php _e( 'How many reminders to send about an unpaid reservation' ); ?>
-					</th>
-					<td> 
-						<input type="number" min="0" size="6" name="freeseat_options[shakedelay_ccard]" value="<?php echo $options['shakedelay_ccard']; ?>" />
+					<td>
 					</td>
-				</tr>			
-							
-				<tr>
-					<th scope="row">
-						<?php _e( 'Days before an unpaid reservation is cancelled' ); ?>
-					</th>
-					<td> 
-						<input type="number" min="0" size="6" name="freeseat_options[paydelay_ccard]" value="<?php echo $options['paydelay_ccard']; ?>" />
+					<td colspan="3">
+						<?php
+							foreach( $freeseat_plugin_groups as $group => $list ) {
+								echo "<h4>Plugin Category: ".ucwords($group)."</h4>";
+								foreach( $list as $name => $details ) {
+									echo "<p class='main'><label><input name='freeseat_options[chk_$name]' type='checkbox' value='1' ";
+									if (isset( $details['details'] ) ) {
+										echo "title='".$details['details']."' ";
+									}
+									if ( in_array( $name, $options['plugins'] ) ) { 
+										echo checked('1', $options['chk_'.$name]); 
+									}
+									echo "/>".$details['english_name']."</label>";
+									echo " - <i>".$details['summary']."</i></p>";
+								}
+							}
+						?>
 					</td>
-				</tr>			
-							
-				<tr>
-					<th scope="row">
-						<?php _e( 'Maximum number of seats allowed in one sale' ); ?>
+				<tr valign="top" style="border-top:#dddddd 1px solid;"><!-- Major Heading -->
+					<th scope="col" colspan="4">
+						<h3>
+							<?php _e( 'General Options' ); ?>
+						</h3>
 					</th>
-					<td> 
+				</tr>
+				<tr>
+					<td>
+					</td>
+					<td>
+						<?php _e( 'Name of this theatre' ); ?><br />
+						<input type="text" size="25" name="freeseat_options[websitename]" value="<?php echo $options['websitename']; ?>" />
+					</td>
+					<td>
+						<?php _e( 'Signature for automatic emails' ); ?><br />
+						<input type="text" size="25" name="freeseat_options[auto_email_signature]" value="<?php echo $options['auto_email_signature']; ?>" />
+						
+					</td>
+					<td>
+						<?php _e( 'Maximum seats in one sale' ); ?><br />
 						<input type="number" min="0" size="6" name="freeseat_options[max_seats]" value="<?php echo $options['max_seats']; ?>" />
 					</td>
-				</tr>			
-							
+				</tr>
 				<tr>
-					<th scope="row">
-						<?php _e( 'Minimum number of seats to qualify for a group discount' ); ?>
-					</th>
-					<td> 
-						<input type="number" min="0" size="6" name="freeseat_options[groupdiscount_min]" value="<?php echo $options['groupdiscount_min']; ?>" />
-					</td>
-				</tr>			
-
-				<tr>
-					<th scope="row">
-						<?php _e( 'Group discount value per seat' ); ?>
-					</th>
-					<td> 
-						<input type="number" min="0" size="6" name="freeseat_options[groupdiscount]" value="<?php echo $options['groupdiscount']; ?>" />
-					</td>
-				</tr>			
-		
-				<?php /*
-				<!-- Text Area Control -->
-				<tr>
-					<th scope="row">Sample Text Area</th>
 					<td>
-						<textarea name="freeseat_options[textarea_one]" rows="7" cols="50" type='textarea'><?php echo $options['textarea_one']; ?></textarea><br /><span style="color:#666666;margin-left:2px;">Add a comment here to give extra information to Plugin users</span>
+					</td>
+					<td>
+						<?php _e( 'Email from address' ); ?><br />
+						<input type="text" size="25" name="freeseat_options[smtp_sender]" value="<?php echo $options['smtp_sender']; ?>" />
+					</td>
+					<td>
+						<?php _e( 'Email from name' ); ?><br />
+						<input type="text" size="25" name="freeseat_options[sender_name]" value="<?php echo $options['sender_name']; ?>" />
+					</td>
+					<td>
+						<?php _e( 'Administrator email' ); ?><br />
+						<input type="text" size="25" name="freeseat_options[admin_mail]" value="<?php echo $options['admin_mail']; ?>" />
 					</td>
 				</tr>
-
-				<!-- Text Area Using the Built-in WP Editor -->
 				<tr>
-					<th scope="row">Sample Text Area WP Editor 1</th>
 					<td>
-						<?php
-							$args = array("textarea_name" => "freeseat_options[textarea_two]");
-							wp_editor( $options['textarea_two'], "freeseat_options[textarea_two]", $args );
-						?>
-						<br /><span style="color:#666666;margin-left:2px;">Add a comment here to give extra information to Plugin users</span>
+					</td>
+					<td>
+						<?php _e( 'Discount price conditions' ); ?><br />
+						<input type="textarea" size="25" name="freeseat_options[lowpriceconditions]" value="<?php echo stripslashes( $options['lowpriceconditions'] ); ?>" />
+					</td>
+					<td>
+						<?php _e( 'Legal notices' ); ?><br />
+						<input type="textarea" size="25" name="freeseat_options[legal_info]" value="<?php echo implode('\n', $options['legal_info']); ?>" />
+					</td>
+					<td>
+						<?php _e( 'Ticket top line text' ); ?><br />
+						<input type="text" size="25" name="freeseat_options[tickettext_opening]" value="<?php echo $options['tickettext_opening']; ?>" />
 					</td>
 				</tr>
-
-				<!-- Text Area Using the Built-in WP Editor -->
 				<tr>
-					<th scope="row">Sample Text Area WP Editor 2</th>
+					<td>	
+					</td>
 					<td>
-						<?php
-							$args = array("textarea_name" => "freeseat_options[textarea_three]");
-							wp_editor( $options['textarea_three'], "freeseat_options[textarea_three]", $args );
-						?>
-						<br /><span style="color:#666666;margin-left:2px;">Add a comment here to give extra information to Plugin users</span>
+						<?php _e( 'Currency symbol' ); ?><br />
+						<input type="text" size="1" name="freeseat_options[currency]" value="<?php echo $options['currency']; ?>" />
+					</td>
+					<td>
+						<?php _e( 'Default US area code' ); ?><br />
+						<input type="number" size="5" name="freeseat_options[default_area_code]" value="<?php echo $options['default_area_code']; ?>" />
+					</td>
+					<td>
+						<br /><?php _e( 'Theatre street address' ); ?><br />
+						<textarea name="freeseat_options[tickettext_closing]" rows="3" cols="25" type='textarea'><?php echo ( is_array( $options['tickettext_closing'] ) ? implode( '\n', $options['tickettext_closing'] ) : $options['tickettext_closing'] ); ?></textarea>
 					</td>
 				</tr>
-				
-				<!-- Textbox Control -->
 				<tr>
-					<th scope="row">Enter Some Information</th>
 					<td>
-						<input type="text" size="57" name="freeseat_options[txt_one]" value="<?php echo $options['txt_one']; ?>" />
+					</td>
+					<td>
+						<?php _e( 'USPS API account' ); ?><br />
+						<input type="text" size="25" name="freeseat_options[USPS_user]" value="<?php echo $options['USPS_user']; ?>" />
+					</td>
+					<td colspan="2"><!-- FIXME: need to upload an image file -->
+						<?php _e( 'Ticket logo image file' ); ?><br />
+						<input type="text" size="40" name="freeseat_options[ticket_logo]" value="<?php echo $options['ticket_logo']; ?>" />
 					</td>
 				</tr>
-				
-				<!-- Radio Button Group -->
-				<tr valign="top">
-					<th scope="row">Radio Button Group #1</th>
-					<td>
-						<!-- First radio button -->
-						<label><input name="freeseat_options[rdo_group_one]" type="radio" value="one" <?php checked('one', $options['rdo_group_one']); ?> /> Radio Button #1 <span style="color:#666666;margin-left:32px;">[option specific comment could go here]</span></label><br />
-
-						<!-- Second radio button -->
-						<label><input name="freeseat_options[rdo_group_one]" type="radio" value="two" <?php checked('two', $options['rdo_group_one']); ?> /> Radio Button #2 <span style="color:#666666;margin-left:32px;">[option specific comment could go here]</span></label><br /><span style="color:#666666;">General comment to explain more about this Plugin option.</span>
-					</td>
-				</tr>
-
-				<!-- Checkbox Buttons -->
-				<tr valign="top">
-					<th scope="row">Group of Checkboxes</th>
-					<td>
-						<!-- First checkbox button -->
-						<label><input name="freeseat_options[chk_button1]" type="checkbox" value="1" <?php if (isset($options['chk_button1'])) { checked('1', $options['chk_button1']); } ?> /> Checkbox #1</label><br />
-
-						<!-- Second checkbox button -->
-						<label><input name="freeseat_options[chk_button2]" type="checkbox" value="1" <?php if (isset($options['chk_button2'])) { checked('1', $options['chk_button2']); } ?> /> Checkbox #2 <em>(useful extra information can be added here)</em></label><br />
-
-						<!-- Third checkbox button -->
-						<label><input name="freeseat_options[chk_button3]" type="checkbox" value="1" <?php if (isset($options['chk_button3'])) { checked('1', $options['chk_button3']); } ?> /> Checkbox #3 <em>(useful extra information can be added here)</em></label><br />
-
-						<!-- Fourth checkbox button -->
-						<label><input name="freeseat_options[chk_button4]" type="checkbox" value="1" <?php if (isset($options['chk_button4'])) { checked('1', $options['chk_button4']); } ?> /> Checkbox #4 </label><br />
-
-						<!-- Fifth checkbox button -->
-						<label><input name="freeseat_options[chk_button5]" type="checkbox" value="1" <?php if (isset($options['chk_button5'])) { checked('1', $options['chk_button5']); } ?> /> Checkbox #5 </label>
-					</td>
-				</tr>
-
-				<!-- Another Radio Button Group -->
-				<tr valign="top">
-					<th scope="row">Radio Button Group #2</th>
-					<td>
-						<!-- First radio button -->
-						<label><input name="freeseat_options[rdo_group_two]" type="radio" value="one" <?php checked('one', $options['rdo_group_two']); ?> /> Radio Button #1</label><br />
-
-						<!-- Second radio button -->
-						<label><input name="freeseat_options[rdo_group_two]" type="radio" value="two" <?php checked('two', $options['rdo_group_two']); ?> /> Radio Button #2</label><br />
-
-						<!-- Third radio button -->
-						<label><input name="freeseat_options[rdo_group_two]" type="radio" value="three" <?php checked('three', $options['rdo_group_two']); ?> /> Radio Button #3</label>
-					</td>
-				</tr>
-
-				<!-- Select Drop-Down Control -->
 				<tr>
-					<th scope="row">Sample Select Box</th>
 					<td>
-						<select name='freeseat_options[drp_select_box]'>
-							<option value='one' <?php selected('one', $options['drp_select_box']); ?>>One</option>
-							<option value='two' <?php selected('two', $options['drp_select_box']); ?>>Two</option>
-							<option value='three' <?php selected('three', $options['drp_select_box']); ?>>Three</option>
-							<option value='four' <?php selected('four', $options['drp_select_box']); ?>>Four</option>
-							<option value='five' <?php selected('five', $options['drp_select_box']); ?>>Five</option>
-							<option value='six' <?php selected('six', $options['drp_select_box']); ?>>Six</option>
-							<option value='seven' <?php selected('seven', $options['drp_select_box']); ?>>Seven</option>
-							<option value='eight' <?php selected('eight', $options['drp_select_box']); ?>>Eight</option>
+					</td>
+					<td>
+						<?php _e( 'Interface language' ); ?><br />
+						<select name='freeseat_options[language]'>
+							<?php 
+								foreach (language_list() as $l) {
+									echo "<option value='$l' ".selected($l,$options['language']).">".ucwords($l)."</option>";
+								}
+							?>
 						</select>
-						<span style="color:#666666;margin-left:2px;">Add a comment here to explain more about how to use the option above</span>
+					</td>
+					<td>
+						<?php _e( 'Default US state' ); ?><br />
+						<select name='freeseat_options[pref_state_code]' size='1'>
+						<option value="" ><?php _e( 'None' ); ?></option>
+						<?php
+						foreach ($us_state as $code => $fullname) {
+							echo '<option value="'.$code.'" '. selected($code,$options['pref_state_code']). '>'. $fullname . '</option>';
+						}
+						?>
+						</select>
+					</td>
+					<td>
+						<?php _e( 'Default country' ); ?><br />
+						<select name='freeseat_options[pref_country_code]' size='1'>
+						<option value="" ><?php _e( 'None' ); ?></option>
+						<?php
+						foreach ($country as $code => $fullname) {
+							echo '<option value="'.$code.'" '. selected($code,$options['pref_country_code']). '>'. $fullname . '</option>';
+						}
+						?>
+						</select>
 					</td>
 				</tr>
-				*/ ?>
+
+				<tr valign="top" style="border-top:#dddddd 1px solid;"><!-- Major Heading -->
+					<th scope="col" colspan="4">
+						<h3>
+							<?php _e( 'Payment Options' ); ?>
+						</h3>
+					</th>
+				</tr>
+				<tr>
+					<th scope="row">
+						<?php _e( 'Credit Card Payments' ); ?><br />
+						<label><input name="freeseat_options[disabled_ccard]" type="checkbox" value="1" <?php if (isset($options['disabled_ccard'])) { checked('1', $options['disabled_ccard']); } ?> /> <?php _e( 'Disable' ); ?></label>
+					</th>
+					<td> 
+						<?php _e( 'Close online reservations' ); ?><br />
+						<input type="number" min="0" size="6" name="freeseat_options[closing_ccard]" value="<?php echo $options['closing_ccard']; ?>" /> Minutes
+					</td>
+					<td>
+						<?php _e( 'Reminders about unpaid reservations' ); ?><br />
+						<input type="number" min="0" size="6" name="freeseat_options[shakedelay_ccard]" value="<?php echo $options['shakedelay_ccard']; ?>" /> Days
+					</td>
+					<td>
+						<?php _e( 'Cancel unpaid reservations after' ); ?><br />
+						<input type="number" min="0" size="6" name="freeseat_options[paydelay_ccard]" value="<?php echo $options['paydelay_ccard']; ?>" /> Days
+					</td>
+				</tr>	
+				<tr>
+					<td>
+					</td>
+					<td>
+						<?php _e( 'Paypal account email' ); ?><br />
+						<input type="text" size="25" name="freeseat_options[paypal_account]" value="<?php echo $options['paypal_account']; ?>" />
+					</td>
+					<td colspan="2">
+						<?php _e( 'Paypal account authorization token' ); ?><br />
+						<input type="text" size="60" name="freeseat_options[paypal_auth_token]" value="<?php echo $options['paypal_auth_token']; ?>" />
+					</td>
+				</tr>
+				<tr>
+					<th scope="row">
+						<?php _e( 'Will-call Orders' ); ?><br />
+						<label><input name="freeseat_options[disabled_cash]" type="checkbox" value="1" <?php if (isset($options['disabled_cash'])) { checked('1', $options['disabled_cash']); } ?> /> <?php _e( 'Disable' ); ?></label>
+					</th>
+					<td> 
+						<?php _e( 'Open will-call reservations' ); ?><br />
+						<input type="number" min="0" size="6" name="freeseat_options[opening_cash]" value="<?php echo $options['opening_cash']; ?>" /> Minutes
+					</td>
+					<td>
+						<?php _e( 'Close will-call reservations' ); ?><br />
+						<input type="number" min="0" size="6" name="freeseat_options[closing_cash]" value="<?php echo $options['closing_cash']; ?>" /> Minutes
+					</td>
+					<td>
+					</td>
+				</tr>			
+				<tr>
+					<th scope="row">
+						<?php _e( 'Swiss Postal Payments' ); ?><br />
+						<label><input name="freeseat_options[disabled_post]" type="checkbox" value="1" <?php if (isset($options['disabled_post'])) { checked('1', $options['disabled_post']); } ?> /> <?php _e( 'Disable' ); ?></label>
+					</th>
+					<td> 
+						<?php _e( 'Close postal reservations' ); ?><br />
+						<input type="number" min="0" size="6" name="freeseat_options[closing_post]" value="<?php echo $options['closing_post']; ?>" /> Minutes
+					</td>
+					<td>
+						<?php _e( 'Reminders about unpaid reservations' ); ?><br />
+						<input type="number" min="0" size="6" name="freeseat_options[shakedelay_post]" value="<?php echo $options['shakedelay_post']; ?>" /> Days
+					</td>					<td>
+						<?php _e( 'Cancel unpaid postal reservations after' ); ?><br />
+						<input type="number" min="0" size="6" name="freeseat_options[paydelay_post]" value="<?php echo $options['paydelay_post']; ?>" /> Days
+					</td>
+					<td>
+					</td>
+				</tr>	
+				<tr valign="top" style="border-top:#dddddd 1px solid;"><!-- Major Heading -->
+					<th scope="col" colspan="4">
+						<h3>
+							<?php _e( 'Other Options' ); ?>
+						</h3>
+					</th>
+				</tr>
+				<?php do_hook_function('params_edit', $options ); ?>
+				
 				<tr><td colspan="2"><div style="margin-top:10px;"></div></td></tr>
 				<tr valign="top" style="border-top:#dddddd 1px solid;">
 					<th scope="row">Database Options</th>
-					<td>
+					<td colspan="3">
 						<label><input name="freeseat_options[chk_default_options_db]" type="checkbox" value="1" <?php if (isset($options['chk_default_options_db'])) { checked('1', $options['chk_default_options_db']); } ?> /> Restore defaults upon plugin deactivation/reactivation</label>
 						<br /><span style="color:#666666;margin-left:2px;">Only check this if you want to reset plugin settings upon Plugin reactivation</span>
 					</td>
@@ -318,16 +399,44 @@ function freeseat_params() {
 			<input type="submit" class="button-primary" value="<?php _e('Save Changes') ?>" />
 			</p>
 		</form>
-	</div>
+	</div><!-- end of class wrap -->
 	<?php	
 }
 
 // Sanitize and validate input. Accepts an array, return a sanitized array.
 function freeseat_validate_options($input) {
-	/*  TODO 
-	$input['textarea_one'] =  wp_filter_nohtml_kses($input['textarea_one']); // Sanitize textarea input (strip html tags, and escape characters)
-	$input['txt_one'] =  wp_filter_nohtml_kses($input['txt_one']); // Sanitize textbox input (strip html tags, and escape characters)
-	*/
+	global $freeseat_available_plugins, $freeseat_plugin_hooks;
+	do_hook_function('params_post', $input);
+	// if checkboxes are not checked, they are missing
+	if (!isset($input['disabled_cash'])) $input['disabled_cash'] = 0;
+	if (!isset($input['disabled_ccard'])) $input['disabled_ccard'] = 0;
+	if (!isset($input['disabled_post'])) $input['disabled_post'] = 0;
+	$input['websitename'] = wp_filter_nohtml_kses($input['websitename']); 
+	$input['ticket_logo'] = wp_filter_nohtml_kses($input['ticket_logo']); 
+	$input['auto_email_signature'] = wp_filter_nohtml_kses($input['auto_email_signature']); 
+	$input['lowpriceconditions'] = wp_filter_nohtml_kses($input['lowpriceconditions']); 
+	$input['legal_info'] =  array( wp_filter_nohtml_kses($input['legal_info']) ); 
+	$input['tickettext_opening'] = wp_filter_nohtml_kses($input['tickettext_opening']); 
+	$input['tickettext_closing'] = explode( '\n', $input['tickettext_closing'] );
+	$arr = array();
+	foreach ( $input['tickettext_closing'] as $line ) 
+		$arr[] = wp_filter_nohtml_kses( $line );
+	$input['tickettext_closing'] = $arr; 
+	$input['smtp_sender'] = wp_filter_nohtml_kses($input['smtp_sender']);
+	$input['sender_name'] = wp_filter_nohtml_kses($input['sender_name']);
+	$input['admin_mail'] = wp_filter_nohtml_kses($input['admin_mail']); 
+	$input['currency'] = trim( wp_filter_nohtml_kses($input['currency']) ); 
+	$input['default_area_code'] = wp_filter_nohtml_kses($input['default_area_code']); 
+	$input['USPS_user'] = wp_filter_nohtml_kses($input['USPS_user']); 
+	$input['paypal_account'] = wp_filter_nohtml_kses($input['paypal_account']); 
+	$input['paypal_auth_token'] = wp_filter_nohtml_kses($input['paypal_auth_token']);
+	$input['language'] = wp_filter_nohtml_kses($input['language']);
+	$input['plugins'] = array();
+	foreach( $freeseat_available_plugins as $name => $details ) {
+		if ( isset( $input['chk_'.$name] ) && $input['chk_'.$name]==1 ) {
+			$input['plugins'][] = $name;
+		}
+	}  
 	return $input;
 }
 
@@ -339,61 +448,41 @@ function freeseat_plugin_action_links( $links, $file ) {
 		// make the 'Settings' link appear first
 		array_unshift( $links, $freeseat_links );
 	}
-
 	return $links;
 }
 
 function get_config( $key = null ) {
 	$config = get_option('freeseat_options');
 	if (isset($key)) {
-  		return $config[ $key ];
+		if (isset($config[$key]))
+			return $config[ $key ];
+		else 
+			return 0;  // just in case
 	} else {
 		return $config;
 	}
 }
 
 function set_config( $config ) {
-	// assumes that parameter $config is an array of config options
-	$arr = get_config();
-	foreach ( array( 	
-		'max_seats',
-		'paydelay_ccard',
-		'shakedelay_ccard',
-		'closing_ccard',
-		'disabled_ccard',
-		'opening_cash',
-		'closing_cash',
-		'disabled_cash',
-		'disabled_cash',
-		'paydelay_post',
-		'closing_post',
-		'disabled_post',
-		'groupdiscount',
-		'groupdiscount_min',
-		'language',
-		'ticket_logo',
-		'websitename',
-		'auto_email_signature',
-		'pref_country_code',
-		'pref_state_code',
-		'lowpriceconditions',
-		'legal_info',
-		'tickettext_opening',
-		'tickettext_closing',
-		'smtp_sender',
-		'sender_name',
-		'admin_mail',
-		'currency',
-		'default_area_code',
-		'USPS_user',
-		'paypal_account',
-		'paypal_auth_token',
-	) as $item ) {
-		if ( isset( $config[ $item ] ) ) {
-			$arr[ $item ] = $config[ $item ];
-		}
+	if ( !empty( $config ) && is_array( $config ) ) {
+		$arr = array_union( get_config(), $config );
+		update_option('freeseat_options', $arr);  
+		// returns false if option did not change or update failed
+		return true;
 	}
-	update_option('freeseat_options', $arr);
-	return true;
+	return false;
+}
+
+// this constructs a global array with details on available plugins
+$freeseat_available_plugins = array();
+$freeseat_plugin_path = plugin_dir_path( __FILE__ )."plugins/";
+foreach ( glob( $freeseat_plugin_path."*", GLOB_ONLYDIR ) as $directory ) {
+	$file = $directory."/info.php";
+	if ( file_exists( $file ) ) {
+		include( $file );
+		$basename = basename($directory);
+		$fn_name = $basename."_info";
+		$freeseat_available_plugins[$basename] = $fn_name();
+	}
 }
 

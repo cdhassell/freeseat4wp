@@ -8,8 +8,7 @@ info.
 $Id: francais.php 400 2013-01-06 17:54:04Z tendays $
 */
 
-//$FS_PATH = plugin_dir_path( __FILE__ ) . '../';
-require_once ($FS_PATH . "languages/default.php");
+require_once ( FS_PATH . "languages/default.php" );
 
 $lang["_encoding"] = "ISO-8859-1";
 

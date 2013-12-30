@@ -7,14 +7,6 @@ info.
 $Id$
 */
 
-$FS_PATH = plugin_dir_path( __FILE__ ) . '../../';
-require_once ( $FS_PATH . "vars.php");
-
-require_once ( $FS_PATH . "functions/plugins.php");
-require_once ( $FS_PATH . "functions/booking.php");
-require_once ( $FS_PATH . "functions/session.php");
-require_once ( $FS_PATH . "functions/tools.php");
-require_once ( $FS_PATH . "functions/shows.php");
 
 // Fetches only unique name and address records, ignoring booking details.  
 
@@ -75,4 +67,4 @@ header('Content-Disposition: attachment; filename=names.csv');
 
 csvnames_output(csvnames_get());
 
-?>
+

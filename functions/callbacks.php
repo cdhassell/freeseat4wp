@@ -140,6 +140,7 @@ function seatcallback($currseat) {
     	echo "&nbsp;";  // <br>";
     }
   }
+  // suppress output of seat number 
   // if (!$tbl) echo $currseat['col'];
 }
 

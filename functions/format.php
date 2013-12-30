@@ -1,20 +1,5 @@
 <?php
 
-/*
-$FS_PATH = plugin_dir_path( __FILE__ ) . '../';
-require_once ($FS_PATH . "vars.php");
-
-require_once ($FS_PATH . "functions/plugins.php");
-require_once ($FS_PATH . "functions/booking.php");
-require_once ($FS_PATH . "functions/configuration.php");
-require_once ($FS_PATH . "functions/money.php");
-require_once ($FS_PATH . "functions/session.php");
-require_once ($FS_PATH . "functions/shows.php");
-require_once ($FS_PATH . "functions/tools.php");
-*/
-require_once ($FS_PATH . "functions/us_states.php");
-require_once ($FS_PATH . "functions/countries.php");
-
 
 /** Copyright (C) 2010 Maxime Gamboni. See COPYING for
 copying/warranty info.
@@ -46,6 +31,7 @@ define("FMT_SHOWINFO",32); /* show show info and group according to */
  true. I'm leaving it for legacy reasons.
   **/
 function show_head($wide = false,$half=false) {
+	  echo '<div class="wrap">';
 	if (!$half) close_head($wide);
 }
 
@@ -80,7 +66,7 @@ function close_head($wide = false,$bodyparm = "") {
 }
 
 function show_foot() {
-  global $lang,$footerpage;
+  global $lang,$freeseat_vars;
 
   /** In case messages had been generated after the head was closed... */
   flush_messages_html();
@@ -89,9 +75,10 @@ function show_foot() {
 </div>
 <div class='dontprint'>
 <br style="clear: both;">
+<!-- pre>VARS = <?php  print_r( $freeseat_vars );  ?></pre>
 <pre>POST = <?php  print_r( $_POST );  ?></pre>
 <pre>SESSION = <?php  print_r( $_SESSION );  ?></pre>
-<pre>GET = <?php  print_r( $_GET );  ?></pre>
+<pre>GET = <?php  print_r( $_GET );  ?></pre -->
 <div id="trailerboard">
  <div class="dontprint"><div class="ad"><p class="fine-print">
 (<?php
@@ -103,6 +90,7 @@ function show_foot() {
     printf($lang["poweredby"],'<a href="http://freeseat.sf.net" target="_blank">FreeSeat</a>');
 ?>)</p></div></div>
 </div><!--end of trailerboard-->
+</div><!--end of wrap div from header-->
 <?php
 }
 
@@ -168,6 +156,7 @@ function f_state($s) {
     return $s.'(?)';
   }
 }
+
 
 function f_payment($p) {
   global $lang;

@@ -1,7 +1,5 @@
 <?php
 
-require_once (FS_PATH . "functions/plugins.php");
-require_once (FS_PATH . 'plugins/config/functions.php');
 
   /** castpw/setup.php
    *
@@ -24,7 +22,7 @@ function freeseat_plugin_init_castpw() {
   init_language('castpw');
 }
 
-function castpw_process() {
+function castpw_process( $page_url ) {
   global $lang, $castpw_countdisabled, $castpw_saved, $spectacleid, $ss;
   $count_saved = 0;
   foreach ($ss as $sh) 
@@ -37,7 +35,7 @@ function castpw_process() {
     if ($ss) foreach ($ss as $sh)
       if (isset($_POST["disable-".$sh["id"]])) $castpw_countdisabled++;
     if ($castpw_countdisabled == 0) {
-      $ok = mysql_query("update spectacles set castpw='' where id='$spectacleid'");
+      $ok = freeseat_query("update spectacles set castpw='' where id='$spectacleid'");
       unset($_SESSION['castpw']);
     }
   } else $castpw_countdisabled = $count_saved;
@@ -52,10 +50,10 @@ function castpw_process() {
       if (admin_mode()) {
         // we are creating a new password for this spectacle
         $len = strlen($castpw);
-        if ($len < 8) {
+        if ($len < 6) {
           kaboom($lang['castpw_length']);
         } else {
-          $res = mysql_query("update spectacles set castpw='$castpw' where id='$spectacleid'");
+          $res = freeseat_query("update spectacles set castpw='$castpw' where id='$spectacleid'");
           kaboom($lang['castpw_saved'].": $castpw");
         }
       } else {
@@ -75,7 +73,7 @@ function castpw_process() {
   }
 }
 
-function castpw_display() {
+function castpw_display( $page_url ) {
   global $lang, $castpw_countdisabled,$castpw_saved, $spectacleid;
   // print a form to accept a cast password
   // only show this form if we have shows disabled
@@ -88,7 +86,7 @@ function castpw_display() {
   } elseif ($castpw_countdisabled > 0 && $castpw_saved) {
     // for the regular user, create a form to accept the password
     echo "<br /><br />";
-    echo "<form action='repr.php?spectacleid=$spectacleid' method='post'>";
+    echo "<form action='$page_url&spectacleid=$spectacleid' method='post'>";
     echo "<p class='main fine-print'>&nbsp;&nbsp;";
     echo $lang['castpw_input'] . "<input class='fine-print' type='password' name='castpw'>&nbsp;";
     echo "<input class='fine-print' type='submit' value='Ok'></p></form>";
@@ -103,4 +101,3 @@ function castpw_config_db($user) {
   return config_checksql_for('plugins/castpw/setup.sql', $user);
 }
 
-?>

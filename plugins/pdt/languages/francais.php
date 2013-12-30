@@ -9,4 +9,4 @@ $lang["pdt_failure_page"] = <<<EOD
 <a href='%1\$s'>Cliquez ici pour réessayer</a>.
 EOD;
 
-?>
+

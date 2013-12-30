@@ -1,15 +1,5 @@
 <?php
 
-$FS_PATH = plugin_dir_path( __FILE__ ) . '../../';
-
-require_once ( $FS_PATH . "vars.php");
-
-require_once ( $FS_PATH . "functions/plugins.php");
-require_once ( $FS_PATH . "functions/seatmap.php");
-require_once ( $FS_PATH . "functions/booking.php");
-require_once ( $FS_PATH . "functions/format.php");
-require_once ( $FS_PATH . "functions/spectacle.php");
-require_once ( $FS_PATH . "functions/tools.php");
 
 /** Copyright (C) 2010 twowheeler. See COPYING for
 copying/warranty info.
@@ -173,7 +163,7 @@ echo '<input type="submit" value="'.$lang["save"].'">';
 echo '</form>';
 
 echo '<p class="main">';
-printf($lang["backto"],'[<a href="'.$FS_PATH.'seats.php?showid='.$_SESSION['showid'].'">'.$lang["link_seats"].'</a>]');
+printf($lang["backto"],'[<a href="'.FS_PATH.'seats.php?showid='.$_SESSION['showid'].'">'.$lang["link_seats"].'</a>]');
 echo '</p>';
 
 show_foot(); 

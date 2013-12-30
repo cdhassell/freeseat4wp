@@ -1,12 +1,5 @@
 <?php
 
-$FS_PATH = plugin_dir_path( __FILE__ ) . '../../';
-
-require_once ( $FS_PATH . "vars.php");
-
-require_once ( $FS_PATH . "functions/money.php");
-require_once ( $FS_PATH . "functions/tools.php");
-include_once ( $FS_PATH . 'plugins/config/functions.php');
 
 /*
  * Includes code from:

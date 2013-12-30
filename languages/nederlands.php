@@ -8,8 +8,7 @@ info. Vertaling : Jan De Vilder (LAO)
 $Id: nederlands.php 231 2007-01-13 13:29:41Z tendays $
 */
 
-//$FS_PATH = plugin_dir_path( __FILE__ ) . '../';
-require_once ($FS_PATH . "languages/default.php");
+require_once ( FS_PATH . "languages/default.php" );
 
 $lang["_encoding"] = "ISO-8859-1";
 

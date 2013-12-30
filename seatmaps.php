@@ -86,7 +86,7 @@ function freeseat_upload() {
 		$view_map = m_eval( "select id from theatres order by id desc limit 1" );
 		$list = read_theatre($view_map);
 	}
-	
+	show_head(true);
 	echo '<h2>Theatre Seating Maintenance</h2>';
 	// Form for viewing a seat map
 	echo "<h3>View a seat map</h3>";
@@ -101,7 +101,6 @@ function freeseat_upload() {
 	print '<br>';
 	
 	// Form for uploading a new seat map CSV file
-	show_head(true);
 	echo '<h3>Upload a new seat map</h3>';
 	echo '<h3><p style="font-weight:bold;" >Use with caution! Please see the README file for instructions.</p></h3>';
 	echo "<form action='$url' enctype='multipart/form-data' name='upload_map' method='POST'>";
@@ -177,7 +176,8 @@ function display_theatre( $list, $checkdup ) {
 					if (isset($map[$z][$y][$x])) {
 						$c = $map[$z][$y][$x]['class'];
 						$col = $map[$z][$y][$x]['col'];
-						print "<td class='cls$c' style='border: 1px solid black;'>&nbsp;$col&nbsp;</td>";
+						$col = ( $col<10 ? "&nbsp;$col" : "$col" );
+						print "<td class='cls$c' style='border: 1px solid gray;'>$col</td>";
 					} else {
 						print "<td>&nbsp;&nbsp;&nbsp;</td>";
 					}

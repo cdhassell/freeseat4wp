@@ -1,9 +1,5 @@
 <?php
 
-$FS_PATH = plugin_dir_path( __FILE__ ) . '../../';
-require_once ( $FS_PATH . "vars.php");
-require_once ( $FS_PATH . "plugins/UScleanup/phpxml.php");
-require_once ( $FS_PATH . 'plugins/config/functions.php');
 
 /* 
  *  Performs cleanups on address, name and phone number, using US standards

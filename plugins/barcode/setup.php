@@ -11,7 +11,6 @@
    *
    */
 
-$FS_PATH = plugin_dir_path( __FILE__ ) . '../../';
 
 function freeseat_plugin_init_barcode() {
     global $freeseat_plugin_hooks;
@@ -66,7 +65,7 @@ function barcode_ticket($booking) {
  $oneline = array($booking);
  echo "<span class='ticketseating'>" . print_booked_seats($oneline,FMT_NOCOUNT|FMT_PRICE|FMT_HTML) . '</span>';
 ?>
- </td><td valign=center align=right><img src='<?php echo $FS_PATH . $ticket_logo; ?>' height=150 vspace=2 hspace=2></td>
+ </td><td valign=center align=right><img src='<?php echo FS_PATH . $ticket_logo; ?>' height=150 vspace=2 hspace=2></td>
  </td></tr></table>
  </td></tr></table>
  </div>
@@ -83,7 +82,7 @@ function barcode_forpdf($booking) {
     return "<p class='temph'>$bookid</p>";
   } else {
     $filename = $upload_url . "barcode$bookid.jpg";
-    $fp = fopen( $FS_PATH . $filename,'w+');
+    $fp = fopen( FS_PATH . $filename,'w+');
     fwrite($fp,$barcode);
     fclose($fp);
     return "<img src='".freeseat_url($filename)."'>";

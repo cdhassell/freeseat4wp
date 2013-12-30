@@ -1,9 +1,5 @@
 <?php
 
-$FS_PATH = plugin_dir_path( __FILE__ ) . '../../';
-
-require_once ( $FS_PATH . "vars.php");
-require_once ( $FS_PATH . "functions/tools.php");
 
 function freeseat_plugin_init_bookingnotes() {
     global $freeseat_plugin_hooks;

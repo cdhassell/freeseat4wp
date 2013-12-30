@@ -1,8 +1,6 @@
 <?php
 
-$FS_PATH = plugin_dir_path( __FILE__ ) . '../../';
-require_once ($FS_PATH . "vars.php");
-require_once ($FS_PATH . "functions/plugins.php");
+
 
 function freeseat_plugin_init_adminprint() {
     global $freeseat_plugin_hooks;
@@ -40,8 +38,9 @@ function adminprint_process() {
 
     // print_legal_info();
     $showid = $x['showid'];
+    $bookinglist_url = admin_url( 'admin.php?page=freeseat-reservations' );
     echo "<p class='main'>";
-    printf($lang['backto'],"[<a href='bookinglist.php?showid=$showid'>".$lang["link_bookinglist"]."</a>] ");
+    printf($lang['backto'],"[<a href='$bookinglist_url?showid=$showid'>".$lang["link_bookinglist"]."</a>] ");
     echo "</p>";
     show_foot();
     exit;
@@ -49,10 +48,6 @@ function adminprint_process() {
 }
 
 function adminprint_button() {
-  global $lang;
-  
-  echo '<ul><li><p class="main">';
-  printf($lang["print_entries"],'<input type="submit" name="print" value="','">');
-  do_hook('adminprint_line');
-  echo '</p></ul>';
+	echo ' <input class="button button-primary" type="submit" name="print" value="' .__("Print") . '" />';
+	do_hook('adminprint_line');
 }

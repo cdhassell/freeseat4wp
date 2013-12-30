@@ -11,7 +11,6 @@
    *
    */
 
-$FS_PATH = plugin_dir_path( __FILE__ ) . '../../';
 
 function freeseat_plugin_init_bookingmap() {
     global $freeseat_plugin_hooks;
@@ -21,21 +20,21 @@ function freeseat_plugin_init_bookingmap() {
 }
 
 function bookingmap_linkfromseats() {
-  global $lang, $sh, $FS_PATH;
+  global $lang, $sh;
 
   if (admin_mode()) {
     echo '<p class="main">';
     printf($lang["seeasamap"],
-'[<a href="'. $FS_PATH . 'plugins/bookingmap/?showid='.$sh['id'].'">','</a>]');
+'[<a href="'. FS_PATH . 'plugins/bookingmap/?showid='.$sh['id'].'">','</a>]');
     echo '</p>';
   }
 }
 
 function bookingmap_linkfromlist() {
-  global $filtershow, $lang, $FS_PATH;
+  global $filtershow, $lang;
   if ($filtershow) {
     echo '<ul><li><p class="main">';
-    printf($lang["seeasamap"],"[<a href='". $FS_PATH . "plugins/bookingmap/?showid=$filtershow'>",'</a>]');
+    printf($lang["seeasamap"],"[<a href='". FS_PATH . "plugins/bookingmap/?showid=$filtershow'>",'</a>]');
    echo '</p></ul>';
   }
 }

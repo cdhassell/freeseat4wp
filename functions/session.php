@@ -69,26 +69,6 @@ function load_alerts() {
 function admin_mode() {
     global $lang,$unsecure_login;
     return current_user_can( 'administer_freeseat' );
-    /*
-    if ( isset( $_POST[ "adminpass" ] ) && strlen( $_POST[ "adminpass" ] ) > 0 ) {
-		$_SESSION[ "adminpass" ] = nogpc( $_POST[ "adminpass" ] );
-	}
-    if (isset($_SESSION["adminpass"])) {
-		if ($unsecure_login) {
-			return true;
-		} else {
-	    	if ((isset( $_SERVER['HTTPS'] ) && $_SERVER['HTTPS'] == 'on') ||
-				(isset( $_SERVER['SERVER_PORT']) && 
-		 		$_SERVER['SERVER_PORT']=='443') ) { 
-				// twowheeler: some servers don't report HTTPS properly
-				return true;
-	    	} else {
-				kaboom("You don't seem to be using a secure connection");
-				kaboom($lang["err_config"]. '$sec_area');
-	    	}
-		}
-    }
-    return false; */
 }
 
 /** check that the session is sufficiently defined. When you pass a

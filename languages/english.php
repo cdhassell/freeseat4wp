@@ -35,8 +35,8 @@ when needed (see francais.php for examples).
 
 */
 
-// $FS_PATH = plugin_dir_path( __FILE__ ) . '../';
-require_once ($FS_PATH . "languages/default.php");
+
+require_once ( FS_PATH . "languages/default.php");
 
 /** add "at the" before the given noun. This is used with theatre
 names (There are languages where it is not as trivial as English) **/
