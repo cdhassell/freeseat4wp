@@ -14,7 +14,7 @@ Modifications for Wordpress are Copyright (C) 2013 twowheeler.
  */
 function freeseat_repr( $page_url ) 
 {
-	global $lang, $spectacleid;
+	global $lang, $spectacleid, $upload_path;
 		
 	db_connect();
 	
@@ -84,10 +84,16 @@ function freeseat_repr( $page_url )
 	
 	show_head();
 	
+	echo '<table><tr><td>';
 	echo '<h2>';
 	printf( $lang[ "showlist" ], htmlspecialchars( $spec[ "name" ] ) );
 	echo '</h2>';
-	
+	echo '</td><td class="showlist">';
+	if ( ( $spec[ 'imagesrc' ] ) ) {
+		$img = freeseat_url( $upload_path . $spec[ 'imagesrc' ] );
+		echo "<img src='$img'>";
+	}
+	echo '</td></tr></table>';
 	if ( admin_mode() ) {
 		echo '<form action="' . $page_url . '&fsp=' . PAGE_REPR . '" method="post">';
 		echo '<input type="hidden" name="reset-disabled" value="on">';
@@ -148,11 +154,11 @@ function freeseat_repr( $page_url )
 	}
 	
 	echo '</ul>';
-	
+	echo '<p class="main">';
 	do_hook_function( 'repr_display', $page_url );
 	if ( admin_mode() )
-		echo '<p><input class="button button-primary" type="submit" value="Save changes"></p></form>';
-	
+		echo ' <input class="button button-primary" type="submit" value="Save changes"></form>';
+	echo '</p>';
 	echo '<p class="main">';
 	printf( $lang[ "backto" ], '[<a href="' . $page_url . '">' . $lang[ "link_index" ] . '</a>]' );
 	echo '</p>';

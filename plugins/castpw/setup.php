@@ -80,8 +80,8 @@ function castpw_display( $page_url ) {
   if (admin_mode()) {
     // for the admin user, there is already a form open
     // if ($castpw_countdisabled > 0) { 
-      echo '<br /><br /><p class="main">';
-      echo $lang['castpw_prompt'] . "<input type='text' name='castpw' value='$castpw_saved' title='".$lang['castpw_help']."'></p>";
+      echo '<br /><br />';
+      echo $lang['castpw_prompt'] . "<input type='text' name='castpw' value='$castpw_saved' title='".$lang['castpw_help']."'>";
     // } 
   } elseif ($castpw_countdisabled > 0 && $castpw_saved) {
     // for the regular user, create a form to accept the password

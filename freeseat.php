@@ -41,6 +41,9 @@ foreach ( glob( plugin_dir_path( __FILE__ )."functions/*.php" ) as $file ) {
  * once in a single script execution, the same value will be returned
  */
 $now = time();
+global $freeseat_db_version;
+$freeseat_db_version = "0.1";
+
 
 // Most of the configuration globals can be edited by the user
 // and are stored in the database so config.php does not have to be touched.
@@ -56,10 +59,16 @@ if ( is_array($freeseat_vars) ) {
 	}
 }
 
-// We have a chicken-and-egg problem here
-// The $plugins array is changed by the above code
-// so we have to re-run the use_plugin() calls :-\
-// Inefficient but not the end of the world perhaps
+// These are the entry points from wordpress hooks
+add_action( 'admin_init', 'freeseat_wordpress_version' );
+register_activation_hook( __FILE__, 'freeseat_add_caps');
+add_action( 'admin_menu', 'freeseat_admin_menu' );
+add_action( 'plugins_loaded', 'freeseat_update_db_check' );
+add_shortcode( 'freeseat-shows', 'freeseat_switch' );
+add_action( 'wp_enqueue_scripts', 'freeseat_user_styles' );
+add_action( 'admin_enqueue_scripts', 'freeseat_admin_styles' );
+
+// Set up all of the active freeseat plugins
 $freeseat_plugin_hooks = array();
 if (isset($plugins) && is_array($plugins)) {
     foreach ($plugins as $name) {
@@ -215,9 +224,6 @@ function freeseat_frontpage( $page_url ) {
 	show_foot();
 }	// end of freeseat_frontpage
 
-global $freeseat_db_version;
-$freeseat_db_version = "0.1";
-
 /*
  * Checks the WP version and deactiviates FreeSeat if the version is too old
  */
@@ -233,7 +239,6 @@ function freeseat_wordpress_version() {
 		}
 	}
 }
-add_action( 'admin_init', 'freeseat_wordpress_version' );
 
 /**
  * Adds extra submenus and menu options to the admin panel's menu structure
@@ -291,20 +296,6 @@ function freeseat_add_caps() {
 	$role = get_role( 'administrator' );
 	$role->add_cap( 'administer_freeseat' );
 }
-register_activation_hook( __FILE__, 'freeseat_add_caps');
-
-/**
- * Insert menus and shortcode calls.
- */
-add_action( 'admin_menu', 'freeseat_admin_menu' );
-add_action( 'plugins_loaded', 'freeseat_update_db_check' );
-add_shortcode( 'freeseat-shows', 'freeseat_switch' );
-
-/**
- * Insert style sheet calls.
- */
-add_action( 'wp_enqueue_scripts', 'freeseat_user_styles' );
-add_action( 'admin_enqueue_scripts', 'freeseat_admin_styles' );
 
 // these can be uncommented to quickly create the default options in the database
 // normally that only happens on first install
