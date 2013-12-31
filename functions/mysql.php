@@ -92,16 +92,16 @@ function m_eval_all($s) {
 	return $results[ 0 ];	
 }
 
-// to execute a query with no expected return
+// to execute a query with no expected return of records
 function freeseat_query( $s, $v = NULL ) {
 	global $wpdb;
 
 	$s = fs2wp( $s );
 	if ( empty( $v ) ) {
-		return $wpdb->query( $s );
+		return ( false !== $wpdb->query( $s ) );
 	} else {
 		// print "<pre>query = " . $wpdb->prepare( $s, $v ) . "</pre>";
-		return $wpdb->query( $wpdb->prepare( $s, $v ) );
+		return ( false !== $wpdb->query( $wpdb->prepare( $s, $v ) ) );
 	}
 }
 

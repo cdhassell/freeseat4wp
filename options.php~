@@ -408,9 +408,9 @@ function freeseat_validate_options($input) {
 	global $freeseat_available_plugins, $freeseat_plugin_hooks;
 	do_hook_function('params_post', $input);
 	// if checkboxes are not checked, they are missing
-	if (!isset($input['disabled_cash'])) $input['disabled_cash'] = false;
-	if (!isset($input['disabled_ccard'])) $input['disabled_ccard'] = false;
-	if (!isset($input['disabled_post'])) $input['disabled_post'] = false;
+	if (!isset($input['disabled_cash'])) $input['disabled_cash'] = 0;
+	if (!isset($input['disabled_ccard'])) $input['disabled_ccard'] = 0;
+	if (!isset($input['disabled_post'])) $input['disabled_post'] = 0;
 	$input['websitename'] = wp_filter_nohtml_kses($input['websitename']); 
 	$input['ticket_logo'] = wp_filter_nohtml_kses($input['ticket_logo']); 
 	$input['auto_email_signature'] = wp_filter_nohtml_kses($input['auto_email_signature']); 

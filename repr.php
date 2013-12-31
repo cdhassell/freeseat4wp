@@ -31,7 +31,6 @@ function freeseat_repr( $page_url )
 	bar), then the site will complain about missing cookies. Oh well,
 	user can go back to home page and click on the spectacle - that's
 	not the end of the world */
-	
 	$spec = null;
 	
 	if ( isset( $_REQUEST[ "spectacleid" ] ) ) {
@@ -46,7 +45,7 @@ function freeseat_repr( $page_url )
 		fatal_error( $lang[ "err_session" ] ); // unspecified spectacle
 	
 	if ( !$spec )
-		fatal_error(); // e.g. trying to get a nonexistent spectacle
+		fatal_error( "Can't load the spectacle" ); // e.g. trying to get a nonexistent spectacle
 	
 	/* Process POST requests */
 	// we detect a request for changing disabled status with the
@@ -67,7 +66,7 @@ function freeseat_repr( $page_url )
 			myboom( $lang[ "err_connect" ] ); // couldn't update some show -
 		// probably access right problem
 	}
-	
+
 	/* note that we get_shows twice in case there was a POST. The goal is
 	to have it immediately visible to the user in case there was a
 	problem altering the "disabled" settings. */
@@ -90,7 +89,7 @@ function freeseat_repr( $page_url )
 	echo '</h2>';
 	
 	if ( admin_mode() ) {
-		echo '<form action="' . $page_url . '&fsp=' . PAGE_SEATS . '" method="post">';
+		echo '<form action="' . $page_url . '&fsp=' . PAGE_REPR . '" method="post">';
 		echo '<input type="hidden" name="reset-disabled" value="on">';
 		echo '<input type="hidden" name="spectacleid" value="' . $spectacleid . '">';
 	}

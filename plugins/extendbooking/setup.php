@@ -26,6 +26,6 @@ function extendbooking_process() {
 }
 
 function extendbooking_button() {
-	echo ' <input class="button button-primary" type="submit" name="extend" value="'.__('Extend expiration').'" />';
+	echo ' <input class="button button-primary" type="submit" name="extend" value="'.__('Extend Expiration').'" />';
 }
 

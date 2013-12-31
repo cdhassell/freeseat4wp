@@ -56,7 +56,6 @@ if ( is_array($freeseat_vars) ) {
 	}
 }
 
-// FIXME 
 // We have a chicken-and-egg problem here
 // The $plugins array is changed by the above code
 // so we have to re-run the use_plugin() calls :-\

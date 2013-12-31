@@ -69,14 +69,13 @@ function civicrm_sync() {
 	$detail = "$sp_name $date #$groupid";
 	  
 	// Check for reservations we don't want to keep
-	/*  comment this out for testing
+	/*  comment this out for testing */
 	if (strpos($firstname.' '.$lastname,'Disabled') !== FALSE ||
 		strpos($firstname.' '.$lastname,'Office') !== FALSE ||
 		strpos($firstname.' '.$lastname,'Reserved') !== FALSE ||
 		strlen(trim($firstname.$lastname)) == 0) {
 		return; 
 	}
-	*/
 	
   	// now do it the WordPress way
   	require_once LOCAL_WP_ROOT."wp-content/plugins/civicrm/civicrm.settings.php";

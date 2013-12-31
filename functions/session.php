@@ -97,7 +97,7 @@ function check_session( $n, $quiet=false ) {
 
 	$snb = (!isset($_SESSION["booking_done"])) || !$_SESSION["booking_done"];
 	if ( !isset( $_SESSION[ "showid" ] ) ) {
-		kaboom($lang["err_session"]);
+		kaboom($lang["err_session"]." ($n)");
 		$url = PAGE_INDEX;  // "index";
 	} else if (do_hook_exists("check_session", 0)) {
 		$url = PAGE_INDEX;  // "index";

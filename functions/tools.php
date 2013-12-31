@@ -63,7 +63,7 @@ function kaboom($s) {
 
 /** Abort current script (with the given error message, if any) */
 function fatal_error($s='',$print_header=true) {
-  global $lang;
+  global $lang, $page_url;
   if ($s) kaboom($s);
   if ($print_header) show_head();
   else {
@@ -71,7 +71,8 @@ function fatal_error($s='',$print_header=true) {
   }
 
   echo '<p class="main">';
-  printf($lang["backto"],'[<a href="'.FS_PATH.'index.php">'.$lang["link_index"].'</a>]');
+  $url = ( empty( $page_url ) ? $_SERVER['PHP_SELF'].'?page=freeseat-admin' : $page_url );
+  printf($lang["backto"],'[<a href="'.$page_url.'&fsp=0">'.$lang["link_index"].'</a>]');
   echo '</p>';
   
   show_foot();

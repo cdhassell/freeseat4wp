@@ -44,7 +44,7 @@ function payment_open($sh,$mode) {
 	case PAY_POSTAL:
 		return (!$c["disabled_post"]) && ($now<=sub_open_time($show_at,60*$c["closing_post"]));
 	case PAY_CCARD:
-		return /* FIXME do_hook_exists('ccard_exists') && */ (!$c["disabled_ccard"]) && ($now<=$show_at-60*$c["closing_ccard"]);
+		return do_hook_exists('ccard_exists') && (!$c["disabled_ccard"]) && ($now<=$show_at-60*$c["closing_ccard"]);
 	case PAY_CASH:
 		return (!$c["disabled_cash"]) && ($now<=$show_at-60*$c["closing_cash"]) &&
 			($now>=sub_open_time($show_at,60*$c["opening_cash"]));

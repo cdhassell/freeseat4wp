@@ -75,10 +75,11 @@ function show_foot() {
 </div>
 <div class='dontprint'>
 <br style="clear: both;">
-<!-- pre>VARS = <?php  print_r( $freeseat_vars );  ?></pre>
+<!-- pre>VARS = <?php  print_r( $freeseat_vars );  ?></pre -->
 <pre>POST = <?php  print_r( $_POST );  ?></pre>
 <pre>SESSION = <?php  print_r( $_SESSION );  ?></pre>
-<pre>GET = <?php  print_r( $_GET );  ?></pre -->
+<pre>GET = <?php  print_r( $_GET );  ?></pre>
+<pre>REQUEST = <?php  print_r( $_REQUEST );  ?></pre>
 <div id="trailerboard">
  <div class="dontprint"><div class="ad"><p class="fine-print">
 (<?php
