@@ -7,6 +7,6 @@ function csvdump_info() {
 	 'required_fs_version' => '1.4.0',
 	 'category' => 'export',
 	 'summary' => 'Allows the admin to export bookings in csv format.',
-	 'details' => 'The link is added to the booking list page. ');
+	 'details' => 'Displays a page in the admin menu allowing the user to download a file with the contents of the booking table.  The file will be in CSV (comma separated values) format so it can be loaded in a spreadsheet.');
 }
 

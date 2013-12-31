@@ -1,11 +1,5 @@
 <?php
 
-function freeseat_download_redirect() {
-    if( is_page( 'freeseat-download' ) && isset( $_REQUEST['file'] ) && admin_mode() ) {
-    	wp_redirect( plugins_url("index.php",__FILE__) );
-    	exit();
-    }
-}
 
 function freeseat_plugin_init_csvdump() {
 	add_action( 'admin_menu', 'freeseat_download_menu' );
@@ -17,6 +11,13 @@ function freeseat_download_menu() {
 	// add a new admin menu page for data downloads
 	// this must be run *after* the function freeseat_admin_menu()
 	add_submenu_page( 'freeseat-admin', 'Downloads', 'Downloads', 'administer_freeseat', 'freeseat-download', 'freeseat_download' );
+}
+
+function freeseat_download_redirect() {
+    if( is_page( 'freeseat-download' ) && isset( $_REQUEST['file'] ) && admin_mode() ) {
+    	wp_redirect( plugins_url("index.php",__FILE__) );
+    	exit();
+    }
 }
 
 function freeseat_download() {

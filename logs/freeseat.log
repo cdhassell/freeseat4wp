@@ -1,3 +1,6 @@
 Tue 31 Dec 2013 01:34 AM : admin buying from 127.0.0.1 : creating 82683 as 4 (Paid)
 Tue 31 Dec 2013 01:34 AM : admin buying from 127.0.0.1 : Found 203 in civicrm for 82683 
 Tue 31 Dec 2013 02:01 AM : booking administration : setting 82668 to 5 (Deleted)
+
+Important Update Change= How to setup Home/front-page with out Blog = Create a new page by going to pages - Add New. Then on right side, in page attributes - Template, select Home as the page template and name your page Home(or anything). And publish the page. Then go to Settings - Reading - select a static page as frontpage display option. Select Home as Front page option.
+

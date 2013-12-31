@@ -65,6 +65,7 @@ register_activation_hook( __FILE__, 'freeseat_add_caps');
 add_action( 'admin_menu', 'freeseat_admin_menu' );
 add_action( 'plugins_loaded', 'freeseat_update_db_check' );
 add_shortcode( 'freeseat-shows', 'freeseat_switch' );
+add_shortcode( 'freeseat-direct', 'freeseat_seats' );
 add_action( 'wp_enqueue_scripts', 'freeseat_user_styles' );
 add_action( 'admin_enqueue_scripts', 'freeseat_admin_styles' );
 
