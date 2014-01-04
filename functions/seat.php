@@ -251,7 +251,10 @@ function lock_seats($seat,$showid) {
  */
 function unlock_seats($freesession = true) {
 	if ( isset( $_SESSION["seats"] ) ) {
-		$showid = $_SESSION[ 'showid' ];
+		if (isset($_SESSION['showid']))
+			$showid = $_SESSION[ 'showid' ];
+		elseif (isset($_GET['showid']))
+			$showid = $_SESSION['showid'] = $_GET['showid'];
 		foreach ($_SESSION["seats"] as $s) {
 			freeseat_delete_lock( $s[ 'id' ], $showid );
 			// freeseat_query("delete from seat_locks where sid=".quoter(session_id()));
