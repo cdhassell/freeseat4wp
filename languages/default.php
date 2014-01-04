@@ -15,7 +15,7 @@ $lang["backto"] = 'Back to %1$s';
 $lang["book"] = 'Select';
 $lang["bookagain"] = 'Make %1$sAnother reservation%2$s';
 $lang["bookid"] = 'ID';
-$lang["book_adminonly"] = 'Reservations closed to the public';
+$lang["book_adminonly"] = 'No seats available';
 $lang["book_submit"] = 'Make reservation';
 $lang["booking_st"] = 'Reservations in state %1$s';
 $lang["bookinglist"] = 'Browse/Modify %1$sreservations%2$s (e.g. for acknowledging a payment)';
@@ -130,7 +130,7 @@ $lang['imagesrc'] = 'Image location (Must be JPEG)';
 $lang["immediately"] = 'immediately';
 $lang["import"] = 'Upload this file';
 $lang["in"] = 'in %1$s'; // as in "in <ten days>"
-$lang["index_head"] = 'Welcome To The HCPAC Box Office';
+$lang["index_head"] = '';
 $lang["intro_ccard"] = <<<EOD
  <h2>Thank you for your reservation</h2>
 

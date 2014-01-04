@@ -64,8 +64,8 @@ add_action( 'admin_init', 'freeseat_wordpress_version' );
 register_activation_hook( __FILE__, 'freeseat_add_caps');
 add_action( 'admin_menu', 'freeseat_admin_menu' );
 add_action( 'plugins_loaded', 'freeseat_update_db_check' );
-add_shortcode( 'freeseat-shows', 'freeseat_switch' );
-add_shortcode( 'freeseat-direct', 'freeseat_seats' );
+add_shortcode( 'freeseat-shows', 'freeseat_front' );
+add_shortcode( 'freeseat-direct', 'freeseat_direct' );
 add_action( 'wp_enqueue_scripts', 'freeseat_user_styles' );
 add_action( 'admin_enqueue_scripts', 'freeseat_admin_styles' );
 
@@ -107,12 +107,16 @@ db_connect();
  * Depending on GET vars to select next step
  * Using the defines PAGE_*
  */
-function freeseat_switch() {
+function freeseat_switch( $shortcode_fsp = 0 ) {
 	// Where are we?  Assemble a URL from the GET fields
-	// Seems awfully clumsy, isn't there a better WP way?
 	global $post, $page_url;
-	$fsp = (( isset( $_GET[ 'fsp' ] ) ) ? $_GET[ 'fsp' ] : 0 );  
+	// if we are passed a page number from a shortcode call, use it
+	$fsp = ( $shortcode_fsp ? $shortcode_fsp : 0 );
+	// however a page number from GET will override that
+	$fsp = (( isset( $_GET[ 'fsp' ] ) ) ? $_GET[ 'fsp' ] : $fsp );
+	// build a page URL
 	$page_url = (( isset( $post ) ) ? get_page_link() : $_SERVER['PHP_SELF'].'?page=freeseat-admin' );
+	// adjust for WP's strange inconsistent way of passing a post number
 	$page_url = str_replace('page_id','p',$page_url);
 	$args = '';
 	$and = '';
@@ -126,6 +130,7 @@ function freeseat_switch() {
 	if ( !empty( $args ) ) {
 		$page_url .= (( false === strpos( $page_url, '?')) ? '?' : '&' ) . $args;
 	}
+	// now call the right function and pass this url to it
 	switch( $fsp ) {
 		case 5:
 			freeseat_finish( $page_url );
@@ -183,7 +188,9 @@ function freeseat_frontpage( $page_url ) {
 	/* displays an image and text description of spectacles on opening page */
 	
 	show_head();
-	echo '</div><div id="front-container"><h2>'. $lang[ "index_head" ] . '</h2>';
+	echo '</div><div id="front-container">';
+	if ( !empty($lang['index_head'] ) ) 
+		echo '<h2>'. $lang[ "index_head" ] . '</h2>';
 	
 	// output a table showing all currently available shows with dates and times
 	// with links to the show pages
@@ -254,6 +261,28 @@ function freeseat_admin_menu() {
 	add_submenu_page( 'freeseat-admin', 'Show Setup', 'Show Setup', 'administer_freeseat', 'freeseat-showedit', 'freeseat_showedit' );
 	add_submenu_page( 'freeseat-admin', 'Edit Settings', 'Settings', 'administer_freeseat', 'freeseat-system', 'freeseat_params' );
 	add_submenu_page( 'freeseat-admin', 'Seatmaps', 'Seatmaps', 'administer_freeseat', 'freeseat-upload', 'freeseat_upload' );
+}
+
+/*
+ *  Handler for the shortcode call freeseat-direct
+ */
+function freeseat_direct( $atts ) {
+	extract( shortcode_atts( array(
+		'showid' => '0',
+	), $atts ) );
+	ob_start();
+	$_SESSION['showid'] = $showid;
+	freeseat_switch('2');
+	return ob_get_clean();
+}
+
+/*
+ *  Handler for the shortcode call freeseat-shows
+ */
+function freeseat_front() {
+	ob_start();
+	freeseat_switch();
+	return ob_get_clean();
 }
 
 /*

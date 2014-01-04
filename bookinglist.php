@@ -145,7 +145,7 @@ function freeseat_bookinglist()
 			
 			echo '<select name="showid" onchange="filterform.submit();">';
 			echo '<option value="">' . $lang[ "show_any" ] . '</option>';
-			$comma = '';
+			$fulllist = $comma = '';
 			foreach ( $ss as $sh ) {
 				echo '<option value="' . $sh[ "id" ] . '"';
 				if ( $filtershow == $sh[ "id" ] )

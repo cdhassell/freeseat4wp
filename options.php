@@ -133,7 +133,7 @@ function freeseat_add_options_page() {
 
 // Render the options form
 function freeseat_params() {
-	global $freeseat_available_plugins, $us_states, $countries, $moneyfactor, $freeseat_plugin_hooks;
+	global $freeseat_available_plugins, $us_state, $country, $moneyfactor, $freeseat_plugin_hooks;
 	$freeseat_plugin_groups = array();
 	foreach ( $freeseat_available_plugins as $name => $details ) {
 		$freeseat_plugin_groups[$details['category']][$name] = $details;

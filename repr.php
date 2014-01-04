@@ -84,16 +84,21 @@ function freeseat_repr( $page_url )
 	
 	show_head();
 	
-	echo '<table><tr><td>';
-	echo '<h2>';
-	printf( $lang[ "showlist" ], htmlspecialchars( $spec[ "name" ] ) );
-	echo '</h2>';
-	echo '</td><td class="showlist">';
+	echo '<table><tr>';
+	echo '<td class="showlist">';
 	if ( ( $spec[ 'imagesrc' ] ) ) {
 		$img = freeseat_url( $upload_path . $spec[ 'imagesrc' ] );
 		echo "<img src='$img'>";
 	}
-	echo '</td></tr></table>';
+	echo '</td>';
+	echo '<td><h2>';
+	printf( $lang[ "showlist" ], htmlspecialchars( stripslashes( $spec[ "name" ] ) ) );
+	echo '</h2>';
+	echo "<p class='main'><i>";
+	echo htmlspecialchars( stripslashes( $spec['description'] ) );
+	echo "</i></p>";
+	echo '</td>';
+	echo '</tr></table>';
 	if ( admin_mode() ) {
 		echo '<form action="' . $page_url . '&fsp=' . PAGE_REPR . '" method="post">';
 		echo '<input type="hidden" name="reset-disabled" value="on">';
@@ -133,7 +138,7 @@ function freeseat_repr( $page_url )
 			echo "<li><p>";
 		
 		if ( admin_mode() )
-			echo "($bk/$tot) [<a href='admin.php?page=freeseat-showlist&showid=" . $sh[ "id" ] . "'>" . $lang[ "link_bookinglist" ] . "</a>] ";
+			echo "($bk/$tot) [<a href='admin.php?page=freeseat-reservations&showid=" . $sh[ "id" ] . "'>" . $lang[ "link_bookinglist" ] . "</a>] ";
 		
 		if ( $remaining > 0 || admin_mode() )
 			echo "[<a href='$page_url&fsp=" . PAGE_SEATS . "&showid=" . $sh[ "id" ] . "'>" . $lang[ "book" ] . "</a>]";

@@ -135,11 +135,11 @@ function print_var( $name, $value, $ready=false, $headername=null, $width=12 ) {
 
 	if ($headername) echo '<h3>' . $headername . '</h3>';
 	if ($name=="description" && !$ready) { // i am so sorry
-		echo '<textarea name="'.$name.'" border=1 rows=18 cols=32>' . $value; 
+		echo '<textarea name="'. htmlspecialchars( stripslashes( $name ) ).'" border=1 rows=18 cols=32>' . $value; 
 		echo '</textarea>';
 	} else {
 		$size = ( ($name=="name") ? 30 : 12 );
-		$escvalue = htmlspecialchars($value);
+		$escvalue = htmlspecialchars( stripslashes( $value ) );
 		echo '<input size="'.$size.'" '.($ready?'type="hidden" ':'').' name="'.$name.'" value="'.$escvalue.'">';
 	}
 	if ($ready) {

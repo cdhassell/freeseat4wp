@@ -81,7 +81,7 @@ function show_foot() {
 <pre>GET = <?php  print_r( $_GET );  ?></pre>
 <pre>REQUEST = <?php  print_r( $_REQUEST );  ?></pre -->
 <div id="trailerboard">
- <div class="dontprint"><div class="ad"><p class="fine-print">
+ <div class="ad"><p class="fine-print">
 (<?php
  /* NOTE - Please don't remove the link to the project page when
  running your ticketing site (You may move the link around though).
@@ -89,8 +89,7 @@ function show_foot() {
  Leaving that tiny ad in place just increases chances more people use
  it and therefore motivates me to support it further :) Thanks */
     printf($lang["poweredby"],'<a href="http://freeseat.sf.net" target="_blank">FreeSeat</a>');
-?>)</p></div></div>
-</div><!--end of trailerboard-->
+?>)</p></div></div></div>
 </div><!--end of wrap div from header-->
 <?php
 }

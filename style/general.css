@@ -91,6 +91,14 @@ img {
   border-style: none;
 }
 
+div.wide {
+	background-color: transparent;	
+}
+
+div.narrow {
+	background-color: transparent;
+}
+
 /*** PARAGRAPHS ***/
 p {
     color: black;
