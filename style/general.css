@@ -77,6 +77,8 @@ display a seat of the given class on a seatmap */
 
 table.seatmap {
 	line-height: 0.9; 
+	width: auto;
+	border: 1px solid #AAAAAA;
 }
 
 ul {
@@ -91,12 +93,19 @@ img {
   border-style: none;
 }
 
-div.wide {
+/* changed class=wide and class=narrow to ids to better control markup within wordpress */
+#freeseat-wide {
 	background-color: transparent;	
 }
 
-div.narrow {
+#freeseat-narrow {
 	background-color: transparent;
+}
+
+/* allowing specific controls like the following */
+#freeseat-wide table, #freeseat-narrow table {
+	width: auto;
+	border: 1px solid #AAAAAA;
 }
 
 /*** PARAGRAPHS ***/

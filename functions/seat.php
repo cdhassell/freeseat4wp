@@ -271,6 +271,7 @@ function check_seats() {
 	$success = true;
 	$seats = array();
 	$sh = get_show($_SESSION["showid"]);
+	if ( !isset($_SESSION['seats']) ) return true;
 	foreach ($_SESSION["seats"] as $s) {
 		$expanded = lock_seats($s,$_SESSION["showid"]);
 		array_setall($expanded,"date",$sh["date"]);

@@ -15,7 +15,7 @@ function make_legend($numberedseats) {
 
 	$q = "select distinct price.class, price.cat, amount from price, seats where spectacle='".$sh["spectacleid"];
 	$q .= "' and theatre='".$sh["theatre"]."' and price.class=seats.class and zone='".mysql_real_escape_string($zone)."' and $criterion order by class";
-
+	
 	$prices= array();
 
 	$show_price= true; // set to true if prices depend on class
@@ -37,7 +37,8 @@ function make_legend($numberedseats) {
 	  echo '<p class="main">' . $lang["legend"];
 
 	  echo $lang[($show_price ? "diffprice" : "sameprice")];  
-	  echo '</p><p class="main"><table border="1" cellpadding="5"><tr>';
+	  echo '<br />';   // echo '</p><p class="main">';
+	  echo '<table cellpadding="5"><tr>';
 	  if ($show_price && $show_cat) {
 	    echo "<td align='center'>" . $lang["cat_normal"];
 	    echo "<br>".$lang["cat_reduced"];	// don't display reduced prices if there aren't any
@@ -56,16 +57,18 @@ function make_legend($numberedseats) {
 	    }
 	    echo "</p></td>";
 	  }
-	  /* don't display the free/occupied part for unnumbered seats */
+	  /* don't display the free/occupied part for unnumbered seats 
+	  	Commenting this out for wordpress version - doesn't seem necessary?
 	  if ($numberedseats) {
-	    /* if there is only one class, use the color for that
-	       class, otherwise show as orange */
+	    // if there is only one class, use the color for that
+	    //   class, otherwise show as orange 
 	    if (count($prices)>1) $class = 'default';
 	    echo "<td>".$lang["seat_occupied"]."</td><td class='cls$class' align='center'> 1 </td>";
 	    echo "<td>".$lang["seat_free"]."</td><td class='cls$class' align='center'><input type='checkbox'><br> 2 </td>";
 	  }
+	  */
 	  echo "</tr></table></p>";
-	} // else : don't output anything if there are no seats...
+	}  // else : don't output anything if there are no seats...
 }
 
   /** print a form to let user pick unnumbered seats in the given
@@ -103,6 +106,7 @@ function unseatcallback($cls, $cnt, $proto) {
 function keycallback() {
   make_legend(true);
 }
+
 /** renders one seat. */
 function seatcallback($currseat) {
   global $sh;

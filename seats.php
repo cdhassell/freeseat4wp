@@ -14,7 +14,7 @@ Modifications for Wordpress are Copyright (C) 2013 twowheeler.
  */
 function freeseat_seats( $page_url )
 {
-	global $lang, $sh;
+	global $lang, $sh, $zone;
 	db_connect();
 	
 	/* seat selection housekeeping */

@@ -139,6 +139,9 @@ function freeseat_bookinglist()
 	?>
 	</select>
 	<?php
+		// limit this list to shows no more than a week ago
+		// this is clumsy but it prevents trying to summarize the 
+		// entire database which is very slow for a large booking table
 		$ss = get_shows( "date >= CURDATE() - INTERVAL 1 week" );
 		// and date_sub(concat(date,time),interval ".$c["closing"]." minute) > now();");
 		if ( $ss ) {

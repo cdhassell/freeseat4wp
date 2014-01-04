@@ -207,3 +207,35 @@ function freeseat_url($path, $secure=null) {
 	return plugins_url() . '/freeseat/' . $path;	
 }
 
+function enhanced_list_box($options, $params, $text_new, $resultname) {
+// From http://www.cgi-interactive-uk.com/populate_combo_box_function_php.html
+// creates a list box from data in a mysql field
+	$sql  = "select " . $options['id_field'];
+	$sql .= ", " . $options['value_field'];
+	$sql .= " from " . $options['table'];
+	/* append any where criteria to the sql */
+	if(isset($options['where_statement'])) {
+    $sql .= " where " . $options['where_statement'] ;
+	}  
+	/* set the sort order of the list */
+	$sql .= " order by " . $options['value_field'];
+	$result = fetch_all_n($sql);
+	if (!$result) {
+		kaboom(mysql_error()); 
+		return;
+	}
+	echo '<select name="', $resultname, '" ', $params, ' size="1">';
+	foreach ( $result as $row ) {
+		if($row[0] == $options['highlight_id']) {
+			echo '<option value="', $row[0], '" SELECTED>', $row[1], '</option>';
+		} else {
+			echo '<option value="', $row[0], '">', $row[1], '</option>';
+		}
+	}
+	if ($text_new)  {
+		echo '<option value="0" ' . (($options['highlight_id']==0)?'SELECTED':'') . '>' . 
+			$text_new . '</option>';
+	}
+	echo '</select>';
+}
+

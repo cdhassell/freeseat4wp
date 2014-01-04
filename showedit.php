@@ -72,38 +72,6 @@ function choose_spectacle( $new, $spec )
 	return ''; 
 }
 
-function enhanced_list_box($options, $params, $text_new, $resultname) {
-// From http://www.cgi-interactive-uk.com/populate_combo_box_function_php.html
-// creates a list box from data in a mysql field
-	$sql  = "select " . $options['id_field'];
-	$sql .= ", " . $options['value_field'];
-	$sql .= " from " . $options['table'];
-	/* append any where criteria to the sql */
-	if(isset($options['where_statement'])) {
-    $sql .= " where " . $options['where_statement'] ;
-	}  
-	/* set the sort order of the list */
-	$sql .= " order by " . $options['value_field'];
-	$result = fetch_all_n($sql);
-	if (!$result) {
-		kaboom(mysql_error()); 
-		return;
-	}
-	echo '<select name="', $resultname, '" ', $params, ' size="1">';
-	foreach ( $result as $row ) {
-		if($row[0] == $options['highlight_id']) {
-			echo '<option value="', $row[0], '" SELECTED>', $row[1], '</option>';
-		} else {
-			echo '<option value="', $row[0], '">', $row[1], '</option>';
-		}
-	}
-	if ($text_new)  {
-		echo '<option value="0" ' . (($options['highlight_id']==0)?'SELECTED':'') . '>' . 
-			$text_new . '</option>';
-	}
-	echo '</select>';
-}
-
 function get_tname( $theatre ) {
 	if (!$theatre) return null;
 	return m_eval("select name from theatres where id=$theatre");
@@ -221,7 +189,7 @@ function freeseat_showedit()
 	
 	global $lang, $upload_url, $messages, $plugins;
 	if ( !current_user_can('administer_freeseat' ) ) { 
-		wp_die( __( 'You do not have sufficient permissions to access this page. 2' ) );
+		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
 	}
 	$showedit_url = admin_url( 'admin.php?page=freeseat-showedit' );
 	load_alerts();
@@ -557,6 +525,5 @@ function freeseat_showedit()
 	
 	echo '</p></form>';
 	show_foot(); 
-	echo '</div>';
 } // end of freeseat-showedit
 

@@ -62,7 +62,7 @@ function flush_messages_text() {
 /** See show_head() */
 function close_head($wide = false,$bodyparm = "") {
   flush_messages_html();
-  echo '<div class="'.( $wide?'wide':'narrow' ).'">';
+  echo '<div id="freeseat-'.( $wide?'wide':'narrow' ).'">';
 }
 
 function show_foot() {

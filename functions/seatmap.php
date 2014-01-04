@@ -44,7 +44,7 @@ function render_seatmap($theatre, 		$zone,
 	
 	/* from disableseats/index.php */
 	$maxx = m_eval("select max(x) from seats where theatre=$theatre and zone=".quoter($zone));
-	$maxlen = 2*$maxx+3;    // calculate maxlen from result
+	$maxlen = 2*$maxx+4;    // calculate maxlen from result
 	$stage = "<tr><td colspan='$maxlen' class='stage'><h4>".$lang["stage"]."</h4></tr>";
 	// $maxlen=0; /* widest row so far, in table cells (seats have colspan=2). */
 	
@@ -75,7 +75,7 @@ function render_seatmap($theatre, 		$zone,
 			if (!$table) {
 				/* this is the first (numbered) seat of the zone */
 				$keycallback();
-				echo "<p class='main'><table class='seatmap' style='line-height: 0.9;' border='1'>";
+				echo "<p class='main'><table class='seatmap'>";
 				echo $stage;  // place the stage at the top
 				$table = true;
 			}
@@ -83,10 +83,12 @@ function render_seatmap($theatre, 		$zone,
 			/* 2. check we're on the right row */
 			if ($currseat['y']>$y) {
 				if ($maxlen < $x*2+$even+1) $maxlen = $x*2+$even+1;
+				// output a blank space at the end of the last row
+				if ($y>0) echo '<td class="clsdisabled">&nbsp;</td></tr>';
 				/* this seat starts a new row */
 				while ($currseat['y']>$y) {
 					$y++;
-					echo '<tr><td style="padding: 2px;" class="clsdisabled">&nbsp;</td>';
+					echo '<tr><td class="clsdisabled">&nbsp;</td>';
 					$even ^= $staggered_seating;
 				}
 				// suppress row labels since we have titles 
@@ -97,7 +99,7 @@ function render_seatmap($theatre, 		$zone,
 			
 			/* 3. move horizontally to the right position */
 			if ($currseat['x']>$x) {
-				echo '<td colspan="'.(2*($currseat['x']-$x)).'" style="padding: 2px;" class="clsdisabled">&nbsp;</td>';
+				echo '<td colspan="'.(2*($currseat['x']-$x)).'" class="clsdisabled">&nbsp;</td>';
 			}
 			
 			/* 4. Actually output the seat */
@@ -113,7 +115,7 @@ function render_seatmap($theatre, 		$zone,
 	$noheaderyet=true;
 	
 	/* How many seats of each class in that zone in that theatre */
-	$classes = fetch_all(mysql_query("select class,count(*) as nnav from seats where theatre=$theatre and row=-1 and zone=".quoter($zone)." group by class"));
+	$classes = fetch_all("select class,count(*) as nnav from seats where theatre=$theatre and row=-1 and zone=".quoter($zone)." group by class");
 	if ($classes === NULL) {
 		return false;
 	}
