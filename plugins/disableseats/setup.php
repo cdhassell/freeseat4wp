@@ -195,6 +195,7 @@ function freeseat_disableseats() {
 
 	echo '<form action="'.admin_url('admin.php?page=freeseat-disableseats&showid='.$_SESSION["showid"]).'" name="changeform" method="post">';
 	echo '<input type="hidden" name="load_seats">';
+	echo '<p class="main">'.__('Now displaying: ');
 	show_show_info($sh,false);	
 	$zonelist = get_zones($sh['theatre']);
 	if ($zonelist) {
@@ -210,7 +211,7 @@ function freeseat_disableseats() {
 	}
 	submit_button($lang['save']);
 	// echo '<input type="submit" value="'.$lang["save"].'">';
-	echo '</form>';
+	echo '<p></form>';
 	echo '<p class="main">';
 	printf($lang["backto"],'[<a href="'.admin_url().'?page=freeseat-admin&fsp=2&showid='.$_SESSION['showid'].'">'.$lang["link_seats"].'</a>]');
 	echo '</p>';

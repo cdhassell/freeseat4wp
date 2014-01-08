@@ -15,7 +15,7 @@ Modifications for Wordpress are Copyright (C) 2013 twowheeler.
  */
 function freeseat_finish( $page_url )
 {
-	global $lang, $messages, $sh;
+	global $lang, $messages, $sh, $auto_mail_signature, $smtp_sender;
 	prepare_log((admin_mode()?"admin":"user")." buying from ".$_SERVER["REMOTE_ADDR"]);
 	
 	$sh = get_show($_SESSION["showid"]);

@@ -1,5 +1,6 @@
 <?php
 
+require_once (FS_PATH . "plugins/UScleanup/phpxml.php");
 
 /* 
  *  Performs cleanups on address, name and phone number, using US standards

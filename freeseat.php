@@ -121,7 +121,7 @@ function freeseat_switch( $shortcode_fsp = 0 ) {
 	$args = '';
 	$and = '';
 	// keep relevant GET parameters
-	foreach( array( 'fsp', 'showid', 'spectacleid', 'offset', 'st', 'sort', 'ok' ) as $key => $value ) {
+	foreach( array( 'fsp', 'showid', 'spectacleid', 'offset', 'st', 'sort', 'ok', 'mode' ) as $key => $value ) {
 		if ( isset( $_GET[ $key ] ) ) {
 		    $args .= $and . $key . '=' . $value;
 		    if ( empty( $and ) ) $and = '&';
