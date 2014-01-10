@@ -74,7 +74,8 @@ $text_color=Array(0,0,0);
 if (isset($_ENV['windir']) && file_exists($_ENV['windir'])){
     $font_loc=$_ENV['windir']."\Fonts\arialbd.ttf";
 } */
-$font_loc='/home/dhassell/tickets/plugins/barcode/Arial.ttf';
+// twowheeler: this seems to work
+$font_loc= dirname(__FILE__) . '/Arial.ttf';
 
 /* ******************************************************************** */
 /*                          GENBARCODE                                  */

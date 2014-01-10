@@ -136,7 +136,7 @@ function pdftickets_maketickets($key) {
 		$html .= "<table><tr><td><div class='title'>";
 		$html .= "<p class='temph'>" . $sp['name'] . "</p></div>";
 		$html .= "<p>".show_info(get_show($sid))."</p>";
-		$html .= "<td><div class='title'><img alt='Logo' src='$logo'></div></td>";
+		$html .= "<td><div class='title'><img alt='Logo' width='200' src='$logo'></div></td>";
 		$html .= "<td>";
 		$html .= do_hook_concat('booking_return',$showbookings[0]);
 		$html .= "</td></tr></table>";
