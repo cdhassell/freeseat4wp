@@ -39,7 +39,6 @@ function freeseat_plugin_init_pdftickets() {
     $freeseat_plugin_hooks['ticket_finalise']['pdftickets'] = 'pdftickets_finalise';
     $freeseat_plugin_hooks['kill_booking_done']['pdftickets'] = 'pdftickets_cleanup';
     add_action( 'init', 'freeseat_pdftickets_redirect' );
-    // add_action( 'wp_enqueue_scripts', 'freeseat_popup_register' );
     init_language('pdftickets');
 }
 

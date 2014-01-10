@@ -60,7 +60,7 @@ function render_seatmap($theatre, 		$zone,
 		echo "<h3>".htmlspecialchars($zone)."</h3>";
 	}
 	
-	$allseats = fetch_all( "select id,row,col,x,y,class,extra from seats where theatre=$theatre and $zonetest order by y,x,id");
+	$allseats = fetch_all( "select id,row,col,x,y,class,extra,zone from seats where theatre=$theatre and $zonetest order by y,x,id");
 	
 	/* No seats or problem obtaining them... */
 	if (!$allseats) return false;

@@ -68,6 +68,7 @@ add_shortcode( 'freeseat-shows', 'freeseat_front' );
 add_shortcode( 'freeseat-direct', 'freeseat_direct' );
 add_action( 'wp_enqueue_scripts', 'freeseat_user_styles' );
 add_action( 'admin_enqueue_scripts', 'freeseat_admin_styles' );
+// add_action( 'wp_enqueue_scripts', 'freeseat_popup_register' );
 
 // Set up all of the active freeseat plugins
 $freeseat_plugin_hooks = array();

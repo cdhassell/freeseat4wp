@@ -57,29 +57,53 @@ display a seat of the given class on a seatmap */
 
 /* These css classes represent a booking in a given state */
 .stfree {
-          background-color: lightgreen;
+	background-color: lightgreen;
+	color: black;
+	text-align: center;
+	margin: 0;
+	padding: 3px;
+	line-height: 0.9; 
  }
 .stlocked { 
-            background-color: lightgrey;
+	background-color: lightgrey;
+	color: black;
+	text-align: center;
+	margin: 0;
+	padding: 3px;
+	line-height: 0.9; 
  }
 .stbooked { 
-            background-color: yellow;
+	background-color: yellow;
+	color: black;
+	text-align: center;
+	margin: 0;
+	padding: 3px;
+	line-height: 0.9; 
  }
 .stshaken { 
-            background-color: orange;
+	background-color: orange;
+	color: black;
+	text-align: center;
+	margin: 0;
+	padding: 3px;
+	line-height: 0.9; 
  }
 .stpaid { 
-          background-color: red;
+	background-color: red;
+	color: black;
+	text-align: center;
+	margin: 0;
+	padding: 3px;
+	line-height: 0.9; 
  }
 .stdisabled { 
-              background-color: white;
+	background-color: white;
+	color: black;
+	text-align: center;
+	margin: 0;
+	padding: 3px;
+	line-height: 0.9;
  }
-
-table.seatmap {
-	line-height: 0.9; 
-	width: auto;
-	border: 1px solid #AAAAAA;
-}
 
 ul {
   margin: 0 0 0.5em 0;
@@ -102,8 +126,9 @@ img {
 	background-color: transparent;
 }
 
-/* allowing specific controls like the following */
-#freeseat-wide table, #freeseat-narrow table {
+/* ... allowing specific controls like the following  */
+#freeseat-wide table.seatmap, #freeseat-narrow table.seatmap {
+	line-height: 0.9; 
 	width: auto;
 	border: 1px solid #AAAAAA;
 }
@@ -387,6 +412,3 @@ div.highlight {
   width: 45em;
 }
 
-.page-content {
-	max-width: 1000px;	
-}
