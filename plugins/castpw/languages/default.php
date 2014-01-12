@@ -1,4 +1,4 @@
-<?php
+<?php namespace freeseat;
 
 $lang['castpw_length'] = "Password should be at least 6 characters long";
 $lang['castpw_saved'] = "Cast password saved";

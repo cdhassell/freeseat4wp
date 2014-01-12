@@ -1,4 +1,4 @@
-<?php
+<?php namespace freeseat;
 
 /* 	Implements a process to upload a new theatre seatmap to FreeSeat in the form of a CSV file, such as from 
 a spreadsheet program.  Cells in the spreadsheet represent theatre seats, arranged in rows. 
@@ -28,13 +28,9 @@ The first column should contain a command name as follows.
 Blank rows will also be ignored.
 Save this file as a Comma Separated Values or CSV file.
 	
-CAUTION: Care should be taken when changing an existing seatmap. Existing seats in a map cannot be deleted by this
-process.  A new seat that matches an existing seat will be used to update the existing seat record.  If a match is 
-not found, a new seat will be added.  Check for duplicates after updating a seatmap!  
+CAUTION: Care should be taken when changing an existing seatmap. A new seat that matches an existing seat will be used to update the existing seat record.  If a match is not found, a new seat will be added.  Check for duplicates after updating a seatmap!  
 	
-If you need to delete seat records from a map, you will have to do it by hand, very carefully.  If tickets exist 
-in any show for those seats, the program will report an error.  The preferred method is to create a new map without 
-those seats.
+Existing seats in a map cannot be deleted by this process.  If you need to delete seat records from a map, you will have to do it by hand, very carefully.  If tickets exist in any show for those seats, the program will report an error.  The recommended method is to create a new map without those seats.  Alternatively, use the disableseats plugin to temporarily hide those seats. 
 
 */
 function freeseat_upload() {
@@ -102,7 +98,7 @@ function freeseat_upload() {
 	
 	// Form for uploading a new seat map CSV file
 	echo '<h3>Upload a new seat map</h3>';
-	echo '<h3><p style="font-weight:bold;" >Use with caution! Please see the README file for instructions.</p></h3>';
+	echo '<h3><p style="font-weight:bold;" >Use with caution! Please see the <a href="'.plugins_url('doc/upload-help.html',__FILE__).'">HELP</a> file for instructions.</p></h3>';
 	echo "<form action='$url' enctype='multipart/form-data' name='upload_map' method='POST'>";
 	echo '<p class="main">';
 	echo '<input type="hidden" name="MAX_FILE_SIZE" value="100000">';

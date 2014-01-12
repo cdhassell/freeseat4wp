@@ -1,4 +1,4 @@
-<?php
+<?php namespace freeseat;
 
 define("FS_VERSION", "1.4.1b");
 

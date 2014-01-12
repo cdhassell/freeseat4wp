@@ -1,4 +1,4 @@
-<?php
+<?php namespace freeseat;
 
 /** This file contains DEFAULT VALUES for configuration items.
 

@@ -1,4 +1,4 @@
-<?php
+<?php namespace freeseat;
 
 $lang['csvdump_download'] = "FreeSeat Downloads";
 $lang["csvdump_all"] = 'Database dump in csv format: %1$sAll details%2$s';

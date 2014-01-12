@@ -1,5 +1,4 @@
-<?php
-
+<?php namespace freeseat;
 
 /*
  * Includes code from:

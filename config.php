@@ -1,4 +1,4 @@
-<?php
+<?php namespace freeseat;
 
 $plugins = array( 'autopay', 'extendbooking', 'bookingnotes', 'groupdiscount' );
 $unsecure_login = TRUE; 

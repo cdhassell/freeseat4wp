@@ -1,4 +1,4 @@
-<?php
+<?php namespace freeseat;
 
 
 /** Copyright (C) 2010 Maxime Gamboni. See COPYING for
@@ -15,7 +15,7 @@ $freeseat_plugin_hooks = array();
 function use_plugin ($name) {
     if (file_exists( FS_PATH . "plugins/$name/setup.php" )) {
         include_once( FS_PATH . "plugins/$name/setup.php" );
-        $function = "freeseat_plugin_init_$name";
+        $function = "\\freeseat\\freeseat_plugin_init_$name";
         if (function_exists($function)) {
             $function();
         }
@@ -32,9 +32,10 @@ function do_hook ($name) {
       //       echo "<!-- is_array -->";
         foreach ($freeseat_plugin_hooks[$name] as $function) {
 	  //    echo "<!-- function $function -->";
-	  if (function_exists($function)) {
+	  $NSfunction = '\\freeseat\\'.$function;
+	  if (function_exists($NSfunction)) {
 	    //       echo "<!-- exists -->";
-	      $function();
+	      $NSfunction();
             }
         }
     }
@@ -49,8 +50,9 @@ function do_hook_exists($name, $param=null) {
     if (isset($freeseat_plugin_hooks[$name])
           && is_array($freeseat_plugin_hooks[$name])) {
         foreach ($freeseat_plugin_hooks[$name] as $function) {
-            if (function_exists($function)) {
-                $ret |= $function($param);
+        	$NSfunction = '\\freeseat\\'.$function;
+            if (function_exists($NSfunction)) {
+                $ret |= $NSfunction($param);
             }
         }
     }
@@ -71,9 +73,10 @@ function do_hook_function($name, &$parm=null) {
       //    echo "<!-- is_array -->";
         foreach ($freeseat_plugin_hooks[$name] as $function) {
 	  //    echo "<!-- function $function -->";
-            if (function_exists($function)) {
+	  	  $NSfunction = '\\freeseat\\'.$function;
+            if (function_exists($NSfunction)) {
 	    //      echo "<!-- exists -->";
-                $r = $function($parm);
+                $r = $NSfunction($parm);
 		if ($r !== NULL) $ret = $r;
             }
         }
@@ -91,8 +94,9 @@ function do_hook_sum($name, $parm=null) {
   if (isset($freeseat_plugin_hooks[$name])
       && is_array($freeseat_plugin_hooks[$name])) {
     foreach ($freeseat_plugin_hooks[$name] as $function) {
-      if (function_exists($function)) {
-        $ret += $function($parm);
+    	$NSfunction = '\\freeseat\\'.$function;
+      	if (function_exists($NSfunction)) {
+        	$ret += $NSfunction($parm);
       }
     }
   }
@@ -104,12 +108,13 @@ function do_hook_sum($name, $parm=null) {
 function do_hook_concat($name, $parm=null) {
     global $freeseat_plugin_hooks;
     $ret = '';
-
+    
     if (isset($freeseat_plugin_hooks[$name])
           && is_array($freeseat_plugin_hooks[$name])) {
         foreach ($freeseat_plugin_hooks[$name] as $function) {
-            if (function_exists($function)) {
-                $ret .= $function($parm);
+        	$NSfunction = '\\freeseat\\'.$function;
+            if (function_exists($NSfunction)) {
+                $ret .= $NSfunction($parm);
             }
         }
     }
@@ -126,8 +131,9 @@ function do_hook_array($name, $parm=null) {
     if (isset($freeseat_plugin_hooks[$name])
           && is_array($freeseat_plugin_hooks[$name])) {
         foreach ($freeseat_plugin_hooks[$name] as $function) {
-            if (function_exists($function)) {
-                $r = $function($parm);
+        		  $NSfunction = '\\freeseat\\'.$function;
+            if (function_exists($NSfunction)) {
+                $r = $NSfunction($parm);
 		if ($r !== null) {
 		  $ret[] = $r;
 		}

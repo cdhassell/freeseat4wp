@@ -1,4 +1,4 @@
-<?php
+<?php namespace freeseat;
 
 /*  Copyright 2009 David Gwyer (email : d.v.gwyer@presscoders.com)
 
@@ -27,10 +27,10 @@
 // ------------------------------------------------------------------------
 
 // Set-up Action and Filter Hooks
-register_activation_hook(__FILE__, 'freeseat_add_defaults');
-register_uninstall_hook(__FILE__, 'freeseat_delete_plugin_options');
-add_action('admin_init', 'freeseat_init' );
-add_filter( 'plugin_action_links', 'freeseat_plugin_action_links', 10, 2 );
+register_activation_hook(__FILE__, __NAMESPACE__ . '\\freeseat_add_defaults');
+register_uninstall_hook(__FILE__, __NAMESPACE__ . '\\freeseat_delete_plugin_options');
+add_action('admin_init', __NAMESPACE__ . '\\freeseat_init' );
+add_filter( 'plugin_action_links', __NAMESPACE__ . '\\freeseat_plugin_action_links', 10, 2 );
 
 // --------------------------------------------------------------------------------------
 // CALLBACK FUNCTION FOR: register_uninstall_hook(__FILE__, 'freeseat_delete_plugin_options')
@@ -108,7 +108,7 @@ function freeseat_add_defaults() {
 
 // Init plugin options to white list our options
 function freeseat_init(){
-	register_setting( 'freeseat_plugin_options', 'freeseat_options', 'freeseat_validate_options' );
+	register_setting( 'freeseat_plugin_options', 'freeseat_options', __NAMESPACE__ . '\\freeseat_validate_options' );
 }
 
 // ------------------------------------------------------------------------------
@@ -120,7 +120,7 @@ function freeseat_init(){
 
 // Add menu page
 function freeseat_add_options_page() {
-	add_options_page('Settings', 'Settings', 'manage_options', __FILE__, 'freeseat_params');
+	add_options_page('Settings', 'Settings', 'manage_options', __FILE__, __NAMESPACE__ . '\\freeseat_params');
 }
 
 // ------------------------------------------------------------------------------
@@ -481,7 +481,7 @@ foreach ( glob( $freeseat_plugin_path."*", GLOB_ONLYDIR ) as $directory ) {
 	if ( file_exists( $file ) ) {
 		include( $file );
 		$basename = basename($directory);
-		$fn_name = $basename."_info";
+		$fn_name = "\\freeseat\\".$basename."_info";
 		$freeseat_available_plugins[$basename] = $fn_name();
 	}
 }

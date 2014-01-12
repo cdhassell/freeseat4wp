@@ -1,4 +1,4 @@
-<?php
+<?php namespace freeseat;
 
 
   /** castpw/setup.php

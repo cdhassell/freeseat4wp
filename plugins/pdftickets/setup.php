@@ -1,11 +1,11 @@
-<?php
+<?php namespace freeseat;
 
 // Dompdf will throw errors on PHP 4.x. 
 if (version_compare(PHP_VERSION, '5.0.0', '>')) {
 	if (!class_exists('DOMPDF')) {
 		require_once( "dompdf/dompdf_config.inc.php" );
 	}
-	$dompdf = new DOMPDF();
+	$dompdf = new \DOMPDF();
 } else {
 	fatal_error("PHP version 5 is required for the Freeseat-pdfticket plugin");
 }
@@ -38,7 +38,7 @@ function freeseat_plugin_init_pdftickets() {
     $freeseat_plugin_hooks['ticket_render']['pdftickets'] = 'pdftickets_render';
     $freeseat_plugin_hooks['ticket_finalise']['pdftickets'] = 'pdftickets_finalise';
     $freeseat_plugin_hooks['kill_booking_done']['pdftickets'] = 'pdftickets_cleanup';
-    add_action( 'init', 'freeseat_pdftickets_redirect' );
+    add_action( 'init', __NAMESPACE__ . '\\freeseat_pdftickets_redirect' );
     init_language('pdftickets');
 }
 
@@ -71,7 +71,7 @@ function pdftickets_finalise() {
 		$html = $_SESSION['pdftickets'][$pdftickets_id]['html']; 
 
 		/* Now convert $html to $pdf */
-		$dompdf = new DOMPDF();  
+		$dompdf = new \DOMPDF();  
 		$dompdf->load_html($html);
 		$dompdf->render();
 		if ( $_GET["mode"] == 'pdf-mail' && !isset($_SESSION['pdftickets_emailsent'])) {

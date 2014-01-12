@@ -1,4 +1,4 @@
-<?php
+<?php namespace freeseat;
 
   /** barcode/setup.php
    *

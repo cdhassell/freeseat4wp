@@ -1,4 +1,4 @@
-<?php
+<?php namespace freeseat;
 
 function autopay_info() {
     return array

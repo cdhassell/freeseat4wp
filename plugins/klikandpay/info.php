@@ -1,4 +1,4 @@
-<?php
+<?php namespace freeseat;
 
 function klikandpay_info() {
     return array

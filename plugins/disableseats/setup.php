@@ -1,4 +1,4 @@
-<?php
+<?php namespace freeseat;
 
   /** disableseats/setup.php
    *
@@ -15,14 +15,14 @@ function freeseat_plugin_init_disableseats() {
     global $freeseat_plugin_hooks;
 
     $freeseat_plugin_hooks['seatmap_top']['disableseats'] = 'disableseats_linkfromseats';
-	add_action( 'admin_menu', 'freeseat_disableseats_menu' );
+	add_action( 'admin_menu', __NAMESPACE__ . '\\freeseat_disableseats_menu' );
     init_language('disableseats');
 }
 
 function freeseat_disableseats_menu() {
 	// add a new admin menu page for disabled seat administration
 	// this must be run *after* the function freeseat_admin_menu()
-	add_submenu_page( 'freeseat-admin', 'Disable Seats', 'Disable Seats', 'administer_freeseat', 'freeseat-disableseats', 'freeseat_disableseats' );
+	add_submenu_page( 'freeseat-admin', 'Disable Seats', 'Disable Seats', 'administer_freeseat', 'freeseat-disableseats', __NAMESPACE__ . '\\freeseat_disableseats' );
 }
 
 function disableseats_linkfromseats() {

@@ -1,4 +1,4 @@
-<?php
+<?php namespace freeseat;
 
 /** 
 This script will check the Payment Data Transfer (PDT) returned by PayPal for a 

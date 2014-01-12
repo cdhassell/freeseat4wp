@@ -1,4 +1,4 @@
-<?php
+<?php namespace freeseat;
 
 function make_legend($numberedseats) {
 // Construct a legend table showing only classes which exist in the seats table

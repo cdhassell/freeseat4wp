@@ -1,4 +1,4 @@
-<?php
+<?php namespace freeseat;
 
 function bookingmap_info() {
     return array

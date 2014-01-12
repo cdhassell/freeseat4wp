@@ -1,4 +1,4 @@
-<?php
+<?php namespace freeseat;
 
 function undelete_info() {
     return array

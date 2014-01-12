@@ -1,4 +1,4 @@
-<?php
+<?php namespace freeseat;
 
   /** bookingmap/setup.php
    *
@@ -18,13 +18,13 @@ function freeseat_plugin_init_bookingmap() {
 
     $freeseat_plugin_hooks['seatmap_top']['bookingmap'] = 'bookingmap_linkfromseats';
     $freeseat_plugin_hooks['bookinglist_pagebottom']['bookingmap'] = 'bookingmap_linkfromlist';
-    add_action( 'admin_menu', 'freeseat_bookingmap_menu' );
+    add_action( 'admin_menu', __NAMESPACE__ . '\\freeseat_bookingmap_menu' );
 }
 
 function freeseat_bookingmap_menu() {
 	// add a new admin menu page for viewing reservations on a map
 	// this must be run *after* the function freeseat_admin_menu()
-	add_submenu_page( 'freeseat-admin', 'Reservation Map', 'Reservation Map', 'administer_freeseat', 'freeseat-bookingmap', 'freeseat_bookingmap' );
+	add_submenu_page( 'freeseat-admin', 'Reservation Map', 'Reservation Map', 'administer_freeseat', 'freeseat-bookingmap', __NAMESPACE__ . '\\freeseat_bookingmap' );
 }
 
 function bookingmap_linkfromseats() {

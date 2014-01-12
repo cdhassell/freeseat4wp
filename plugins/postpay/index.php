@@ -1,4 +1,4 @@
-<?php
+<?php namespace freeseat;
 
 /*
 Requires a new table postpay_keys for storing keys for re-entry to the payment process.

@@ -1,4 +1,4 @@
-<?php
+<?php namespace freeseat;
 
 function adminprint_info() {
     return array

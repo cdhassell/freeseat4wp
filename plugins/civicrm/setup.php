@@ -1,4 +1,4 @@
-<?php
+<?php namespace freeseat;
 
 /*
 FreeSeat for Wordpress integration with CiviCRM

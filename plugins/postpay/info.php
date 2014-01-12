@@ -1,4 +1,4 @@
-<?php
+<?php namespace freeseat;
 
 function postpay_info() {
     return array

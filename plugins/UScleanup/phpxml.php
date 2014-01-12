@@ -1,4 +1,4 @@
-<?php
+<?php namespace freeseat;
 ###################################################################################
 #
 # XML Library, by Keith Devens, version 1.2b

@@ -1,4 +1,4 @@
-<?php
+<?php namespace freeseat;
 
 $lang["pdt_failure_page"] = <<<EOD
 <h3>We're sorry, but your payment was not completed.</h3>

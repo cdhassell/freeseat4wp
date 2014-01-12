@@ -1,4 +1,4 @@
-<?php
+<?php namespace freeseat;
 
 /** Nederlands (DUTCH) Language file.
 

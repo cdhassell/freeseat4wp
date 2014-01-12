@@ -1,16 +1,16 @@
-<?php
+<?php namespace freeseat;
 
 
 function freeseat_plugin_init_csvdump() {
-	add_action( 'admin_menu', 'freeseat_download_menu' );
-	add_action( 'admin_init', 'freeseat_download_redirect');
+	add_action( 'admin_menu', __NAMESPACE__ . '\\freeseat_download_menu' );
+	add_action( 'admin_init', __NAMESPACE__ . '\\freeseat_download_redirect');
 	init_language('csvdump');
 }
 
 function freeseat_download_menu() {
 	// add a new admin menu page for data downloads
 	// this must be run *after* the function freeseat_admin_menu()
-	add_submenu_page( 'freeseat-admin', 'Downloads', 'Downloads', 'administer_freeseat', 'freeseat-download', 'freeseat_download' );
+	add_submenu_page( 'freeseat-admin', 'Downloads', 'Downloads', 'administer_freeseat', 'freeseat-download', __NAMESPACE__ . '\\freeseat_download' );
 }
 
 function freeseat_download_redirect() {

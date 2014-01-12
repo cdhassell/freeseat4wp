@@ -1,4 +1,4 @@
-<?php
+<?php namespace freeseat;
 
 /*
 Wordpress mailer function

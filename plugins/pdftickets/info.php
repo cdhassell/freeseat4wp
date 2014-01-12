@@ -1,5 +1,4 @@
-<?php
-
+<?php namespace freeseat;
 
 function pdftickets_info() {
     return array

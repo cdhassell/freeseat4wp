@@ -1,4 +1,4 @@
-<?php
+<?php namespace freeseat;
 
 function extendbooking_info() {
     return array

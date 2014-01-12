@@ -1,5 +1,4 @@
-<?php
-
+<?php namespace freeseat;
 
 
 function freeseat_plugin_init_adminprint() {

@@ -1,4 +1,5 @@
-<?php
+<?php namespace freeseat;
+
 function pdt_info() {
     return array
 	('english_name' => 'Paypal PDT',

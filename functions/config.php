@@ -1,4 +1,4 @@
-<?php
+<?php namespace freeseat;
 
 
   /** Some functions plugins may use for integration with the config

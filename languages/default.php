@@ -1,4 +1,4 @@
-<?php
+<?php namespace freeseat;
 
 $lang["_encoding"] = "ISO-8859-1";
 

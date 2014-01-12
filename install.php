@@ -1,4 +1,4 @@
-<?php
+<?php namespace freeseat;
 
 register_activation_hook( __FILE__, 'freeseat_install' );
 register_activation_hook( __FILE__, 'freeseat_install_data' );

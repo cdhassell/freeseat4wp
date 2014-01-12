@@ -1,4 +1,4 @@
-<?php
+<?php namespace freeseat;
 /*
 Plugin Name: FreeSeat
 Plugin URI: http://lostinspace.com
@@ -26,6 +26,18 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
+
+/*
+<?php namespace NS;
+	// about using namespaces:
+    define(__NAMESPACE__ .'\foo','111');
+    define('foo','222');
+    echo foo;  // 111.
+    echo \foo;  // 222.
+    echo \NS\foo  // 111.
+    echo NS\foo  // fatal error. assumes \NS\NS\foo.
+?>
 */
 
 // All paths in FreeSeat are relative to FS_PATH
@@ -60,14 +72,14 @@ if ( is_array($freeseat_vars) ) {
 }
 
 // These are the entry points from wordpress hooks
-add_action( 'admin_init', 'freeseat_wordpress_version' );
-register_activation_hook( __FILE__, 'freeseat_add_caps');
-add_action( 'admin_menu', 'freeseat_admin_menu' );
-add_action( 'plugins_loaded', 'freeseat_update_db_check' );
-add_shortcode( 'freeseat-shows', 'freeseat_front' );
-add_shortcode( 'freeseat-direct', 'freeseat_direct' );
-add_action( 'wp_enqueue_scripts', 'freeseat_user_styles' );
-add_action( 'admin_enqueue_scripts', 'freeseat_admin_styles' );
+add_action( 'admin_init', __NAMESPACE__ . '\\freeseat_wordpress_version' );
+register_activation_hook( __FILE__, __NAMESPACE__ . '\\freeseat_add_caps');
+add_action( 'admin_menu', __NAMESPACE__ . '\\freeseat_admin_menu' );
+add_action( 'plugins_loaded', __NAMESPACE__ . '\\freeseat_update_db_check' );
+add_shortcode( 'freeseat-shows', __NAMESPACE__ . '\\freeseat_front' );
+add_shortcode( 'freeseat-direct', __NAMESPACE__ . '\\freeseat_direct' );
+add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\\freeseat_user_styles' );
+add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\\freeseat_admin_styles' );
 // add_action( 'wp_enqueue_scripts', 'freeseat_popup_register' );
 
 // Set up all of the active freeseat plugins
@@ -256,12 +268,12 @@ function freeseat_admin_menu() {
 	// Add menus - available only for Administrators
 	// add_menu_page( $page_title, $menu_title, $capability, $menu_slug, $function, $icon_url, $position );
 	// add_submenu_page( $parent_slug, $page_title, $menu_title, $capability, $menu_slug, $function );
-	add_menu_page( 'Current Shows', 'FreeSeat', 'administer_freeseat', 'freeseat-admin', 'freeseat_switch', plugins_url( 'freeseat/ticket.png' ) );
-	add_submenu_page( 'freeseat-admin', 'Current Shows', 'Current Shows', 'administer_freeseat', 'freeseat-admin', 'freeseat_switch' );
-	add_submenu_page( 'freeseat-admin', 'View Reservations', 'Reservations', 'administer_freeseat', 'freeseat-reservations', 'freeseat_bookinglist' );
-	add_submenu_page( 'freeseat-admin', 'Show Setup', 'Show Setup', 'administer_freeseat', 'freeseat-showedit', 'freeseat_showedit' );
-	add_submenu_page( 'freeseat-admin', 'Edit Settings', 'Settings', 'administer_freeseat', 'freeseat-system', 'freeseat_params' );
-	add_submenu_page( 'freeseat-admin', 'Seatmaps', 'Seatmaps', 'administer_freeseat', 'freeseat-upload', 'freeseat_upload' );
+	add_menu_page( 'Current Shows', 'FreeSeat', 'administer_freeseat', 'freeseat-admin', __NAMESPACE__ . '\\freeseat_switch', plugins_url( 'freeseat/ticket.png' ) );
+	add_submenu_page( 'freeseat-admin', 'Current Shows', 'Current Shows', 'administer_freeseat', 'freeseat-admin', __NAMESPACE__ . '\\freeseat_switch' );
+	add_submenu_page( 'freeseat-admin', 'View Reservations', 'Reservations', 'administer_freeseat', 'freeseat-reservations', __NAMESPACE__ . '\\freeseat_bookinglist' );
+	add_submenu_page( 'freeseat-admin', 'Show Setup', 'Show Setup', 'administer_freeseat', 'freeseat-showedit', __NAMESPACE__ . '\\freeseat_showedit' );
+	add_submenu_page( 'freeseat-admin', 'Edit Settings', 'Settings', 'administer_freeseat', 'freeseat-system', __NAMESPACE__ . '\\freeseat_params' );
+	add_submenu_page( 'freeseat-admin', 'Seatmaps', 'Seatmaps', 'administer_freeseat', 'freeseat-upload', __NAMESPACE__ . '\\freeseat_upload' );
 }
 
 /*

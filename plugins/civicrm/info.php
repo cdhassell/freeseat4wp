@@ -1,4 +1,4 @@
-<?php
+<?php namespace freeseat;
 
 function civicrm_info() {
     return array

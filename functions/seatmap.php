@@ -1,4 +1,4 @@
-<?php
+<?php namespace freeseat;
 
   /** This function renders a seatmap and can be parametrised to
    display various information or controls on top. 
@@ -30,7 +30,14 @@ function render_seatmap($theatre, 		$zone,
 						$keycallback,   $seatcallback,
 						$unkeycallback, $unseatcallback) {
 	global $lang;
-	/* seats to be displayed. The "sort by id" part is to guarantee that
+	/*  this function has been modified to prepend the namespace to
+		the $keycallback etc. function names - not sure why this is needed. */
+		$seatcallback = __NAMESPACE__ . '\\' . $seatcallback;
+		$keycallback = __NAMESPACE__ . '\\' . $keycallback;
+		$unseatcallback = __NAMESPACE__ . '\\' . $unseatcallback;
+		$unkeycallback = __NAMESPACE__ . '\\' . $unkeycallback;
+		
+	/*  seats to be displayed. The "sort by id" part is to guarantee that
 		seats are always returned in the same order, which in turn is
 		required to guarantee that the $proto map is always constructed the
 		same way, which in turn is required to make sure a SESSION nn-

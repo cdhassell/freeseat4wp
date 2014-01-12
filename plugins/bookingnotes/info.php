@@ -1,4 +1,4 @@
-<?php
+<?php namespace freeseat;
 
 function bookingnotes_info() {
     return array

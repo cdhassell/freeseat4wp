@@ -1,4 +1,5 @@
-<?php
+<?php namespace freeseat;
+
 
 /** Copyright (C) 2010 Maxime Gamboni. See COPYING for
 copying/warranty info.

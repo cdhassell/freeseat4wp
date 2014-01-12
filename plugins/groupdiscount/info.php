@@ -1,4 +1,5 @@
-<?php
+<?php namespace freeseat;
+
 function groupdiscount_info() {
     return array
 	('english_name' => 'Group Discount',

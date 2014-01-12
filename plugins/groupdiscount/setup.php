@@ -1,5 +1,4 @@
-<?php
-
+<?php namespace freeseat;
 
 /*
  *   Setup for group discounts in freeseat

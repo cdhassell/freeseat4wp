@@ -1,49 +1,5 @@
-<?php
+<?php namespace freeseat;
 
-/*
-Syntax of common WP database calls
-
-global $wpdb;
-$wpdb->query('query');
-$wpdb->get_var( 'query', column_offset, row_offset );
-$wpdb->get_row('query', output_type, row_offset); 
-$wpdb->get_col( 'query', column_offset );
-$wpdb->prepare( 'query' , value_parameter[, value_parameter ... ] ); 
-$wpdb->get_results( 'query', output_type );
-$wpdb->insert( $table, $data, $format );
-$wpdb->replace( $table, $data, $format );
-$wpdb->insert_id
-$wpdb->update( $table, $data, $where, $format = null, $where_format = null );
-$wpdb->delete( $table, $where, $where_format = null ); 
-$wpdb->show_errors(); 
-$wpdb->hide_errors();
-$wpdb->print_error();
-$wpdb->flush();
-
-Examples:
-$wpdb->query( 
-	$wpdb->prepare( 
-		"DELETE FROM $wpdb->postmeta
-		 WHERE post_id = %d
-		 AND meta_key = %s",
-	     13, 'gargle' ) 
-);
-
-$wpdb->update( 
-	'table', 
-	array( 
-		'column1' => 'value1',	// string
-		'column2' => 'value2'	// integer (number) 
-	), 
-	array( 'ID' => 1 ), 
-	array( 
-		'%s',	// value1
-		'%d'	// value2
-	), 
-	array( '%d' ) 
-);
-
-*/
 
 /** Copyright (C) 2010 Maxime Gamboni. See COPYING for
 copying/warranty info.
