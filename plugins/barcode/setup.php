@@ -76,7 +76,7 @@ function barcode_forpdf($booking) {
 	// must return html that dompdf can handle
 	global $upload_url;
 	$bookid = $booking['bookid'];
-	$url = plugins_url("barcode.php?code=".str_pad($bookid,12,"0",STR_PAD_LEFT)."&scale=2&mode=jpg",__FILE__);
+	$url = plugins_url("barcode.php?code=".str_pad($bookid,12,"0",STR_PAD_LEFT)."&scale=1&mode=jpg",__FILE__);
 	$barcode = file_get_contents($url);
 	if (!$barcode) {
 		return "<p class='temph'>$bookid</p>";

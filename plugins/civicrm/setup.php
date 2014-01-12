@@ -80,7 +80,7 @@ function civicrm_sync() {
   	// now do it the WordPress way
   	require_once LOCAL_WP_ROOT."wp-content/plugins/civicrm/civicrm.settings.php";
 	require_once 'CRM/Core/Config.php';
-	$config = CRM_Core_Config::singleton( );
+	$config = \CRM_Core_Config::singleton( );
 	require_once 'api/api.php';
 	
 	// how many matching contacts?

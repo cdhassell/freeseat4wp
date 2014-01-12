@@ -82,6 +82,7 @@ function USPS_validate() {
       $response .= $instr;
     fclose($fp);
   } 
+  if (empty($response)) return "No response";
   $data = XML_unserialize($response);  // use Keith Devens awesome XML library to convert to an array
   
 /* Expected responses:

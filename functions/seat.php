@@ -18,7 +18,7 @@ function get_seat($id) {
 
 /** Return an array of zones in the theatre with the given id. */
 function get_zones($theatre) {
-  return m_eval_all("select distinct zone from seats where seats.theatre = $theatre");
+  return m_eval_all("select distinct zone from seats where seats.theatre=$theatre");
 }
 
 /* Return the state (ST_something) of the given seat for the given
@@ -43,9 +43,8 @@ function get_seat_state($seatid,$showid,$ignorelocks = false) {
   if ($ignorelocks) return ST_FREE;
   /*      echo "checking ".$seatid for locks<br>"; */
 
-  // $zou = m_eval("select until from seat_locks where seatid=$seatid and showid=$showid");
-  $zou = freeseat_get_lock( $seatid, $showid );
-  if ( $zou )
+  $zou = m_eval("select until from seat_locks where seatid=$seatid and showid=$showid");
+  if ($zou!==null && $zou>=$now)
     return ST_LOCKED;
   else
     return ST_FREE;
@@ -186,20 +185,19 @@ function lock_seats($seat,$showid) {
        concurrent updates would both succeed, but two concurrent
        delete+insert would have one fail and one succeed. (Actually,
        in some cases update is safe ... Oh well) */
-    /* if (!freeseat_query("delete from seat_locks where seatid=".$seat['id']." and showid=$showid and (until<".$now." or sid='".mysql_real_escape_string(session_id())."')")) {
+    if (!freeseat_query("delete from seat_locks where seatid=".$seat['id']." and showid=$showid and (until<".$now." or sid='".mysql_real_escape_string(session_id())."')")) {
       myboom("Failed deleting seat lock");
     }
     $rows = freeseat_query("insert into seat_locks (seatid,showid,sid,until) values (".$seat['id']." , $showid,'".mysql_real_escape_string(session_id())."',".($now+$lockingtime).")");
-    */
-    freeseat_delete_lock( $seat[ 'id' ], $showid );  
-    if ( freeseat_set_lock( $seat[ 'id' ], $showid ) ) {
+    
+    if ($rows==1) {
 		// echo "<pre> set lock success ".$seat['id']."</pre>"; 
-      $s = $seat;
-      $s["cnt"]=1;
-      $res[$s["id"]] = $s;
-      $cnt--;
-      if ($cnt==0) return $res;
-    } // else print "<pre>set lock failed: ".$seat['id']."</pre>";
+        $s = $seat;
+        $s["cnt"]=1;
+        $res[$s["id"]] = $s;
+        $cnt--;
+        if ($cnt==0) return $res;
+    }
   }
 
   /* 2. Fetch into $pot(ential) all seats equivalent to the requested
@@ -212,7 +210,7 @@ function lock_seats($seat,$showid) {
 				   " as cat,seats.id as id from seats left join booking on booking.seat=seats.id and booking.showid=$showid and booking.state!=".ST_DELETED.
 				   " where booking.id is null and seats.row=-1 and seats.class=".$seat["class"].
 				   " and seats.theatre=".$seat["theatre"].         // Lets put all the seats in the same theatre  :-)
-				   " and seats.zone='".mysql_real_escape_string($seat["zone"])."'" );
+				   " and seats.zone='".mysql_real_escape_string($seat["zone"])."'");
     if ($pot===false) {
       myboom($q.": couldn't get set of equivalent seats");
       return $res;
@@ -231,12 +229,12 @@ function lock_seats($seat,$showid) {
     $st = get_seat_state($potid,$showid,true);
     if (($st!=ST_FREE) && ($st!=ST_DELETED)) continue; // seat is
 						       // booked. Try next
-	/*
+	
     freeseat_query("delete from seat_locks where seatid=$potid and showid=$showid and (until<$now or sid='".mysql_real_escape_string(session_id())."')");
     
     $rows = freeseat_query("insert into seat_locks (seatid,showid,sid,until) values ($potid , $showid,'".mysql_real_escape_string(session_id())."',".($now+$lockingtime).")");
-    */
-	if ( !freeseat_set_lock( $potid, $showid ) ) continue; // seat was locked. Try next
+    
+    if ($rows!=1) continue; // seat was locked. Try next
     /*     echo "..success"; */
     /* if this point is reached then lock was successful */
     $res[$s["id"]] = $s;
@@ -251,19 +249,16 @@ function lock_seats($seat,$showid) {
  * *INSTEAD* of setting $_SESSION["seats"] to the empty array.
  */
 function unlock_seats($freesession = true) {
-	if ( isset( $_SESSION["seats"] ) ) {
-		if (isset($_SESSION['showid']))
-			$showid = $_SESSION[ 'showid' ];
-		elseif (isset($_GET['showid']))
-			$showid = $_SESSION['showid'] = $_GET['showid'];
-		foreach ($_SESSION["seats"] as $s) {
-			freeseat_delete_lock( $s[ 'id' ], $showid );
-			// freeseat_query("delete from seat_locks where sid=".quoter(session_id()));
-		}
-	}
-	if ( $freesession ) {
-		$_SESSION[ "seats" ] = array();
-	}
+  /* Now that locks are unambiguously associated to a session, we
+     don't bother cherry-picking them according to the in-session seat
+     array */
+  //  if (isset($_SESSION["seats"])) {
+    //    foreach ($_SESSION["seats"] as $s) {
+    freeseat_query("delete from seat_locks where sid=".quoter(session_id()));
+    //    }
+    //  }
+  if ($freesession)
+    $_SESSION["seats"] = array();
 }
 
 /** see if the _SESSION-selected seats are (still) available.  If not,
@@ -282,13 +277,11 @@ function check_seats() {
 		array_setall($expanded,"time",$sh["time"]);
 		array_setall($expanded,"theatrename",$sh["theatrename"]);
 		array_setall($expanded,"spectacleid",$sh["spectacleid"]);
-		//    echo "<pre>MERGING EXPANDED INTO SEATS\nseats = "; print_r($seats); 
-		//    echo "\nexpanded = ";  print_r($expanded); 
+    /*       echo "<pre>MERGING EXPANDED INTO SEATS\nseats = "; print_r($seats); */
+    /*       echo "\nexpanded = ";  print_r($expanded); */
 		$seats = array_union($seats,$expanded);
-		//    echo "\nunion = "; print_r($seats); echo "</pre>";
-		if ( count($expanded) < $s["cnt"] ) {
-			$success = false;
-		}
+    //      echo "\nunion = "; print_r($seats); echo "</pre>";
+    if (count($expanded)<$s["cnt"]) {$success = false;}
 	}
 	$_SESSION["seats"] = $seats;
 	return $success;
@@ -403,37 +396,6 @@ function compute_cats($truncate=false) {
   }
 }
 
-function freeseat_set_lock( $seatid, $showid ) {
-	global $lockingtime;
-	$name = implode( '-', array( $showid, $seatid ) );
-	$sid = get_transient( $name );
-	if ( ($sid === false ) || ( $sid == session_id() ) ) {
-		// no lock or lock is ours
-		$ok = set_transient( $name, session_id(), $lockingtime );
-		return true;
-	}
-	return false;  // locked by someone else
-}
 
-function freeseat_get_lock( $seatid, $showid ) {
-	$name = implode( '-', array( $showid, $seatid ) );
-	$sid = get_transient( $name );
-	if ( $sid === false ) return false;  // not locked or expired
-	return true;  // locked by someone (maybe us)
-}
-
-function freeseat_delete_lock( $seatid, $showid ) {
-	if ( freeseat_get_lock( $seatid, $showid ) ) {
-		$name = implode( '-', array( $seatid, $showid ) );
-		$sid = get_transient( $name );
-		if ( $sid == session_id() ) {
-			return delete_transient( $name );  // deleting lock
-		} else {
-			return false;  // locked by someone else
-		} 
-	} else {
-		return true;  // nothing to do
-	} 
-}
 
 

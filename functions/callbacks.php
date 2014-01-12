@@ -38,7 +38,7 @@ function make_legend($numberedseats) {
 
 	  echo $lang[($show_price ? "diffprice" : "sameprice")];  
 	  echo '<br />';   // echo '</p><p class="main">';
-	  echo '<table cellpadding="5"><tr>';
+	  echo '<table class="seatmap"><tr>';
 	  if ($show_price && $show_cat) {
 	    echo "<td align='center'>" . $lang["cat_normal"];
 	    echo "<br>".$lang["cat_reduced"];	// don't display reduced prices if there aren't any

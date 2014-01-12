@@ -224,7 +224,7 @@ function freeseat_frontpage( $page_url ) {
 		/** WARN - we assume whoever filled the description field to be
 		  trustworthy enough not to write malicious or malformed html */
 		if ( $s[ "description" ] ) {
-			echo '<p><i>' . $s[ 'description' ] . '</i></p>';
+			echo '<p><i>' . stripslashes( $s[ 'description' ] ) . '</i></p>';
 		}
 		if ($s) {
 			echo '<p>'.$lang['datesandtimes'].'</p><ul>';

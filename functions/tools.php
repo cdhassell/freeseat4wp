@@ -6,6 +6,25 @@ copying/warranty info.
 $Id: tools.php 350 2011-06-05 08:32:03Z tendays $
 */
 
+/** Append FS_PATH to the given variable if it is a relative url.
+ *
+ * $path: an absolute url or an url relative to the FreeSeat root, of
+ *  the form 'some/relative/path', '/an/absolute/path' or
+ * 'scheme://hostname/etc'. Windows-style paths 'C:\something' or
+ * 'relative\path' are not supported.
+ *
+ * returns $path updated to work from the current directory, relying
+ * on FS_PATH being correctly set.
+ */
+function apply_fspath($path) {
+  if (preg_match('@^([^:]*://|/)@', $path)) {
+    /* $path is absolute */
+    return $path;
+  } else {
+    return FS_PATH . $path;
+  }
+}
+
 /** Replace strange chars by underscores in $s.**/
 function make_reasonable($s) {
   return just_keep($s," -+.,@0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZÀÁÃÂÄÅÆÇÈÉÊËÌÍÎÏĞÑÒÓÔÕÖ×ØÙÚÛÜİŞßàáâãäåæçèéêëìíîïğñòôõö÷øùúûüışÿ");
@@ -91,14 +110,14 @@ function prepare_log($setrole) {
 }
 
 function sys_log($s) {
-  global $role, $logfile, $loghandle;
-  if ( $logfile ) {
-    $loghandle = fopen( FS_PATH . $logfile, "a" );
-    $timestamp = date( 'D d M Y h:i A' );
-    fwrite( $loghandle, "$timestamp : $role : $s\n" ); 
-    fclose( $loghandle );
+  global $role,$logfile,$loghandle;
+  if ($logfile) {
+    $loghandle = fopen(apply_fspath($logfile),"a");
+    $timestamp = date('D d M Y h:i A');
+    fwrite($loghandle,"$timestamp : $role : $s\n"); 
+    fclose($loghandle);
   } else {
-    trigger_error( "freeseat notice : $role : $s" );
+    trigger_error("freeseat notice : $role : $s");
   }
 }
 

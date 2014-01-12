@@ -123,7 +123,19 @@ function freeseat_install() {
   );";
   
 	dbDelta( $sql );  
-  
+	
+	$table_name = 'freeseat_seat_locks';
+	
+  $sql = "CREATE TABLE $table_name (
+	seatid int(10) NOT NULL DEFAULT '0',
+	showid int(10) NOT NULL DEFAULT '0',
+	sid varchar(50) NOT NULL DEFAULT '0',
+	until int(10) DEFAULT NULL,
+	PRIMARY KEY  (seatid, showid)
+  );";
+	
+	dbDelta( $sql );
+	
 	add_option( "freeseat_db_version", $freeseat_db_version );
 }
 
@@ -141,8 +153,8 @@ function freeseat_install_data() {
 (1, 14, 4, 2, 'Office', 'Sale', '', '', '2013-11-08 16:19:05', 0, NULL, 1, '', '', '', 'PA', 'US', NULL, '0000-00-00 00:00:00'),
 (1, 15, 4, 2, 'Office', 'Sale', '', '', '2013-11-08 16:19:05', 0, 1, 1, '', '', '', 'PA', 'US', NULL, '0000-00-00 00:00:00');");
 	$wpdb->query("INSERT INTO freeseat_class_comment (spectacle, class, comment, description) VALUES
-(1, 1, 'Red Seating', NULL),
-(1, 2, 'Silver Seating', NULL);");
+(1, 1, 'Section A', NULL),
+(1, 2, 'Section B', NULL);");
 	$wpdb->query("INSERT INTO freeseat_price (spectacle, cat, class, amount) VALUES
 (1, 2, 1, 1500),
 (1, 1, 1, 1300),
