@@ -236,36 +236,8 @@ function freeseat_params() {
 						<input type="textarea" size="25" name="freeseat_options[legal_info]" value="<?php echo implode('\n', $options['legal_info']); ?>" />
 					</td>
 					<td>
-						<?php _e( 'Ticket top line text' ); ?><br />
-						<input type="text" size="25" name="freeseat_options[tickettext_opening]" value="<?php echo $options['tickettext_opening']; ?>" />
-					</td>
-				</tr>
-				<tr>
-					<td>	
-					</td>
-					<td>
 						<?php _e( 'Currency symbol' ); ?><br />
 						<input type="text" size="1" name="freeseat_options[currency]" value="<?php echo $options['currency']; ?>" />
-					</td>
-					<td>
-						<?php _e( 'Default US area code' ); ?><br />
-						<input type="number" size="5" name="freeseat_options[default_area_code]" value="<?php echo $options['default_area_code']; ?>" />
-					</td>
-					<td>
-						<br /><?php _e( 'Theatre street address' ); ?><br />
-						<textarea name="freeseat_options[tickettext_closing]" rows="3" cols="25" type='textarea'><?php echo ( is_array( $options['tickettext_closing'] ) ? implode( '\n', $options['tickettext_closing'] ) : $options['tickettext_closing'] ); ?></textarea>
-					</td>
-				</tr>
-				<tr>
-					<td>
-					</td>
-					<td>
-						<?php _e( 'USPS API account' ); ?><br />
-						<input type="text" size="25" name="freeseat_options[USPS_user]" value="<?php echo $options['USPS_user']; ?>" />
-					</td>
-					<td colspan="2"><!-- FIXME: need to upload an image file -->
-						<?php _e( 'Ticket logo image file' ); ?><br />
-						<input type="text" size="40" name="freeseat_options[ticket_logo]" value="<?php echo $options['ticket_logo']; ?>" />
 					</td>
 				</tr>
 				<tr>
@@ -304,7 +276,15 @@ function freeseat_params() {
 						</select>
 					</td>
 				</tr>
-
+				<tr>
+					<td>
+					</td>
+					<td colspan="3"><!-- FIXME: need to upload the image file -->
+						<?php _e( 'Default ticket logo image' ); ?><br />
+						<input type="file" size="40" name="freeseat_options[ticket_logo]" value="<?php echo htmlspecialchars( $options['ticket_logo'] ); ?>" accept="image/*" />&nbsp;
+						<?php echo htmlspecialchars($options['ticket_logo']); ?>
+					</td>
+				</tr>
 				<tr valign="top" style="border-top:#dddddd 1px solid;"><!-- Major Heading -->
 					<th scope="col" colspan="4">
 						<h3>
@@ -328,18 +308,6 @@ function freeseat_params() {
 					<td>
 						<?php _e( 'Cancel unpaid reservations after' ); ?><br />
 						<input type="number" min="0" size="6" name="freeseat_options[paydelay_ccard]" value="<?php echo $options['paydelay_ccard']; ?>" /> Days
-					</td>
-				</tr>	
-				<tr>
-					<td>
-					</td>
-					<td>
-						<?php _e( 'Paypal account email' ); ?><br />
-						<input type="text" size="25" name="freeseat_options[paypal_account]" value="<?php echo $options['paypal_account']; ?>" />
-					</td>
-					<td colspan="2">
-						<?php _e( 'Paypal account authorization token' ); ?><br />
-						<input type="text" size="60" name="freeseat_options[paypal_auth_token]" value="<?php echo $options['paypal_auth_token']; ?>" />
 					</td>
 				</tr>
 				<tr>
@@ -405,7 +373,7 @@ function freeseat_params() {
 
 // Sanitize and validate input. Accepts an array, return a sanitized array.
 function freeseat_validate_options($input) {
-	global $freeseat_available_plugins, $freeseat_plugin_hooks;
+	global $freeseat_available_plugins, $freeseat_plugin_hooks, $upload_path, $lang;
 	do_hook_function('params_post', $input);
 	// if checkboxes are not checked, they are missing
 	if (!isset($input['disabled_cash'])) $input['disabled_cash'] = 0;
@@ -413,23 +381,35 @@ function freeseat_validate_options($input) {
 	if (!isset($input['disabled_post'])) $input['disabled_post'] = 0;
 	$input['websitename'] = wp_filter_nohtml_kses($input['websitename']); 
 	$input['ticket_logo'] = wp_filter_nohtml_kses($input['ticket_logo']); 
+	// get the ticket logo image file if the user submitted one
+	$permitted = array( "jpeg", "jpg", "gif", "png", "bmp" );
+	foreach( $_FILES as $file_name => $file_array ) {
+		if ($file_array['name'] != "") {
+			// do nothing if user didn't submit a file
+			$parts = pathinfo($file_array['name']);
+			$target = $parts["basename"];
+			if ( is_uploaded_file( $file_array['tmp_name'] )
+				&& isset($parts["extension"])
+				&& in_array(strtolower($parts["extension"]),$permitted)) {
+				if ( !move_uploaded_file( $file_array['tmp_name'], FS_PATH . $upload_path . $target ) ) {
+					kaboom( $lang['err_upload'] ) ;
+					/* (keep old value if upload failed) */
+				} else {
+					$input['ticket_logo'] = $target;
+				}
+			} else  {
+				kaboom( $lang['err_filetype'] . "image" );
+				$input['ticket_logo'] = "";
+			}
+		}
+	}
 	$input['auto_email_signature'] = wp_filter_nohtml_kses($input['auto_email_signature']); 
 	$input['lowpriceconditions'] = wp_filter_nohtml_kses($input['lowpriceconditions']); 
 	$input['legal_info'] =  array( wp_filter_nohtml_kses($input['legal_info']) ); 
-	$input['tickettext_opening'] = wp_filter_nohtml_kses($input['tickettext_opening']); 
-	$input['tickettext_closing'] = explode( '\n', $input['tickettext_closing'] );
-	$arr = array();
-	foreach ( $input['tickettext_closing'] as $line ) 
-		$arr[] = wp_filter_nohtml_kses( $line );
-	$input['tickettext_closing'] = $arr; 
 	$input['smtp_sender'] = wp_filter_nohtml_kses($input['smtp_sender']);
 	$input['sender_name'] = wp_filter_nohtml_kses($input['sender_name']);
 	$input['admin_mail'] = wp_filter_nohtml_kses($input['admin_mail']); 
 	$input['currency'] = trim( wp_filter_nohtml_kses($input['currency']) ); 
-	$input['default_area_code'] = wp_filter_nohtml_kses($input['default_area_code']); 
-	$input['USPS_user'] = wp_filter_nohtml_kses($input['USPS_user']); 
-	$input['paypal_account'] = wp_filter_nohtml_kses($input['paypal_account']); 
-	$input['paypal_auth_token'] = wp_filter_nohtml_kses($input['paypal_auth_token']);
 	$input['language'] = wp_filter_nohtml_kses($input['language']);
 	$input['plugins'] = array();
 	foreach( $freeseat_available_plugins as $name => $details ) {

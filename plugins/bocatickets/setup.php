@@ -20,25 +20,54 @@
  */
 
 function freeseat_plugin_init_bocatickets() {
-  global $freeseat_plugin_hooks;
+	global $freeseat_plugin_hooks;
 
-  $freeseat_plugin_hooks['config_form']['bocatickets'] = 'bocatickets_config_form';
-
-  $freeseat_plugin_hooks['ticket_prepare_override']['bocatickets'] = 'bocatickets_start';
-  $freeseat_plugin_hooks['ticket_render_override']['bocatickets'] = 'bocatickets_body';
-  $freeseat_plugin_hooks['ticket_finalise_override']['bocatickets'] = 'bocatickets_end';
-    
-  $freeseat_plugin_hooks['confirm_bottom']['bocatickets'] = 'bocatickets_checkbox';
-  $freeseat_plugin_hooks['confirm_process']['bocatickets'] = 'bocatickets_process';
-
-  $freeseat_plugin_hooks['adminprint_line']['bocatickets'] = 'bocatickets_checkbox';
-  $freeseat_plugin_hooks['adminprint_process']['bocatickets'] = 'bocatickets_process';
-  
-  // init_language('');
+	$freeseat_plugin_hooks['ticket_prepare_override']['bocatickets'] = 'bocatickets_start';
+	$freeseat_plugin_hooks['ticket_render_override']['bocatickets'] = 'bocatickets_body';
+	$freeseat_plugin_hooks['ticket_finalise_override']['bocatickets'] = 'bocatickets_end';
+	$freeseat_plugin_hooks['confirm_bottom']['bocatickets'] = 'bocatickets_checkbox';
+	$freeseat_plugin_hooks['confirm_process']['bocatickets'] = 'bocatickets_process';
+	$freeseat_plugin_hooks['adminprint_line']['bocatickets'] = 'bocatickets_checkbox';
+	$freeseat_plugin_hooks['adminprint_process']['bocatickets'] = 'bocatickets_process';
+    $freeseat_plugin_hooks['params_post']['bocatickets'] = 'bocatickets_postedit';
+    $freeseat_plugin_hooks['params_edit']['bocatickets'] = 'bocatickets_editparams';    
 }
 
-function bocatickets_config_form($form) {
-  return config_form('plugins/bocatickets/config-dist.php', $form);
+function bocatickets_postedit( &$options ) {
+	// use WP post-form validation
+	// called in freeseat_validate_options()
+	if ( is_array( $options ) ) {
+		$options['tickettext_opening'] = wp_filter_nohtml_kses($options['tickettext_opening']); 
+		$options['tickettext_closing'] = explode( '\n', $options['tickettext_closing'] );
+		$arr = array();
+		foreach ( $options['tickettext_closing'] as $line ) 
+			$arr[] = wp_filter_nohtml_kses( $line );
+		$options['tickettext_closing'] = $arr; 		
+	}
+	return $options;
+}
+
+function bocatickets_editparams($options) {
+	global $lang;
+	// the options parameter should be an array 
+	if ( !is_array( $options ) ) return;
+	if ( !isset( $options['tickettext_opening'] ) ) $options['tickettext_opening'] = '';
+	if ( !isset( $options['tickettext_closing'] ) ) $options['tickettext_closing'] = '';
+?>  
+<!-- bocatickets stuff -->
+<tr>
+	<td>
+	</td>
+	<td>
+		<?php _e( 'Ticket top line text' ); ?><br />
+		<input type="text" size="25" name="freeseat_options[tickettext_opening]" value="<?php echo $options['tickettext_opening']; ?>" />
+	</td>
+	<td>
+		<br /><?php _e( 'Ticket closing lines' ); ?><br />
+		<textarea name="freeseat_options[tickettext_closing]" rows="3" cols="25" type='textarea'><?php echo ( is_array( $options['tickettext_closing'] ) ? implode( '\n', $options['tickettext_closing'] ) : $options['tickettext_closing'] ); ?></textarea>
+	</td>
+</tr>
+<?php
 }
 
 function bocatickets_start() {
@@ -155,12 +184,12 @@ function bocatickets_end() {
       function print() {
          var applet = document.jzebra;
          if (applet != null) {
-            // Searches for locally installed printer with "Officejet" in the name
-            applet.findPrinter("Officejet");
+            // Searches for locally installed printer with "Boca" in the name
+            applet.findPrinter("Boca");
             
             // Send characters/raw commands to applet using "append"
             // Hint:  Carriage Return = \r, New Line = \n, Escape Double Quotes= \"
-            applet.append( <?php echo '"'.$printfile.'"'; ?> );
+            applet.append( <?php echo '"' . addslashes($printfile) . '"'; ?> );
             
             // Mark the end of a label, in this case  P1 plus a newline character
             // jZebra knows to look for this and treat this as the end of a "page"
@@ -174,8 +203,8 @@ function bocatickets_end() {
             // applet.setDocumentsPerSpool("3");
             
             // Send characters/raw commands to printer
-            // applet.print();
-            applet.printToFile("/home/dan/jzebra_test.txt");
+            applet.print();
+            // applet.printToFile("~/jzebra_test.txt");
          } else {
             alert("Printer driver not found");
          }
@@ -191,7 +220,7 @@ function bocatickets_end() {
    </script>
    <applet name="jzebra" code="jzebra.PrintApplet.class" archive="plugins/bocatickets/jzebra.jar" width="5px" height="5px">
       <!-- Note:  It is recommended to use applet.findPrinter() instead for ajax heavy applications -->
-      <param name="printer" value="Officejet_6600">
+      <param name="printer" value="Boca">
       <!-- Optional, these "cache_" params enable faster loading "caching" of the applet -->
       <param name="cache_option" value="plugin">
       <!-- Change "cache_archive" to point to relative URL of jzebra.jar -->

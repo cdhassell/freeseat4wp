@@ -497,10 +497,8 @@ $lang["rebook-info"] = 'To reactivate deleted reservations, first select the "De
 $lang["regular_ticket"] = ' Std ';	// as in standard
 $lang["remail"] = 'Have you lost your ticket? Click here for %1$sReservation retrieval%2$s';
 $lang["reminders"] = 'Reminders';
-$lang["reqd_info"] = <<<EOD
-Please provide all of the following information.  Double check your email address.
-If you enter an incorrect email address, we will not be able to send you a receipt.
-EOD;
+$lang["reqd_info"] = 'Please provide all of the following information.  Double check your email address.<br>
+If you enter an incorrect email address, we will not be able to send you a receipt.';
 $lang["reserved-header"] = 'Reserved Seat Tickets';
 $lang["row"] = 'Row';
 
@@ -570,7 +568,7 @@ $lang["we_accept"] = "We Accept"; // credit card logos come after that
 $lang["weekdays"] = array("Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday");
 $lang["workingdays"] = 'working days';
 
-$lang["youare"] = 'You Are:';
+$lang["youare"] = 'Purchase Information';
 
 $lang["zoneextra"] = ''; // intentionally left blank
 

@@ -1,17 +1,5 @@
 <?php namespace freeseat;
 
-/*
- * Includes code from:
- *
- * PHP Toolkit for PayPal v0.51
- * http://www.paypal.com/pdn
- *
- * Copyright (c) 2004 PayPal Inc
- *
- * Released under Common Public License 1.0
- * http://opensource.org/licenses/cpl.php
- *
- */
 
 function freeseat_plugin_init_paypal() {
     global $freeseat_plugin_hooks;
@@ -25,19 +13,55 @@ function freeseat_plugin_init_paypal() {
     $freeseat_plugin_hooks['ccard_paymentform']['paypal'] = 'paypal_paymentform';
     $freeseat_plugin_hooks['ccard_readparams']['paypal'] = 'paypal_readparams';
     $freeseat_plugin_hooks['check_session']['paypal'] = 'paypal_checksession';
-    $freeseat_plugin_hooks['config_form']['paypal'] = 'paypal_config_form';
+    $freeseat_plugin_hooks['confirm_process']['paypal'] = 'paypal_pdt_check';
+    $freeseat_plugin_hooks['params_post']['paypal'] = 'paypal_postedit';
+    $freeseat_plugin_hooks['params_edit']['paypal'] = 'paypal_editparams';    
+    init_language('paypal');
 }
-
 
 function paypal_true($void) {
   return true;
 }
 
+function paypal_postedit( &$options ) {
+	// use WP post-form validation
+	// called in freeseat_validate_options()
+	if ( is_array( $options ) ) {
+		$options['paypal_account'] = wp_filter_nohtml_kses($options['paypal_account']); 
+		$options['paypal_auth_token'] = wp_filter_nohtml_kses($options['paypal_auth_token']);
+	}
+	return $options;
+}
+
+function paypal_editparams($options) {
+	global $lang;
+	// the options parameter should be an array 
+	if ( !is_array( $options ) ) return;
+	if ( !isset( $options['paypal_account'] ) ) $options['paypal_account'] = 'Paypal account email';
+	if ( !isset( $options['paypal_auth_token'] ) ) $options['paypal_auth_token'] = '';
+?>  
+<!-- paypal stuff -->
+<tr>
+	<td>
+	</td>
+	<td>
+		<?php _e( 'Paypal account email' ); ?><br />
+		<input type="text" size="25" name="freeseat_options[paypal_account]" value="<?php echo $options['paypal_account']; ?>" />
+	</td>
+	<td colspan="2">
+		<?php _e( 'Paypal account authorization token' ); ?><br />
+		<input type="text" size="60" name="freeseat_options[paypal_auth_token]" value="<?php echo $options['paypal_auth_token']; ?>" />
+	</td>
+</tr>
+<?php
+}
+
+
 function paypal_partner() {
   global $lang;
   ?>
-<!-- PayPal Logo --><table border="0" cellpadding="10" cellspacing="0" align="center"><tr><td align="right"><i><?php echo $lang["we_accept"]; ?> </i></td>
-<td align="left"><a href="#" onclick="javascript:window.open('https://www.paypal.com/us/cgi-bin/webscr?cmd=xpt/cps/popup/OLCWhatIsPayPal-outside','olcwhatispaypal','toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, width=400, height=350');"><img src="https://www.paypal.com/en_US/i/bnr/horizontal_solution_PPeCheck.gif" border="0" alt="Solution Graphics"></a></td></tr></table><!-- PayPal Logo -->
+<!-- PayPal Logo --><div class="partner-block"><table border="0" cellpadding="10" cellspacing="0" align="center"><tr><td align="right"><i><?php echo $lang["we_accept"]; ?> </i></td>
+<td align="left"><a href="#" onclick="javascript:window.open('https://www.paypal.com/us/cgi-bin/webscr?cmd=xpt/cps/popup/OLCWhatIsPayPal-outside','olcwhatispaypal','toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, width=400, height=350');"><img src="https://www.paypal.com/en_US/i/bnr/horizontal_solution_PPeCheck.gif" border="0" alt="Solution Graphics"></a></td></tr></table></div><!-- PayPal Logo -->
 <?php
 
 }
@@ -237,10 +261,6 @@ if (isset($paypal["image_url"]))
   echo '<input type="hidden" name="image_url" value="' . freeseat_url($paypal['image_url']) . '">'; 
  } 
 
-function paypal_config_form($form) {
-  return config_form('plugins/paypal/config-dist.php', $form);
-}
-
 function paypal_checksession($level) {
   global $lang;
   if ($level == 4) {
@@ -256,5 +276,63 @@ function paypal_checksession($level) {
     }
   }
   return false; // all is fine
+}
+
+function paypal_pdt_check() { 
+  // On success, saves an array with all PDT data variables in $_SESSION['PDT'].
+  // Accepts a pending status for eCheck transactions as ok.
+  // On failure, the user is shown a failure message and we exit.
+  global $paypal, $PDT_auth_token,$lang;
+
+  if (!isset($_GET["ok"]) || !$_GET["ok"]) return;  // let main script deal with it 
+  if (!isset($PDT_auth_token)) return; // nothing to check
+  if ($_SESSION['payment']!=PAY_CCARD) return;  // wrong payment type
+  if (isset($_GET['tx'])) {
+    $tx_token = $_GET['tx'];
+    $req = "cmd=_notify-synch&tx=$tx_token&at=$PDT_auth_token";
+    // post back to PayPal system to validate
+    $header = "POST /cgi-bin/webscr HTTP/1.0\r\n";
+    $header .= "Content-Type: application/x-www-form-urlencoded\r\n";
+    $header .= "Content-Length: " . strlen($req) . "\r\n\r\n";
+    // If possible, securely post back to paypal using HTTPS
+    // $fp = fsockopen ('www.paypal.com', 80, $errno, $errstr, 30);
+    $fp = fsockopen ('ssl://www.paypal.com', 443, $errno, $errstr, 30);
+    if (!$fp) {
+      sys_log("Unable to reach PayPal site to verify transaction");
+      return;
+    } 
+    fputs ($fp, $header . $req);
+    $res = '';
+    $headerdone = false;
+    while (!feof($fp)) {
+      $line = fgets ($fp, 1024);
+      if (strcmp($line, "\r\n") == 0) 
+        $headerdone = true;
+      elseif ($headerdone) 
+        $res .= $line;
+    }
+    // parse the data
+    $lines = explode("\n", $res);
+    $keyarray = array();
+    if (strcmp ($lines[0], "SUCCESS") == 0) {
+      foreach ($lines as $i => $j){
+        list($key,$val) = explode("=", $j);
+        $keyarray[urldecode($key)] = urldecode($val);
+      }
+      if (((strcmp("Completed",$keyarray["payment_status"]) == 0) ||
+           (strcmp("Pending",$keyarray["payment_status"]) == 0)) &&	
+           (strcmp($keyarray["receiver_email"],$paypal["business"]) == 0)) {
+        $keyarray["txnok"] = TRUE;
+        $_SESSION['PDT'] = $keyarray;
+        return;
+      } 
+    }
+    sys_log("Paypal transaction failed\nHeader: ".$header."\nReq: ".$req."\nRes: ".$res);
+    fclose ($fp);
+  }
+  show_head();
+  echo sprintf( $lang["pdt_failure_page"], 'seats.php' ); 
+  show_foot();
+  exit;
 }
 

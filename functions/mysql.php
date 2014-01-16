@@ -67,6 +67,11 @@ function freeseat_insert_id() {
 	return $wpdb->insert_id;	
 }
 
+// wrapper around WP error function
+function freeseat_mysql_error() {
+	$wpdb->print_error();
+}
+
 /*
  * Replaces freeseat table names with WP ready table names.
  * Lazy way to avoid rewriting every SQL statement.

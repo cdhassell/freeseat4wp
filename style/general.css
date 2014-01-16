@@ -412,3 +412,20 @@ div.highlight {
   width: 45em;
 }
 
+#freeseat-narrow div.paymentinfo {
+	margin: 10px;
+	padding: 10px;
+	background-color: white;
+	-moz-border-radius: 15px;
+	border-radius: 15px;
+	border: 1px solid #AAAAAA;
+} 
+
+#freeseat-narrow div.info-block {
+	float: left;
+}
+
+#freeseat-narrow div.partner-block {
+	float: right;
+}
+

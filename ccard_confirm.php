@@ -1,12 +1,28 @@
 <?php
 
+// import wordpress stuff
+require_once( $_SERVER['DOCUMENT_ROOT'] . '/wp2/wp-load.php' );
+
 define ('FS_PATH','');
 
 require_once (FS_PATH . "vars.php");
-
 require_once (FS_PATH . "functions/plugins.php");
 require_once (FS_PATH . "functions/send.php");
 require_once (FS_PATH . "functions/tools.php");
+require_once (FS_PATH . "functions/mysql.php");
+
+// import code to access freeseat options
+require_once( FS_PATH . "options.php" );
+// Get the global variables from the database
+$freeseat_vars = get_config();
+if ( is_array($freeseat_vars) ) {
+	foreach ( $freeseat_vars as $var => $value ) {
+		if (false === strpos($var,'chk_')) {
+			$$var = $value;
+		}	
+	}
+}
+
 
 /** Copyright (C) 2010 Maxime Gamboni. See COPYING for
 copying/warranty info.
@@ -79,64 +95,61 @@ $alert = false; // set to true if the contents of $messages should be
 prepare_log("ccard_ipn");
 
 if (! do_hook_exists("ccard_ipn_auth")) {   
-    header("Status: 403 Forbidden");
-    echo "<html><body><h1>403 Forbidden</h1><p>".$lang["err_badip"]."</p></body></html>";
-    sys_log($lang["warn_badlogin"]);
-    exit;
+	header("Status: 403 Forbidden");
+	echo "<html><body><h1>403 Forbidden</h1><p>".$lang["err_badip"]."</p></body></html>";
+	sys_log($lang["warn_badlogin"]);
+	exit;
 }  
 
 if (do_hook_exists("ccard_readparams")) {
-  /** This will be put in the mail in case something goes wrong,
-   otherwise it gets discarded */
-  kaboom("groupid=$groupid transid=$transid unsafeamount=$unsafeamount");
-  
-  if ($unsafeamount<0) {
-    /* This is probably a notification about a refund, FreeSeat
-     doesn't handle those. */
-    exit;
-  }
-
-  $amount = do_hook_function("ccard_checkamount", $transid);
+	/** This will be put in the mail in case something goes wrong,
+	otherwise it gets discarded */
+	kaboom("groupid=$groupid transid=$transid unsafeamount=$unsafeamount");
 	
-  if ($amount===TRUE || $amount===FALSE) {   
-    // do nothing
-  } else if ($unsafeamount!=$amount) {
-    // user provided incorrect amount but transaction id is valid.
-    // We'll use the (safe) $amount. 
-    kaboom(sprintf($lang["err_ccard_nomatch"],
-		   "unsafeamount=".price_to_string($unsafeamount).
-		   ", amount=". price_to_string($amount)));
-    $alert = true;
-  } // else: amounts match.
-  
-  if (!(mysql_connect($dbserv, $systemuser, $systempass) && mysql_select_db($dbdb))) {
-    myboom($lang["err_connect"]);
-  } else {
-    if ($amount===TRUE) {
-      sys_log("Pending payment GID=$groupid  TID=$transid  Amt=$unsafeamount ");
-      // extend the booking timestamp by 4 days to allow for an echeck to clear
-      $extend_date = date("Y-m-d H:i:s",time()+86400*4);
-      $q="update booking set timestamp='$extend_date' where booking.groupid=$groupid or booking.id=$groupid";
-      if (!mysql_query( $q )) sys_log(mysql_error());
-      exit;
-    } else if ($amount !== FALSE) {
-    /* Thank You email will be sent at this point if things work well. */
-    $success = process_ccard_transaction($groupid,$transid,$amount);
-    } // else: checking amount failed. We set alert to true below.
-  }
- }
+	if ($unsafeamount<0) {
+		/* This is probably a notification about a refund, FreeSeat
+			doesn't handle those. */
+		exit;
+	}
+	
+	$amount = do_hook_function("ccard_checkamount", $transid);
+	
+	if ($amount===TRUE || $amount===FALSE) {   
+		// do nothing
+	} else if ($unsafeamount!=$amount) {
+		// user provided incorrect amount but transaction id is valid.
+		// We'll use the (safe) $amount. 
+		kaboom(sprintf($lang["err_ccard_nomatch"],
+			"unsafeamount=".price_to_string($unsafeamount).
+			", amount=". price_to_string($amount)));
+		$alert = true;
+	} // else: amounts match.
+	
+	if ( 1 ) {
+		if ($amount===TRUE) {
+			sys_log("Pending payment GID=$groupid  TID=$transid  Amt=$unsafeamount ");
+			// extend the booking timestamp by 4 days to allow for an echeck to clear
+			$extend_date = date("Y-m-d H:i:s",time()+86400*4);
+			$q="update booking set timestamp='$extend_date' where booking.groupid=$groupid or booking.id=$groupid";
+			if (!freeseat_query( $q )) sys_log(freeseat_mysql_error());
+			exit;
+		} else if ($amount !== FALSE) {
+			/* Thank You email will be sent at this point if things work well. */
+			$success = process_ccard_transaction($groupid,$transid,$amount);
+		} // else: checking amount failed. We set alert to true below.
+	}
+}
 
 if ($success)
-  echo "success";
+	echo "success";
 else
-  $alert = true;
+	$alert = true;
 
 if ($alert) {
-  $subject = ($success?$lang["alert"]:$lang["failure"]);
-  $body = "\n".sprintf($lang["ccard_failed"],$subject);
-  $body .= flush_messages_text();
-  
-  send_message($smtp_sender,$admin_mail,$subject,$body);
+	$subject = ($success?$lang["alert"]:$lang["failure"]);
+	$body = "\n".sprintf($lang["ccard_failed"],$subject);
+	$body .= flush_messages_text();
+	send_message($smtp_sender,$admin_mail,$subject,$body);
 }
 
 log_done();

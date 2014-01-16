@@ -54,6 +54,7 @@ function groupdiscount_post( &$options ) {
 function groupdiscount_editparams($options) {
 	global $lang, $currency;
 	// the options parameter should be an array 
+	if ( !is_array( $options ) ) return;
 	if ( !isset( $options['groupdiscount'] ) ) $options['groupdiscount'] = '100';
 	if ( !isset( $options['groupdiscount_min'] ) ) $options['groupdiscount_min'] = 15;
 ?>  

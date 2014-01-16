@@ -58,7 +58,7 @@ function choose_local_file($spec)
 	global $lang;
 	
 	echo '<input type="hidden" name="MAX_FILE_SIZE" value="100000">';
-	echo '<input name="uploadedfile" type="file"><br>';
+	echo '<input name="uploadedfile" type="file" accept="image/*"><br>';
 }
 
 function choose_spectacle( $new, $spec )

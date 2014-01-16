@@ -82,7 +82,9 @@ function freeseat_seats( $page_url )
 		kaboom($lang['err_noseats']);
 		$currseat = false;
 	}
-	echo '<p><input class="button button-primary" type="submit" value="'.$lang["continue"].'"></p>';
+	if ( !do_hook_exists("seatmap_hide_button") ) { 
+		echo '<p><input class="button button-primary" type="submit" value="'.$lang["continue"].'"></p>';
+	}
 	echo '</form>';
 	show_foot();
 }	// end of freeseat_seats

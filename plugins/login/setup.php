@@ -1,22 +1,22 @@
 <?php namespace freeseat;
 
-/* Store and retrieve user data in the database */
+/* Require user to log in.  Store and retrieve user data in the database */
 
 function freeseat_plugin_init_login() {
 	global $freeseat_plugin_hooks;
 	
-	$freeseat_plugin_hooks['seatmap_top']['login'] = 'login_stop';
+	$freeseat_plugin_hooks['seatmap_hide_button']['login'] = 'login_stop';
 	$freeseat_plugin_hooks['pay_page_top']['login'] = 'login_getdata';
 	$freeseat_plugin_hooks['finish_end']['login'] = 'login_setdata';
 	// init_language('login');    
-	add_action( 'wp_enqueue_scripts', 'login_script' );
+	add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\\login_jquery_dialog' );
 }
 
-function login_script() {
+function login_jquery_dialog() {
 	wp_enqueue_script(
 		'popup-script',
-		plugins_url( 'js/popup_script.js', __FILE__ ),
-		array( 'jquery' )
+		FS_PATH . 'js/popup_script.js',
+		array( 'jquery', 'jquery-ui-dialog' )
 	);
 }
 
@@ -24,10 +24,11 @@ function login_stop() {
 	// detects whether the current user is logged in 
 	// and prevents the user from continuing 
 	if ( !is_user_logged_in() ) {
-		// FIXME display a warning
+		// FIXME move text to a language file
 		echo '<div id="dialog" title="Please Login"><p>Please register and log in before making a ticket purchase.</p></div>';
-		exit();
+		return true;
 	}
+	return false;
 }
 
 function login_getdata() {
@@ -37,11 +38,10 @@ function login_getdata() {
 	if ( 0 == $userid ) return;
 	$userdata = get_userdata( $userid );
 	if ( FALSE===$userdata ) return;
-	if (isset($userdata->email) && empty($_SESSION['email']))
-		$_SESSION['email'] = $userdata->email;
 	foreach( array( 
 					'firstname', 
 					'lastname', 
+					'email',
 					'phone', 
 					'address', 
 					'postalcode', 
@@ -63,6 +63,7 @@ function login_setdata() {
 	foreach( array( 
 					'firstname', 
 					'lastname', 
+					'email',
 					'phone', 
 					'address', 
 					'postalcode', 

@@ -28,9 +28,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-/*
+/*  Reminder about using namespaces:
 <?php namespace NS;
-	// about using namespaces:
     define(__NAMESPACE__ .'\foo','111');
     define('foo','222');
     echo foo;  // 111.

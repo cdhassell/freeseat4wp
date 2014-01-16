@@ -1,6 +1,10 @@
 #!/usr/local/bin/php
 <?php
 
+// import wordpress stuff
+require_once( $_SERVER['DOCUMENT_ROOT'] . '/wp2/wp-load.php' );
+
+// import freeseat stuff
 define ('FS_PATH',dirname($_SERVER['SCRIPT_FILENAME']).'/');
 
 require_once (FS_PATH . "vars.php");
@@ -12,6 +16,19 @@ require_once (FS_PATH . "functions/session.php");
 require_once (FS_PATH . "functions/send.php");
 require_once (FS_PATH . "functions/tools.php");
 require_once (FS_PATH . "functions/plugins.php");
+
+// import code to access freeseat options
+require_once( FS_PATH . "options.php" );
+// Get the global variables from the database
+$freeseat_vars = get_config();
+if ( is_array($freeseat_vars) ) {
+	foreach ( $freeseat_vars as $var => $value ) {
+		if (false === strpos($var,'chk_')) {
+			$$var = $value;
+		}	
+	}
+}
+
 
 /** Copyright (C) 2010 Maxime Gamboni. See COPYING for
 copying/warranty info.

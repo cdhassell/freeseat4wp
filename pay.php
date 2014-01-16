@@ -64,7 +64,7 @@ function freeseat_pay( $page_url )
 	if ($discount_option) {
 		$cats[CAT_REDUCED] = "cat_reduced";
 		// only display lowpriceconditions if there are reduced prices available
-		echo '<p class="main">'.$lowpriceconditions.'</p>';
+		echo '<p class="main">'.stripslashes($lowpriceconditions).'</p>';
 	}
 	
 	if (admin_mode())
@@ -122,6 +122,7 @@ function freeseat_pay( $page_url )
 		}
 	}
 	
+	
 	echo'<p class="main">'.$lang["select_payment"] . '<br />';
 	pay_option(PAY_CCARD);
 	pay_option(PAY_POSTAL);
@@ -131,6 +132,7 @@ function freeseat_pay( $page_url )
 	
 	do_hook('other_payment_info');
 	
+	echo "<div class='paymentinfo'>";
 	if (payment_open($sh,PAY_CCARD)) {
 	  do_hook('ccard_partner');
 	}
@@ -162,7 +164,8 @@ function freeseat_pay( $page_url )
 		echo $lang["country"].'&nbsp;:&nbsp;';
 		select_country();
 	}
-	echo '</p><p class="main"><input class="button button-primary" type="submit" value="'.$lang["continue"].'"></p></form>';
+	echo '</p></div><!-- end of paymentinfo -->';
+	echo '<p class="main"><input class="button button-primary" type="submit" value="'.$lang["continue"].'"></p></form>';
 	
 	show_foot();
 }	// end of freeseat_pay

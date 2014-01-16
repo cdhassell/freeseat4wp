@@ -98,9 +98,8 @@ function freeseat_confirm( $page_url )
 	}
 	
 	show_head();
-	
-	echo '<p class="main">'.$lang[ "intro_confirm" ].'</p>';
 	echo '<h2>' . $lang[ "summary" ] . '</h2>';
+	echo '<p class="main">'.$lang[ "intro_confirm" ].'</p>';
 	echo '<p class="main">';
 	show_show_info();
 	echo '</p>';
@@ -125,6 +124,7 @@ function freeseat_confirm( $page_url )
 		
 		echo '</form>';
 	} else {
+		// echo "<pre>".print_r($_SESSION)."</pre>";
 		echo '<input class="button button-primary" type="submit" value="'.$lang["book_submit"].'">';
 	}
 	echo '</form>';

@@ -5,20 +5,49 @@ require_once (FS_PATH . "plugins/UScleanup/phpxml.php");
 /* 
  *  Performs cleanups on address, name and phone number, using US standards
  *  Address validation requires an account with USPS address validation system.
- *  Assumes all data can be found in $_SESSION.  Requires global variables
- *  for configuration in config-dist.php to be set.
+ *  Assumes all data can be found in $_SESSION.  
  */
 
 function freeseat_plugin_init_UScleanup() {
     global $freeseat_plugin_hooks;
 
-    $freeseat_plugin_hooks['config_form']['UScleanup'] = 'UScleanup_config_form';
-
     $freeseat_plugin_hooks['pay_process']['UScleanup'] = 'UScleanup_scrub';
+    $freeseat_plugin_hooks['params_post']['UScleanup'] = 'UScleanup_postedit';
+    $freeseat_plugin_hooks['params_edit']['UScleanup'] = 'UScleanup_editparams';    
 }
 
-function UScleanup_config_form($form) {
-  return config_form('plugins/UScleanup/config-dist.php', $form);
+function UScleanup_postedit( &$options ) {
+	// use WP post-form validation
+	// called in freeseat_validate_options()
+	if ( is_array( $options ) ) {
+		$options['USPS_user'] = wp_filter_nohtml_kses($options['USPS_user']); 
+		$options['default_area_code'] = wp_filter_nohtml_kses($options['default_area_code']); 
+	}
+	return $options;
+}
+
+function UScleanup_editparams($options) {
+	global $lang;
+	// the options parameter should be an array 
+	if ( !is_array( $options ) ) return;
+	if ( !isset( $options['USPS_user'] ) ) $options['USPS_user'] = '';
+?>  
+<!-- UScleanup stuff -->
+<tr>
+	<td>
+	</td>
+	<td>
+		<?php _e( 'USPS API account' ); ?><br />
+		<input type="text" size="25" name="freeseat_options[USPS_user]" value="<?php echo $options['USPS_user']; ?>" />
+	</td>
+	<td>
+		<?php _e( 'Default US area code' ); ?><br />
+		<input type="number" size="5" name="freeseat_options[default_area_code]" value="<?php echo $options['default_area_code']; ?>" />
+	</td>
+	<td>
+	</td>
+</tr>
+<?php
 }
 
 function UScleanup_scrub() {
