@@ -184,7 +184,7 @@ function freeseat_bookinglist()
 		$and  = ""; // set to "and" once $cond is non empty
 		if ( $filtershow )
 			$cond = "showid=$filtershow and";
-		else if ( $fulllist )
+		else if ( isset($fulllist) && !empty($fulllist) )
 			$cond = "showid IN ($fulllist) and";
 		else
 			$cond = "showid is null";

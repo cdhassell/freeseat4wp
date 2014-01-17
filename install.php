@@ -1,10 +1,32 @@
 <?php namespace freeseat;
 
-register_activation_hook( __FILE__, 'freeseat_install' );
-register_activation_hook( __FILE__, 'freeseat_install_data' );
-register_deactivation_hook(__FILE__, 'freeseat_deactivate');
-register_uninstall_hook('freeseat-uninstall.php', 'uninstall');
+register_activation_hook( __FILE__, __NAMESPACE__ . '\\freeseat_install' );
+// register_activation_hook( __FILE__, __NAMESPACE__ . '\\freeseat_install_data' );
+register_deactivation_hook(__FILE__, __NAMESPACE__ . '\\freeseat_deactivate');
+register_uninstall_hook('uninstall.php', 'freeseat_uninstall');
+add_action( 'plugins_loaded', __NAMESPACE__ . '\\freeseat_check_data' );
+add_filter( 'plugin_action_links_'.__FILE__, __NAMESPACE__ . '\\freeseat_plugin_sample_data' );
 
+
+function freeseat_plugin_sample_data( $links ) {
+	global $wpdb;
+	
+	if ( ($wpdb->get_var( 'SELECT count( id ) FROM freeseat_seats' )) == 0 ) {	
+		$links[] = '<a href="'. admin_url( 'plugins.php?install=data&plugin=freeseat') .'">Install sample data</a>';
+	}
+	return $links;
+}
+
+function freeseat_check_data() {
+	global $wpdb;
+	
+	if ( isset($_GET['install']) && $_GET['install']=='data'
+		&& isset($_GET['plugin']) && $_GET['plugin']=='freeseat' ) {
+		if ( ($wpdb->get_var( 'SELECT count( id ) FROM freeseat_seats' )) == 0 ) {		
+			freeseat_install_data();
+		}
+	}
+}
 
 /**
  * Freeseat plugin install routine.
@@ -137,6 +159,7 @@ function freeseat_install() {
 	dbDelta( $sql );
 	
 	add_option( "freeseat_db_version", $freeseat_db_version );
+	
 }
 
 /**
@@ -144,11 +167,7 @@ function freeseat_install() {
  */
 function freeseat_install_data() {
 	global $wpdb;
-	
-	if ( ($cnt = $wpdb->get_var( 'SELECT count( id ) FROM freeseat_seats' )) > 0 ) {
-		print "<pre>Found $cnt records in the seats table</pre>"; 
-		return;
-	}		 
+	 
 	$wpdb->query("INSERT INTO freeseat_booking (id, seat, state, cat, firstname, lastname, email, phone, timestamp, payment, groupid, showid, address, postalcode, city, us_state, country, notes, expiration) VALUES
 (1, 14, 4, 2, 'Office', 'Sale', '', '', '2013-11-08 16:19:05', 0, NULL, 1, '', '', '', 'PA', 'US', NULL, '0000-00-00 00:00:00'),
 (1, 15, 4, 2, 'Office', 'Sale', '', '', '2013-11-08 16:19:05', 0, 1, 1, '', '', '', 'PA', 'US', NULL, '0000-00-00 00:00:00');");

@@ -148,7 +148,12 @@ function freeseat_params() {
 		<!-- Beginning of the Plugin Options Form -->
 		<form method="post" action="options.php">
 			<?php settings_fields('freeseat_plugin_options'); ?>
-			<?php $options = get_option('freeseat_options'); ?>
+			<?php 
+				$options = get_option('freeseat_options');
+				foreach($options['plugins'] as $name) {
+					if (!isset($options['chk_'.$name])) $options['chk_'.$name] = 1;
+				} 
+			?>
 			
 			<!-- Table Structure Containing Form Controls -->
 			<!-- Each Plugin Option Defined on a New Table Row -->

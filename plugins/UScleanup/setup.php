@@ -31,6 +31,7 @@ function UScleanup_editparams($options) {
 	// the options parameter should be an array 
 	if ( !is_array( $options ) ) return;
 	if ( !isset( $options['USPS_user'] ) ) $options['USPS_user'] = '';
+	if ( !isset( $options['default_area_code'] ) ) $options['default_area_code'] = '';
 ?>  
 <!-- UScleanup stuff -->
 <tr>
