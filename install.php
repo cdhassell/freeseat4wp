@@ -2,7 +2,6 @@
 
 register_activation_hook(   FS_PATH . 'freeseat.php', __NAMESPACE__ . '\\freeseat_install'   );
 register_deactivation_hook( FS_PATH . 'freeseat.php', __NAMESPACE__ . '\\freeseat_deactivate');
-register_uninstall_hook( 'uninstall.php', 'freeseat_uninstall');
 add_action( 'wp_loaded', __NAMESPACE__ . '\\freeseat_check_data' );
 add_filter( 'plugin_action_links_freeseat/freeseat.php', __NAMESPACE__ . '\\freeseat_sample_data_link' );
 add_action( 'activated_plugin', __NAMESPACE__ . '\\save_error');
