@@ -28,8 +28,8 @@
 
 // Set-up Action and Filter Hooks
 register_activation_hook(  FS_PATH . 'freeseat.php', __NAMESPACE__ . '\\freeseat_add_defaults');
-add_action('admin_init', __NAMESPACE__ . '\\freeseat_init' );
-add_filter( 'plugin_action_links', __NAMESPACE__ . '\\freeseat_plugin_action_links', 10, 2 );
+add_action( 'admin_init', __NAMESPACE__ . '\\freeseat_init' );
+add_filter( 'plugin_action_links_freeseat/freeseat.php', __NAMESPACE__ . '\\freeseat_plugin_settings_link', 10, 2 );
 
 
 // ------------------------------------------------------------------------------
@@ -416,13 +416,10 @@ function freeseat_validate_options($input) {
 }
 
 // Display a Settings link on the main Plugins page
-function freeseat_plugin_action_links( $links, $file ) {
-
-	if ( $file == plugin_basename( __FILE__ ) ) {
-		$freeseat_links = '<a href="'.get_admin_url().'options-general.php?page=freeseat-admin/options.php">'.__('Settings').'</a>';
-		// make the 'Settings' link appear first
-		array_unshift( $links, $freeseat_links );
-	}
+function freeseat_plugin_settings_link( $links ) {
+	$freeseat_links = '<a href="'.admin_url( 'admin.php?page=freeseat-system' ).'">'.__('Settings').'</a>';
+	// make the 'Settings' link appear first
+	array_unshift( $links, $freeseat_links );
 	return $links;
 }
 
