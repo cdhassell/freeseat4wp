@@ -27,22 +27,10 @@
 // ------------------------------------------------------------------------
 
 // Set-up Action and Filter Hooks
-register_activation_hook(__FILE__, __NAMESPACE__ . '\\freeseat_add_defaults');
-register_uninstall_hook(__FILE__, __NAMESPACE__ . '\\freeseat_delete_plugin_options');
+register_activation_hook(  FS_PATH . 'freeseat.php', __NAMESPACE__ . '\\freeseat_add_defaults');
 add_action('admin_init', __NAMESPACE__ . '\\freeseat_init' );
 add_filter( 'plugin_action_links', __NAMESPACE__ . '\\freeseat_plugin_action_links', 10, 2 );
 
-// --------------------------------------------------------------------------------------
-// CALLBACK FUNCTION FOR: register_uninstall_hook(__FILE__, 'freeseat_delete_plugin_options')
-// --------------------------------------------------------------------------------------
-// THIS FUNCTION RUNS WHEN THE USER DEACTIVATES AND DELETES THE PLUGIN. IT SIMPLY DELETES
-// THE PLUGIN OPTIONS DB ENTRY (WHICH IS AN ARRAY STORING ALL THE PLUGIN OPTIONS).
-// --------------------------------------------------------------------------------------
-
-// Delete options table entries ONLY when plugin deactivated AND deleted
-function freeseat_delete_plugin_options() {
-	delete_option('freeseat_options');
-}
 
 // ------------------------------------------------------------------------------
 // CALLBACK FUNCTION FOR: register_activation_hook(__FILE__, 'freeseat_add_defaults')
@@ -150,8 +138,10 @@ function freeseat_params() {
 			<?php settings_fields('freeseat_plugin_options'); ?>
 			<?php 
 				$options = get_option('freeseat_options');
-				foreach($options['plugins'] as $name) {
-					if (!isset($options['chk_'.$name])) $options['chk_'.$name] = 1;
+				if (is_array($options)) {
+					foreach($options['plugins'] as $name) {
+						if (!isset($options['chk_'.$name])) $options['chk_'.$name] = 1;
+					}
 				} 
 			?>
 			

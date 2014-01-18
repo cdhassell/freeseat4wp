@@ -130,7 +130,7 @@ $lang['imagesrc'] = 'Image location (Must be JPEG)';
 $lang["immediately"] = 'immediately';
 $lang["import"] = 'Upload this file';
 $lang["in"] = 'in %1$s'; // as in "in <ten days>"
-$lang["index_head"] = '';
+$lang["index_head"] = 'Our Current Shows';
 $lang["intro_ccard"] = <<<EOD
  <h2>Thank you for your reservation</h2>
 
