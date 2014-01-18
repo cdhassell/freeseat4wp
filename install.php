@@ -7,19 +7,26 @@ add_action( 'wp_loaded', __NAMESPACE__ . '\\freeseat_check_data' );
 add_filter( 'plugin_action_links_freeseat/freeseat.php', __NAMESPACE__ . '\\freeseat_sample_data_link' );
 add_action( 'activated_plugin', __NAMESPACE__ . '\\save_error');
 
+// this is for debugging purposes - captures startup error messages and saves them in the db
 function save_error() {
     update_option('plugin_error',  ob_get_contents());
 }
- 
-// echo get_option('plugin_error');
 
+/**
+ *  Adds a link to the plugin screen for installing sample data
+ *  It disappears once there is data in the tables
+ */
 function freeseat_sample_data_link( $links ) {
 	if (!get_option('freeseat_data_installed')) {
-		$links[] = '<a href="'. admin_url( 'plugins.php?install=data&plugin=freeseat') .'">Install sample data</a>';
+		$links[] = '<a href="'. admin_url( 'plugins.php?install=data&plugin=freeseat') .'">Add sample data</a>';
 	}
 	return $links;
 }
 
+/**
+ *  Checks if we have a request to install sample data
+ *  If so it calls freeseat_install_data()
+ */
 function freeseat_check_data() {
 	if ( 
 		!get_option('freeseat_data_installed') &&
@@ -165,25 +172,30 @@ function freeseat_install() {
 }
 
 /**
- * Install default data.
+ *  Install sample data.
  */
 function freeseat_install_data() {
 	global $wpdb;
 	
 	update_option('freeseat_data_installed', TRUE);
+	// if there is data in the tables, don't do this
 	if ( $wpdb->get_var( 'SELECT count( id ) FROM freeseat_seats' ) > 0 ) return;	
 	
+	// calculate a future date two months in the future at 7:30 pm
+	$showdate1 = strftime( "%F", time()+(60*60*24*60) ) . " 19:30:00";
+	$showdate2 = strftime( "%F", time()+(60*60*24*61) ) . " 19:30:00";
+	
 	$wpdb->query("INSERT INTO freeseat_booking (id, seat, state, cat, firstname, lastname, email, phone, timestamp, payment, groupid, showid, address, postalcode, city, us_state, country, notes, expiration) VALUES
-(1, 14, 4, 2, 'Office', 'Sale', '', '', '2013-11-08 16:19:05', 0, NULL, 1, '', '', '', 'PA', 'US', NULL, '0000-00-00 00:00:00'),
-(2, 15, 4, 2, 'Office', 'Sale', '', '', '2013-11-08 16:19:05', 0, 1, 1, '', '', '', 'PA', 'US', NULL, '0000-00-00 00:00:00');");
+(1, 14, 4, 2, 'Office', 'Sale', '', '', '$showdate1', 0, NULL, 1, '', '', '', 'PA', 'US', NULL, '0000-00-00 00:00:00'),
+(2, 15, 4, 2, 'Office', 'Sale', '', '', '$showdate2', 0, 1, 1, '', '', '', 'PA', 'US', NULL, '0000-00-00 00:00:00');");
 	$wpdb->query("INSERT INTO freeseat_class_comment (spectacle, class, comment, description) VALUES
 (1, 1, 'Section A', NULL),
 (1, 2, 'Section B', NULL);");
 	$wpdb->query("INSERT INTO freeseat_price (spectacle, cat, class, amount) VALUES
-(1, 2, 1, 1500),
-(1, 1, 1, 1300),
-(1, 2, 2, 1300),
-(1, 1, 2, 1100),
+(1, 2, 1, 2500),
+(1, 1, 1, 2000),
+(1, 2, 2, 1800),
+(1, 1, 2, 1500),
 (1, 2, 3, 0),
 (1, 1, 3, 0),
 (1, 2, 4, 0),
@@ -512,11 +524,11 @@ function freeseat_install_data() {
 }
 
 /**
- * Placeholder for plugin deactivation routine.
+ *  Placeholder for plugin deactivation routine.
  */
 function freeseat_deactivate()
 {
-	print "<pre>Freeseat deactivated</pre>";
+	sys_log( "Freeseat deactivated" );
 }
 
 
