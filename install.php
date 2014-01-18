@@ -46,7 +46,7 @@ function freeseat_install() {
 	
    $table_name = 'freeseat_booking';
       
-   $sql = "CREATE TABLE $table_name (
+   $sql = "CREATE TABLE IF NOT EXISTS $table_name (
 	id int(10) NOT NULL AUTO_INCREMENT,
 	seat int(10) NOT NULL DEFAULT '0',
 	state int(2) NOT NULL DEFAULT '0',
@@ -75,7 +75,7 @@ function freeseat_install() {
  
    $table_name = 'freeseat_price';
       
-   $sql = "CREATE TABLE $table_name (
+   $sql = "CREATE TABLE IF NOT EXISTS $table_name (
 	spectacle int(7) DEFAULT NULL,
 	cat int(2) DEFAULT NULL,
 	class int(3) DEFAULT NULL,
@@ -87,7 +87,7 @@ function freeseat_install() {
 
    $table_name = 'freeseat_seats';
       
-   $sql = "CREATE TABLE $table_name (
+   $sql = "CREATE TABLE IF NOT EXISTS $table_name (
 	id int(10) NOT NULL AUTO_INCREMENT,
 	theatre int(7) NOT NULL DEFAULT '0',
 	row varchar(5) NOT NULL DEFAULT '',
@@ -104,7 +104,7 @@ function freeseat_install() {
 	
 	$table_name = 'freeseat_shows';
       
-  $sql = "CREATE TABLE $table_name (
+  $sql = "CREATE TABLE IF NOT EXISTS $table_name (
 	id int(10) NOT NULL AUTO_INCREMENT,
 	spectacle int(7) DEFAULT NULL,
  	theatre int(7) DEFAULT NULL,
@@ -119,7 +119,7 @@ function freeseat_install() {
 	
 	$table_name = 'freeseat_spectacles';
       
-  $sql = "CREATE TABLE $table_name (
+  $sql = "CREATE TABLE IF NOT EXISTS $table_name (
 	id int(7) NOT NULL AUTO_INCREMENT,
 	name varchar(64) DEFAULT NULL,
 	imagesrc varchar(64) DEFAULT NULL,
@@ -132,7 +132,7 @@ function freeseat_install() {
 	
 	$table_name = 'freeseat_theatres';
       
-  $sql = "CREATE TABLE $table_name (
+  $sql = "CREATE TABLE IF NOT EXISTS $table_name (
 	id int(7) NOT NULL AUTO_INCREMENT,
 	name varchar(64) DEFAULT NULL,
 	imagesrc varchar(64) DEFAULT NULL,
@@ -144,7 +144,7 @@ function freeseat_install() {
 	
 	$table_name = 'freeseat_class_comment';
       
-  $sql = "CREATE TABLE $table_name ( 
+  $sql = "CREATE TABLE IF NOT EXISTS $table_name ( 
 	spectacle int(7) NOT NULL DEFAULT '0',
  	class int(2) NOT NULL DEFAULT '0',
 	comment varchar(64) DEFAULT NULL,
@@ -156,7 +156,7 @@ function freeseat_install() {
 	
 	$table_name = 'freeseat_seat_locks';
 	
-  $sql = "CREATE TABLE $table_name (
+  $sql = "CREATE TABLE IF NOT EXISTS $table_name (
 	seatid int(10) NOT NULL DEFAULT '0',
 	showid int(10) NOT NULL DEFAULT '0',
 	sid varchar(50) NOT NULL DEFAULT '0',
