@@ -235,6 +235,7 @@ function read_theatre( $id ) {
 	global $name, $staggered;
 	$sql = "SELECT name, staggered_seating from theatres WHERE id=%d";
 	$theatre = fetch_all( sprintf( $sql, $id ) );
+	if (empty($theatre)) return NULL; 
 	$name = $theatre[0]['name'];
 	$staggered = $theatre[0]['staggered_seating'];
 	$sql = "SELECT theatre,row,col,extra,zone,class,x,y from seats WHERE theatre=%d";

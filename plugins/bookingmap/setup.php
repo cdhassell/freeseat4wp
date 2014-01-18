@@ -156,17 +156,19 @@ function freeseat_bookingmap() {
 	echo '</p><p class="main">';
 	printf($lang["seeasalist"],'[<a href="'.admin_url('admin.php?page=freeseat-reservations&showid='.$sh['id']).'">','</a>]');
 	echo '</p>';
-	$zonelist = get_zones($sh['theatre']);
-	if ($zonelist) {
-		foreach ($zonelist as $zone) {
-		    render_seatmap($sh['theatre'], $zone,
-			   'bookingmap_key', 'bookingmap_seat',
-			   'bookingmap_unkey', 'bookingmap_unseat');
+	if (isset($sh['theatre'])) {
+		$zonelist = get_zones($sh['theatre']);
+		if (!empty($zonelist)) {
+			foreach ($zonelist as $zone) {
+		    	render_seatmap($sh['theatre'], $zone,
+			   		'bookingmap_key', 'bookingmap_seat',
+			   		'bookingmap_unkey', 'bookingmap_unseat');
+			}
+		} else {
+			// either the theatre has no seats or there was an error obtaining them.
+			kaboom($lang['err_noseats']);
+			$currseat = false;
 		}
-	} else {
-		// either the theatre has no seats or there was an error obtaining them.
-		kaboom($lang['err_noseats']);
-		$currseat = false;
 	}
 	echo '<p class="main">';
 	printf($lang["backto"],'[<a href="'.admin_url().'?page=freeseat-admin&fsp=2&showid='.$_SESSION['showid'].'">'.$lang["link_seats"].'</a>]');

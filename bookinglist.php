@@ -187,7 +187,7 @@ function freeseat_bookinglist()
 		else if ( isset($fulllist) && !empty($fulllist) )
 			$cond = "showid IN ($fulllist) and";
 		else
-			$cond = "showid is null";
+			$cond = " ";
 		
 		switch ( $filterst ) {
 			case ST_BOOKED:

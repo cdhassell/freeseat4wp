@@ -1,30 +1,32 @@
 <?php namespace freeseat;
 
-register_activation_hook( __FILE__, __NAMESPACE__ . '\\freeseat_install' );
-// register_activation_hook( __FILE__, __NAMESPACE__ . '\\freeseat_install_data' );
-register_deactivation_hook(__FILE__, __NAMESPACE__ . '\\freeseat_deactivate');
-register_uninstall_hook('uninstall.php', 'freeseat_uninstall');
-add_action( 'plugins_loaded', __NAMESPACE__ . '\\freeseat_check_data' );
-add_filter( 'plugin_action_links_'.__FILE__, __NAMESPACE__ . '\\freeseat_plugin_sample_data' );
+register_activation_hook(   FS_PATH . 'freeseat.php', __NAMESPACE__ . '\\freeseat_install'   );
+register_deactivation_hook( FS_PATH . 'freeseat.php', __NAMESPACE__ . '\\freeseat_deactivate');
+register_uninstall_hook( 'uninstall.php', 'freeseat_uninstall');
+add_action( 'wp_loaded', __NAMESPACE__ . '\\freeseat_check_data' );
+add_filter( 'plugin_action_links_freeseat/freeseat.php', __NAMESPACE__ . '\\freeseat_sample_data_link' );
+add_action( 'activated_plugin', __NAMESPACE__ . '\\save_error');
 
+function save_error() {
+    update_option('plugin_error',  ob_get_contents());
+}
+ 
+// echo get_option('plugin_error');
 
-function freeseat_plugin_sample_data( $links ) {
-	global $wpdb;
-	
-	if ( ($wpdb->get_var( 'SELECT count( id ) FROM freeseat_seats' )) == 0 ) {	
+function freeseat_sample_data_link( $links ) {
+	if (!get_option('freeseat_data_installed')) {
 		$links[] = '<a href="'. admin_url( 'plugins.php?install=data&plugin=freeseat') .'">Install sample data</a>';
 	}
 	return $links;
 }
 
 function freeseat_check_data() {
-	global $wpdb;
-	
-	if ( isset($_GET['install']) && $_GET['install']=='data'
-		&& isset($_GET['plugin']) && $_GET['plugin']=='freeseat' ) {
-		if ( ($wpdb->get_var( 'SELECT count( id ) FROM freeseat_seats' )) == 0 ) {		
-			freeseat_install_data();
-		}
+	if ( 
+		!get_option('freeseat_data_installed') &&
+		isset($_GET['install']) && $_GET['install']=='data' &&
+		isset($_GET['plugin'] ) && $_GET['plugin' ]=='freeseat' 
+	) {		
+		freeseat_install_data();
 	}
 }
 
@@ -167,10 +169,13 @@ function freeseat_install() {
  */
 function freeseat_install_data() {
 	global $wpdb;
-	 
+	
+	update_option('freeseat_data_installed', TRUE);
+	if ( $wpdb->get_var( 'SELECT count( id ) FROM freeseat_seats' ) > 0 ) return;	
+	
 	$wpdb->query("INSERT INTO freeseat_booking (id, seat, state, cat, firstname, lastname, email, phone, timestamp, payment, groupid, showid, address, postalcode, city, us_state, country, notes, expiration) VALUES
 (1, 14, 4, 2, 'Office', 'Sale', '', '', '2013-11-08 16:19:05', 0, NULL, 1, '', '', '', 'PA', 'US', NULL, '0000-00-00 00:00:00'),
-(1, 15, 4, 2, 'Office', 'Sale', '', '', '2013-11-08 16:19:05', 0, 1, 1, '', '', '', 'PA', 'US', NULL, '0000-00-00 00:00:00');");
+(2, 15, 4, 2, 'Office', 'Sale', '', '', '2013-11-08 16:19:05', 0, 1, 1, '', '', '', 'PA', 'US', NULL, '0000-00-00 00:00:00');");
 	$wpdb->query("INSERT INTO freeseat_class_comment (spectacle, class, comment, description) VALUES
 (1, 1, 'Section A', NULL),
 (1, 2, 'Section B', NULL);");
@@ -514,13 +519,5 @@ function freeseat_deactivate()
 	print "<pre>Freeseat deactivated</pre>";
 }
 
-
-add_action('activated_plugin','save_error');
-
-function save_error(){
-    update_option('plugin_error',  ob_get_contents());
-}
- 
-// echo get_option('plugin_error');
 
 

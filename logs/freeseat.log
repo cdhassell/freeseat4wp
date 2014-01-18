@@ -1,132 +1,26 @@
-Tue 31 Dec 2013 01:34 AM : admin buying from 127.0.0.1 : creating 82683 as 4 (Paid)
-Tue 31 Dec 2013 01:34 AM : admin buying from 127.0.0.1 : Found 203 in civicrm for 82683 
-Tue 31 Dec 2013 02:01 AM : booking administration : setting 82668 to 5 (Deleted)
-
-Important Update Change= How to setup Home/front-page with out Blog = Create a new page by going to pages - Add New. Then on right side, in page attributes - Template, select Home as the page template and name your page Home(or anything). And publish the page. Then go to Settings - Reading - select a static page as frontpage display option. Select Home as Front page option.
-
-Wed 01 Jan 2014 07:45 PM :  : Civicrm found 8 shows of The Tempest, 8 with IDs
-Wed 01 Jan 2014 07:45 PM :  : Update of civievent 15 OK. 
-Wed 01 Jan 2014 07:45 PM :  : Update of civievent 16 OK. 
-Wed 01 Jan 2014 07:45 PM :  : Update of civievent 17 OK. 
-Wed 01 Jan 2014 07:45 PM :  : Update of civievent 7 OK. 
-Wed 01 Jan 2014 07:45 PM :  : Update of civievent 8 OK. 
-Wed 01 Jan 2014 07:45 PM :  : Update of civievent 9 OK. 
-Wed 01 Jan 2014 07:45 PM :  : Update of civievent 10 OK. 
-Wed 01 Jan 2014 07:45 PM :  : Update of civievent 11 OK. 
-Wed 01 Jan 2014 08:38 PM :  : Civicrm found 8 shows of The Tempest, 8 with IDs
-Wed 01 Jan 2014 08:38 PM :  : Update of civievent 15 OK. 
-Wed 01 Jan 2014 08:38 PM :  : Update of civievent 16 OK. 
-Wed 01 Jan 2014 08:38 PM :  : Update of civievent 17 OK. 
-Wed 01 Jan 2014 08:38 PM :  : Update of civievent 7 OK. 
-Wed 01 Jan 2014 08:38 PM :  : Update of civievent 8 OK. 
-Wed 01 Jan 2014 08:38 PM :  : Update of civievent 9 OK. 
-Wed 01 Jan 2014 08:38 PM :  : Update of civievent 10 OK. 
-Wed 01 Jan 2014 08:38 PM :  : Update of civievent 11 OK. 
-Wed 01 Jan 2014 08:38 PM :  : Civicrm found 8 shows of The Tempest, 8 with IDs
-Wed 01 Jan 2014 08:38 PM :  : Update of civievent 15 OK. 
-Wed 01 Jan 2014 08:38 PM :  : Update of civievent 16 OK. 
-Wed 01 Jan 2014 08:38 PM :  : Update of civievent 17 OK. 
-Wed 01 Jan 2014 08:38 PM :  : Update of civievent 7 OK. 
-Wed 01 Jan 2014 08:38 PM :  : Update of civievent 8 OK. 
-Wed 01 Jan 2014 08:38 PM :  : Update of civievent 9 OK. 
-Wed 01 Jan 2014 08:38 PM :  : Update of civievent 10 OK. 
-Wed 01 Jan 2014 08:38 PM :  : Update of civievent 11 OK. 
-Thu 02 Jan 2014 12:35 PM :  : Civicrm found 8 shows of The Tempest, 8 with IDs
-Thu 02 Jan 2014 12:35 PM :  : Update of civievent 15 OK. 
-Thu 02 Jan 2014 12:35 PM :  : Update of civievent 16 OK. 
-Thu 02 Jan 2014 12:35 PM :  : Update of civievent 17 OK. 
-Thu 02 Jan 2014 12:35 PM :  : Update of civievent 7 OK. 
-Thu 02 Jan 2014 12:35 PM :  : Update of civievent 8 OK. 
-Thu 02 Jan 2014 12:35 PM :  : Update of civievent 9 OK. 
-Thu 02 Jan 2014 12:35 PM :  : Update of civievent 10 OK. 
-Thu 02 Jan 2014 12:35 PM :  : Update of civievent 11 OK. 
-Sat 04 Jan 2014 06:06 PM :  : creating 82684 as 6 (Disabled)
-Sat 04 Jan 2014 06:06 PM :  : creating 82685 as 6 (Disabled)
-Sat 04 Jan 2014 06:06 PM :  : creating 82686 as 6 (Disabled)
-Sat 04 Jan 2014 06:06 PM :  : creating 82687 as 6 (Disabled)
-Sat 04 Jan 2014 06:06 PM :  : creating 82688 as 6 (Disabled)
-Sat 04 Jan 2014 06:06 PM :  : creating 82689 as 6 (Disabled)
-Sat 04 Jan 2014 06:06 PM :  : creating 82690 as 6 (Disabled)
-Sat 04 Jan 2014 06:06 PM :  : creating 82691 as 6 (Disabled)
-Sat 04 Jan 2014 06:06 PM :  : creating 82692 as 6 (Disabled)
-Sat 04 Jan 2014 06:06 PM :  : creating 82693 as 6 (Disabled)
-Sat 04 Jan 2014 10:48 PM : admin buying from 127.0.0.1 : creating 82694 as 4 (Paid)
-Sun 05 Jan 2014 01:56 AM : admin buying from 127.0.0.1 : creating 82695 as 4 (Paid)
-Sun 05 Jan 2014 02:07 AM : admin buying from 127.0.0.1 : creating 82696 as 4 (Paid)
-Sun 05 Jan 2014 02:36 AM : admin buying from 127.0.0.1 : creating 82697 as 4 (Paid)
-Sun 05 Jan 2014 02:42 AM : admin buying from 127.0.0.1 : creating 82698 as 4 (Paid)
-Sun 05 Jan 2014 02:46 AM : admin buying from 127.0.0.1 : creating 82699 as 4 (Paid)
-Sun 05 Jan 2014 02:52 AM : admin buying from 127.0.0.1 : creating 82700 as 4 (Paid)
-Sun 05 Jan 2014 02:54 AM : admin buying from 127.0.0.1 : creating 82701 as 4 (Paid)
-Sun 05 Jan 2014 03:00 AM : admin buying from 127.0.0.1 : creating 82702 as 4 (Paid)
-Sun 05 Jan 2014 03:10 AM : admin buying from 127.0.0.1 : creating 82703 as 4 (Paid)
-Sun 05 Jan 2014 03:25 AM : admin buying from 127.0.0.1 : creating 82704 as 4 (Paid)
-Sun 05 Jan 2014 03:25 AM : admin buying from 127.0.0.1 : Created 204 in civicrm for 82704
-Sun 05 Jan 2014 07:20 PM : admin buying from 127.0.0.1 : creating 82705 as 4 (Paid)
-Sun 05 Jan 2014 07:20 PM : admin buying from 127.0.0.1 : Found 204 in civicrm for 82705 
-Sun 05 Jan 2014 07:42 PM : admin buying from 127.0.0.1 : creating 82706 as 4 (Paid)
-Sun 05 Jan 2014 07:42 PM : admin buying from 127.0.0.1 : Found 204 in civicrm for 82706 
-Sun 05 Jan 2014 07:49 PM : admin buying from 127.0.0.1 : creating 82707 as 4 (Paid)
-Sun 05 Jan 2014 07:49 PM : admin buying from 127.0.0.1 : Found 204 in civicrm for 82707 
-Sun 05 Jan 2014 07:54 PM : admin buying from 127.0.0.1 : creating 82708 as 4 (Paid)
-Sun 05 Jan 2014 07:54 PM : admin buying from 127.0.0.1 : creating 82709 as 4 (Paid)
-Sun 05 Jan 2014 07:54 PM : admin buying from 127.0.0.1 : session = 1
-Sun 05 Jan 2014 07:54 PM : admin buying from 127.0.0.1 : Found 204 in civicrm for 82708 
-Sun 05 Jan 2014 08:20 PM : admin buying from 127.0.0.1 : creating 82710 as 4 (Paid)
-Sun 05 Jan 2014 08:20 PM : admin buying from 127.0.0.1 : Found 204 in civicrm for 82710 
-Sun 05 Jan 2014 08:24 PM : admin buying from 127.0.0.1 : creating 82711 as 4 (Paid)
-Sun 05 Jan 2014 08:24 PM : admin buying from 127.0.0.1 : Found 204 in civicrm for 82711 
-Sun 05 Jan 2014 09:25 PM : admin buying from 127.0.0.1 : creating 82712 as 4 (Paid)
-Sun 05 Jan 2014 11:26 PM : admin buying from 127.0.0.1 : creating 82713 as 4 (Paid)
-Mon 06 Jan 2014 01:54 AM : admin buying from 127.0.0.1 : creating 82714 as 4 (Paid)
-Mon 06 Jan 2014 02:56 AM : admin buying from 127.0.0.1 : creating 82715 as 4 (Paid)
-Mon 06 Jan 2014 02:56 AM : admin buying from 127.0.0.1 : path = /var/www/wp2/wp-admin
-Mon 06 Jan 2014 03:31 AM : admin buying from 127.0.0.1 : creating 82716 as 4 (Paid)
-Tue 07 Jan 2014 12:55 AM : admin buying from 127.0.0.1 : creating 82717 as 4 (Paid)
-Wed 08 Jan 2014 01:07 AM : admin buying from 127.0.0.1 : creating 82718 as 4 (Paid)
-Wed 08 Jan 2014 01:08 AM : admin buying from 127.0.0.1 : creating 82719 as 4 (Paid)
-Wed 08 Jan 2014 02:01 AM : admin buying from 127.0.0.1 : creating 82720 as 4 (Paid)
-Wed 08 Jan 2014 03:13 AM : admin buying from 127.0.0.1 : creating 82721 as 4 (Paid)
-Wed 08 Jan 2014 03:19 AM : admin buying from 127.0.0.1 : Aborting civicrm integration, civicrm not found
-Wed 08 Jan 2014 11:59 AM : admin buying from 127.0.0.1 : creating 82722 as 4 (Paid)
-Wed 08 Jan 2014 11:59 AM : admin buying from 127.0.0.1 : Aborting civicrm integration, civicrm not found
-Wed 08 Jan 2014 12:07 PM : admin buying from 127.0.0.1 : creating 82723 as 4 (Paid)
-Wed 08 Jan 2014 12:07 PM : admin buying from 127.0.0.1 : creating 82724 as 4 (Paid)
-Wed 08 Jan 2014 12:07 PM : admin buying from 127.0.0.1 : Aborting civicrm integration, civicrm not found
-Wed 08 Jan 2014 12:14 PM : admin buying from 127.0.0.1 : creating 82725 as 4 (Paid)
-Wed 08 Jan 2014 12:14 PM : admin buying from 127.0.0.1 : Aborting civicrm integration, civicrm not found
-Wed 08 Jan 2014 12:17 PM : admin buying from 127.0.0.1 : creating 82726 as 4 (Paid)
-Wed 08 Jan 2014 12:17 PM : admin buying from 127.0.0.1 : Aborting civicrm integration, civicrm not found
-Wed 08 Jan 2014 12:18 PM : admin buying from 127.0.0.1 : User emailing tickets to cdhassell@gmail.com
-Wed 08 Jan 2014 12:18 PM : admin buying from 127.0.0.1 : Aborting civicrm integration, civicrm not found
-Thu 09 Jan 2014 12:20 AM : admin buying from 127.0.0.1 : creating 82727 as 4 (Paid)
-Thu 09 Jan 2014 12:20 AM : admin buying from 127.0.0.1 : Found 204 in civicrm for 82727 
-Thu 09 Jan 2014 01:09 AM : admin buying from 127.0.0.1 : User emailing tickets to cdhassell@gmail.com
-Thu 09 Jan 2014 01:09 AM : admin buying from 127.0.0.1 : Found 204 in civicrm for 82727 
-Fri 10 Jan 2014 12:00 PM : admin buying from 127.0.0.1 : creating 82728 as 4 (Paid)
-Fri 10 Jan 2014 12:00 PM : admin buying from 127.0.0.1 : Found 204 in civicrm for 82728 
-Fri 10 Jan 2014 12:07 PM : admin buying from 127.0.0.1 : creating 82729 as 4 (Paid)
-Fri 10 Jan 2014 12:07 PM : admin buying from 127.0.0.1 : Found 204 in civicrm for 82729 
-Fri 10 Jan 2014 12:11 PM : admin buying from 127.0.0.1 : creating 82730 as 4 (Paid)
-Fri 10 Jan 2014 12:11 PM : admin buying from 127.0.0.1 : Found 204 in civicrm for 82730 
-Fri 10 Jan 2014 12:17 PM : admin buying from 127.0.0.1 : creating 82731 as 4 (Paid)
-Fri 10 Jan 2014 12:17 PM : admin buying from 127.0.0.1 : Found 204 in civicrm for 82731 
-Fri 10 Jan 2014 12:19 PM : admin buying from 127.0.0.1 : creating 82732 as 4 (Paid)
-Fri 10 Jan 2014 12:19 PM : admin buying from 127.0.0.1 : Found 204 in civicrm for 82732 
-Sun 12 Jan 2014 08:12 PM : admin buying from 127.0.0.1 : creating 82733 as 4 (Paid)
-Sun 12 Jan 2014 08:20 PM : admin buying from 127.0.0.1 : Found 204 in civicrm for 82733 
-Sun 12 Jan 2014 08:21 PM : admin buying from 127.0.0.1 : User emailing tickets to cdhassell@gmail.com
-Sun 12 Jan 2014 08:21 PM : admin buying from 127.0.0.1 : Found 204 in civicrm for 82733 
-Sun 12 Jan 2014 08:26 PM : admin buying from 127.0.0.1 : Found 204 in civicrm for 82733 
-Tue 14 Jan 2014 02:50 AM : admin buying from 127.0.0.1 : creating 82734 as 4 (Paid)
-Tue 14 Jan 2014 02:50 AM : admin buying from 127.0.0.1 : Found 204 in civicrm for 82734 
-Tue 14 Jan 2014 02:56 AM : admin buying from 127.0.0.1 : creating 82735 as 4 (Paid)
-Tue 14 Jan 2014 02:56 AM : admin buying from 127.0.0.1 : Found 204 in civicrm for 82735 
-Wed 15 Jan 2014 11:04 PM : admin buying from 127.0.0.1 : creating 82736 as 4 (Paid)
-Wed 15 Jan 2014 11:04 PM : admin buying from 127.0.0.1 : creating 82737 as 4 (Paid)
-Wed 15 Jan 2014 11:04 PM : admin buying from 127.0.0.1 : Found 204 in civicrm for 82736 
-Thu 16 Jan 2014 12:48 AM : admin buying from 127.0.0.1 : creating 82738 as 4 (Paid)
-Thu 16 Jan 2014 12:48 AM : admin buying from 127.0.0.1 : Found 204 in civicrm for 82738 
-Thu 16 Jan 2014 01:04 AM : admin buying from 127.0.0.1 : creating 82739 as 2 (Reserved)
-Thu 16 Jan 2014 01:49 AM : admin buying from 127.0.0.1 : creating 82740 as 4 (Paid)
-Thu 16 Jan 2014 01:49 AM : admin buying from 127.0.0.1 : Found 204 in civicrm for 82740 
+Sat 18 Jan 2014 03:17 AM :  : freeseat_check_data found
+Sat 18 Jan 2014 03:17 AM :  : freeseat_check_data found
+Sat 18 Jan 2014 03:17 AM :  : freeseat_check_data found
+Sat 18 Jan 2014 03:18 AM :  : freeseat_check_data found
+Sat 18 Jan 2014 03:18 AM :  : freeseat_check_data found
+Sat 18 Jan 2014 03:18 AM :  : freeseat_check_data found
+Sat 18 Jan 2014 03:19 AM :  : freeseat_check_data found
+Sat 18 Jan 2014 03:20 AM :  : freeseat_check_data found
+Sat 18 Jan 2014 03:22 AM :  : freeseat_check_data found
+Sat 18 Jan 2014 03:22 AM :  : freeseat_check_data found
+Sat 18 Jan 2014 03:22 AM :  : freeseat_check_data found
+Sat 18 Jan 2014 03:23 AM :  : freeseat_check_data found
+Sat 18 Jan 2014 03:24 AM :  : freeseat_check_data found
+Sat 18 Jan 2014 03:24 AM :  : freeseat_check_data found
+Sat 18 Jan 2014 03:24 AM :  : Installing sample data
+Sat 18 Jan 2014 03:25 AM :  : freeseat_check_data found
+Sat 18 Jan 2014 03:26 AM :  : freeseat_check_data found
+Sat 18 Jan 2014 03:26 AM :  : freeseat_check_data found
+Sat 18 Jan 2014 03:26 AM :  : Installing sample data
+Sat 18 Jan 2014 03:27 AM :  : freeseat_check_data found
+Sat 18 Jan 2014 03:27 AM :  : Installing sample data
+Sat 18 Jan 2014 03:51 AM :  : Civicrm found 3 shows of The Tempest, 0 with IDs
+Sat 18 Jan 2014 03:52 AM :  : Civicrm found 3 shows of The Tempest, 0 with IDs
+Sat 18 Jan 2014 03:52 AM :  : Created 18 in civicrm. 
+Sat 18 Jan 2014 03:52 AM :  : Created 19 in civicrm. 
+Sat 18 Jan 2014 03:52 AM :  : Created 20 in civicrm. 
