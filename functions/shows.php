@@ -16,6 +16,7 @@ function get_shows($cond="") {
 
 function get_show($id) {
   global $lang;
+  if (empty($id)) return false;
   $zou = get_shows("shows.id=$id");
   if (count($zou))
     return $zou[0];
