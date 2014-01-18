@@ -180,13 +180,15 @@ function freeseat_install_data() {
 	// if there is data in the tables, don't do this
 	if ( $wpdb->get_var( 'SELECT count( id ) FROM freeseat_seats' ) > 0 ) return;	
 	
-	// calculate a future date two months in the future at 7:30 pm
-	$showdate1 = strftime( "%F", time()+(60*60*24*60) ) . " 19:30:00";
-	$showdate2 = strftime( "%F", time()+(60*60*24*61) ) . " 19:30:00";
+	// set sample show dates at two months in the future
+	$showdate1 = strftime( "%F", time()+(60*60*24*60) );
+	$showdate2 = strftime( "%F", time()+(60*60*24*61) );
+	// set sample purchase dates at current date
+	$buydate = strftime( "%F" ) . ' 00:00:00';
 	
 	$wpdb->query("INSERT INTO freeseat_booking (id, seat, state, cat, firstname, lastname, email, phone, timestamp, payment, groupid, showid, address, postalcode, city, us_state, country, notes, expiration) VALUES
-(1, 14, 4, 2, 'Office', 'Sale', '', '', '$showdate1', 0, NULL, 1, '', '', '', 'PA', 'US', NULL, '0000-00-00 00:00:00'),
-(2, 15, 4, 2, 'Office', 'Sale', '', '', '$showdate2', 0, 1, 1, '', '', '', 'PA', 'US', NULL, '0000-00-00 00:00:00');");
+(1, 14, 4, 2, 'Office', 'Sale', '', '', '$buydate', 0, NULL, 1, '', '', '', 'PA', 'US', NULL, '0000-00-00 00:00:00'),
+(2, 15, 4, 2, 'Office', 'Sale', '', '', '$buydate', 0, 1, 1, '', '', '', 'PA', 'US', NULL, '0000-00-00 00:00:00');");
 	$wpdb->query("INSERT INTO freeseat_class_comment (spectacle, class, comment, description) VALUES
 (1, 1, 'Section A', NULL),
 (1, 2, 'Section B', NULL);");
@@ -513,9 +515,8 @@ function freeseat_install_data() {
 (311, 1, 'J', '31', '', 'Main', 2, 33, 11),
 (312, 1, 'J', '32', '', 'Main', 2, 34, 11);");
 	$wpdb->query("INSERT INTO freeseat_shows (id, spectacle, theatre, date, time, disabled, civicrm_id) VALUES
-(1, 1, 1, '2013-12-13', '19:30:00', 0, NULL),
-(2, 1, 1, '2013-12-14', '19:30:00', 0, NULL),
-(3, 1, 1, '2013-12-15', '14:30:00', 0, NULL);");
+(1, 1, 1, '$showdate1', '19:30:00', 0, NULL),
+(2, 1, 1, '$showdate2', '19:30:00', 0, NULL);");
 	$wpdb->query("INSERT INTO freeseat_spectacles (id, name, imagesrc, description, castpw) VALUES
 (1, 'The Tempest', '', 'This classic Shakespearean play is set on a remote island, where Prospero, the rightful Duke of Milan, plots to restore his daughter Miranda to her rightful place using illusion and skillful manipulation. He conjures up a storm, to lure his usurping brother Antonio and the complicit King Alonso of Naples to the island. There, his machinations bring about the revelation of Antonio\'s lowly nature, the redemption of the King, and the marriage of Miranda to Alonso\'s son, Ferdinand.', '');");
 	$wpdb->query("INSERT INTO freeseat_theatres (id, name, imagesrc, staggered_seating) VALUES
