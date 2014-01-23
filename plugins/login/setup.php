@@ -9,16 +9,18 @@ function freeseat_plugin_init_login() {
 	$freeseat_plugin_hooks['pay_page_top']['login'] = 'login_getdata';
 	$freeseat_plugin_hooks['finish_end']['login'] = 'login_setdata';
 	// init_language('login');    
-	add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\\login_jquery_dialog' );
+	add_action( 'init', __NAMESPACE__ . '\\login_jquery_dialog' );
 }
 
 function login_jquery_dialog() {
+	global $wp_scripts;
+	
+	load_jquery_ui();  // see functions/jquery-theme.php
 	wp_enqueue_script(
 		'popup-script',
-		FS_PATH . 'js/popup_script.js',
-		array( 'jquery', 'jquery-ui-dialog' )
+		plugins_url() . '/freeseat/js/popup_script.js',
+		array( 'jquery', 'jquery-ui-core', 'jquery-ui-dialog' )
 	);
-	sys_log( 'jquery loaded' );
 }
 
 function login_stop() {
@@ -26,10 +28,10 @@ function login_stop() {
 	// and prevents the user from continuing 
 	if ( !is_user_logged_in() ) {
 		// FIXME move text to a language file
-		echo '<div id="dialog" title="Please Login"><p>Please register and log in before making a ticket purchase.</p></div>';
+		echo '<div id="freeseat-dialog" title="Login Required"><p>Please log in before making a ticket purchase.</p></div>';
 		return true;
 	} else {
-		echo "<!-- popup dialog div -->";
+		echo "<!-- popup dialog div goes here -->";
 		return false;
 	}
 }
