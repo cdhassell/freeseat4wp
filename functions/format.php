@@ -206,7 +206,7 @@ function state2css($st) {
   case ST_LOCKED: return 'stlocked';
   case ST_BOOKED: return 'stbooked';
   case ST_SHAKEN: return 'stshaken';
-  case ST_PAID: return 'stpaid';
+  case ST_PAID:   return 'stpaid';
   case ST_DISABLED: default: return 'stdisabled';
   }
 }

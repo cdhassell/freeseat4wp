@@ -1,26 +1,45 @@
-Sat 18 Jan 2014 03:17 AM :  : freeseat_check_data found
-Sat 18 Jan 2014 03:17 AM :  : freeseat_check_data found
-Sat 18 Jan 2014 03:17 AM :  : freeseat_check_data found
-Sat 18 Jan 2014 03:18 AM :  : freeseat_check_data found
-Sat 18 Jan 2014 03:18 AM :  : freeseat_check_data found
-Sat 18 Jan 2014 03:18 AM :  : freeseat_check_data found
-Sat 18 Jan 2014 03:19 AM :  : freeseat_check_data found
-Sat 18 Jan 2014 03:20 AM :  : freeseat_check_data found
-Sat 18 Jan 2014 03:22 AM :  : freeseat_check_data found
-Sat 18 Jan 2014 03:22 AM :  : freeseat_check_data found
-Sat 18 Jan 2014 03:22 AM :  : freeseat_check_data found
-Sat 18 Jan 2014 03:23 AM :  : freeseat_check_data found
-Sat 18 Jan 2014 03:24 AM :  : freeseat_check_data found
-Sat 18 Jan 2014 03:24 AM :  : freeseat_check_data found
-Sat 18 Jan 2014 03:24 AM :  : Installing sample data
-Sat 18 Jan 2014 03:25 AM :  : freeseat_check_data found
-Sat 18 Jan 2014 03:26 AM :  : freeseat_check_data found
-Sat 18 Jan 2014 03:26 AM :  : freeseat_check_data found
-Sat 18 Jan 2014 03:26 AM :  : Installing sample data
-Sat 18 Jan 2014 03:27 AM :  : freeseat_check_data found
-Sat 18 Jan 2014 03:27 AM :  : Installing sample data
-Sat 18 Jan 2014 03:51 AM :  : Civicrm found 3 shows of The Tempest, 0 with IDs
-Sat 18 Jan 2014 03:52 AM :  : Civicrm found 3 shows of The Tempest, 0 with IDs
-Sat 18 Jan 2014 03:52 AM :  : Created 18 in civicrm. 
-Sat 18 Jan 2014 03:52 AM :  : Created 19 in civicrm. 
-Sat 18 Jan 2014 03:52 AM :  : Created 20 in civicrm. 
+Tue 21 Jan 2014 10:45 PM : admin buying from 127.0.0.1 : creating 3 as 4 (Paid)
+Wed 22 Jan 2014 01:47 AM : admin buying from 127.0.0.1 : creating 4 as 4 (Paid)
+Wed 22 Jan 2014 01:58 AM : admin buying from 127.0.0.1 : creating 5 as 4 (Paid)
+Wed 22 Jan 2014 01:58 AM : admin buying from 127.0.0.1 : Cannot create civicrm contact for 5: Array
+(
+    [fields] => Array
+        (
+            [0] => event_id
+        )
+
+    [error_code] => mandatory_missing
+    [entity] => Contact
+    [action] => create
+    [is_error] => 1
+    [error_message] => Error in call to participant_create : Mandatory key(s) missing from params array: event_id
+)
+
+Wed 22 Jan 2014 02:00 AM :  : Civicrm found 2 shows of The Tempest, 0 with IDs
+Wed 22 Jan 2014 02:00 AM :  : Created 1 in civicrm. 
+Wed 22 Jan 2014 02:00 AM :  : Created 2 in civicrm. 
+Wed 22 Jan 2014 02:00 AM : admin buying from 127.0.0.1 : creating 6 as 4 (Paid)
+Wed 22 Jan 2014 02:00 AM : admin buying from 127.0.0.1 : Found 3 in civicrm for 6 
+Wed 22 Jan 2014 02:19 AM : admin buying from 127.0.0.1 : creating 7 as 4 (Paid)
+Wed 22 Jan 2014 02:19 AM : admin buying from 127.0.0.1 : Recording ticket sale to 7 for 25.00 
+Wed 22 Jan 2014 02:19 AM : admin buying from 127.0.0.1 : Found 3 in civicrm for 7 
+Thu 23 Jan 2014 12:34 AM : admin buying from 127.0.0.1 : creating 8 as 4 (Paid)
+Thu 23 Jan 2014 12:34 AM : admin buying from 127.0.0.1 : Recording ticket sale to 8 for $25.00 
+Thu 23 Jan 2014 12:34 AM : admin buying from 127.0.0.1 : Found 3 in civicrm for 8 
+Thu 23 Jan 2014 12:44 AM :  : jquery loaded
+Thu 23 Jan 2014 12:44 AM :  : jquery loaded
+Thu 23 Jan 2014 12:44 AM :  : jquery loaded
+Thu 23 Jan 2014 12:45 AM :  : jquery loaded
+Thu 23 Jan 2014 12:51 AM : admin buying from 127.0.0.1 : creating 9 as 4 (Paid)
+Thu 23 Jan 2014 12:51 AM : admin buying from 127.0.0.1 : Recording ticket sale to 9 for $25.00 
+Thu 23 Jan 2014 12:51 AM : admin buying from 127.0.0.1 : Found 3 in civicrm for 9 
+Thu 23 Jan 2014 12:59 AM :  : jquery loaded
+Thu 23 Jan 2014 12:59 AM :  : jquery loaded
+Thu 23 Jan 2014 12:59 AM :  : jquery loaded
+Thu 23 Jan 2014 12:59 AM :  : jquery loaded
+Thu 23 Jan 2014 12:59 AM :  : jquery loaded
+Thu 23 Jan 2014 01:00 AM :  : jquery loaded
+Thu 23 Jan 2014 01:00 AM :  : jquery loaded
+Thu 23 Jan 2014 01:00 AM :  : jquery loaded
+Thu 23 Jan 2014 01:00 AM :  : jquery loaded
+Thu 23 Jan 2014 01:01 AM :  : jquery loaded

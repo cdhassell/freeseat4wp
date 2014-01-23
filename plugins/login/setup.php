@@ -18,6 +18,7 @@ function login_jquery_dialog() {
 		FS_PATH . 'js/popup_script.js',
 		array( 'jquery', 'jquery-ui-dialog' )
 	);
+	sys_log( 'jquery loaded' );
 }
 
 function login_stop() {
@@ -27,8 +28,10 @@ function login_stop() {
 		// FIXME move text to a language file
 		echo '<div id="dialog" title="Please Login"><p>Please register and log in before making a ticket purchase.</p></div>';
 		return true;
+	} else {
+		echo "<!-- popup dialog div -->";
+		return false;
 	}
-	return false;
 }
 
 function login_getdata() {
