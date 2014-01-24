@@ -12,38 +12,11 @@ Session and booking session related functions
 the in-session password is wrong, it is cleared.
 */
 function db_connect($die_on_failure = true) {
-	global $dbserv, $dbuser, $dbpass, $dbdb, $adminuser,$lang,$messages;
-	
+	global /*$dbserv, $dbuser, $dbpass, $dbdb, $adminuser,*/ $lang, $messages;
+	// no longer much to do here
 	session_name("freeseat");
 	@session_start();
-	
 	$messages = array();	
-	/* 
-	if (admin_mode()) {
-		$r = mysql_connect($dbserv, $adminuser, $_SESSION["adminpass"]);
-	} else {
-		$r = mysql_connect($dbserv, $dbuser, $dbpass);
-	}
-	if ($r && mysql_select_db($dbdb)) {
-		return; // success
-	}
-	*/
-	/* if we reach this point, something went wrong */
-	/*
-	if (mysql_errno()==1045) {
-		$msg = $lang["err_pw"];
-	} else {
-		$msg = mysql_error();
-	}
-	unset($_SESSION["adminpass"]);
-	unset($_POST["adminpass"]); // yea, ugly, I know ... That's to
-	    // prevent the show_foot function to think we successfully logged in.
-	if ($die_on_failure) {
-		fatal_error($lang["err_connect"].$msg);
-	} else {
-		return false;
-	}
-	*/
 }
 
 /** Call this after creating the session, for passing on messages that
@@ -160,8 +133,23 @@ function check_session( $n, $quiet=false ) {
 		1 => 'repr', 
 		2 => 'seats', 
 		3 => 'pay' );
-	$page = $pagelist[ $url ];
-	printf( $lang["backto"], "[<a href='$page_url?fsp=$url'>".$lang["link_$page"]."</a>]" );
+	$page = $pagelist[ $url ]; 
+	$newpage_url = add_query_arg( "fsp", $url, $page_url );
+	// if javascript is enabled, the kaboom will appear in a dialog
+	// clicking ok should redirect to the url
+	// this may be bad wordpress practice, but it works
+	// destination of the redirect is stored in .data('link') to be retrieved later
+	?>
+<script type="text/javascript" >
+jQuery(document).ready(function($) {
+$("#freeseat-dialog")
+.data('link', '<?php echo $newpage_url;  ?>')
+.dialog("open");
+});	
+</script>
+	<?php
+	
+	printf( $lang["backto"], "[<a href='$newpage_url'>".$lang["link_$page"]."</a>]" );
 	echo "</p>\n";
 	show_foot();  
 	exit();  

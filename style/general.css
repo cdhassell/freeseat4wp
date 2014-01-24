@@ -197,17 +197,16 @@ p.ticketdate {
  }
 
 p.warning {
-    color : darkred;
-    font-variant : small-caps;
-    text-align : center;
+    color : black;
     font-weight: bolder;
-    font-size  : 14pt;
-    background-color: whitesmoke;
+    font-size  : 12pt;
+    background-color: white;
 	margin: 10px;
 	padding: 10px;
-	-moz-border-radius: 5px;
-	border-radius: 5px;
-	border: 1px solid #AAAAAA;
+	border-top: 1px solid #AAAAAA;
+	border-bottom: 1px solid #AAAAAA;
+	border-right: 1px solid #AAAAAA;
+	border-left: 3px solid red;
   }
 
 div.bookid { 

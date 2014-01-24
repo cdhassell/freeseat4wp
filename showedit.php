@@ -113,7 +113,7 @@ function print_var( $name, $value, $ready=false, $headername=null, $width=12 ) {
 	if ($ready) {
 		/* Note that we *don't* escape $value. The point is to let
 			the admin enter HTML formatting in there if needed */
-		echo '<p class="main">' . $value . '</p>';
+		echo '<p class="main">' . stripslashes($value) . '</p>';
 	}
 }
 
@@ -150,20 +150,19 @@ function set_perf( $perf )
 // if this is a new spectacle.
 {
 	$spec = ( isset( $perf[ "id" ] ) ? (int) $perf[ "id" ] : 0 );
+	$values = array( $perf['name'], $perf['description'], $perf['imagesrc'] );
 	if ( $spec > 0 ) {
 		/* $q = "UPDATE spectacles set name=".quoter($perf["name"])
 		    .", description=".quoter($perf["description"])
 		    .", imagesrc=".quoter($perf["imagesrc"])." where id=$spec";  */
 		$query = "UPDATE spectacles set name=%s, description=%s, imagesrc=%s where id=$spec";
-		$values = array( $perf["name"], $perf["description"], $perf["imagesrc"] );
 		$result = freeseat_query( $query, $values );
 	} else {
 		/* $q = "INSERT into spectacles (name, imagesrc, description) values ("
 		    .quoter($perf['name']).", "
 		    .quoter($perf['imagesrc']).", "
 		    .quoter($perf['description']).")";  */
-		$query = "INSERT into spectacles (name, imagesrc, description) values ( %s, %s, %s )";
-		$values = array( $perf['name'], $perf['imagesrc'], $perf['description'] );
+		$query = "INSERT into spectacles (name, description, imagesrc ) values ( %s, %s, %s )";
 		$result = freeseat_query( $query, $values );
 		$spec = freeseat_insert_id();
 	}

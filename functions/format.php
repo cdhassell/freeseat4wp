@@ -38,10 +38,13 @@ function show_head($wide = false,$half=false) {
 /** Print the messages in html format and empty the message array. */
 function flush_messages_html() {
   global $messages;
+  
   if (count($messages)) {
+  	echo '<div id="freeseat-dialog" title="System Message">';
     foreach ($messages as $message) {
       echo "<p class='warning'>" . htmlspecialchars($message) . "</p>";
     }
+    echo '</div>';
   }
   $messages = array();
 }

@@ -9,18 +9,6 @@ function freeseat_plugin_init_login() {
 	$freeseat_plugin_hooks['pay_page_top']['login'] = 'login_getdata';
 	$freeseat_plugin_hooks['finish_end']['login'] = 'login_setdata';
 	// init_language('login');    
-	add_action( 'init', __NAMESPACE__ . '\\login_jquery_dialog' );
-}
-
-function login_jquery_dialog() {
-	global $wp_scripts;
-	
-	load_jquery_ui();  // see functions/jquery-theme.php
-	wp_enqueue_script(
-		'popup-script',
-		plugins_url() . '/freeseat/js/popup_script.js',
-		array( 'jquery', 'jquery-ui-core', 'jquery-ui-dialog' )
-	);
 }
 
 function login_stop() {

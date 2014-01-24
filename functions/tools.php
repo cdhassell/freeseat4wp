@@ -258,15 +258,5 @@ function enhanced_list_box($options, $params, $text_new, $resultname) {
 	echo '</select>';
 }
 
-function freeseat_popup( $title, $text ) {
-	echo "<div id='dialog' title='$title'><p>$text</p></div>";
-}
-	
-function freeseat_popup_register() {
-	wp_enqueue_script(
-		'freeseat-popup',
-		plugins_url( '/js/popup_script.js',__FILE__ ),
-		array( 'jquery' )
-	);
-}
+
 
