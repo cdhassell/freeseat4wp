@@ -290,7 +290,7 @@ span.subpage {
 }
 
 /* a table that contains a form */
-table.form {
+#freeseat-narrow table.form {
     margin-left : 2em;
     margin-right : 3em;
     border-bottom-style : dashed;
