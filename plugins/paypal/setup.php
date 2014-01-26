@@ -107,16 +107,17 @@ function paypal_confirm_button() {
 /** Displays a button/link (a form with hidden fields from _SESSION)
 that will redirect the user to the ccard provider's payment form **/
 function paypal_paymentform() {
-	global $paypal, $lang, $paypal_account;
+	global $paypal, $lang, $paypal_account, $page_url;
 	
     //Configuration Settings
-    $paypal["business"]=$paypal_account;
-    $paypal["success_url"]="finish.php?ok=yes";  // user is redirected here on success
-    $paypal["cancel_url"]="finish.php";          // or here on cancel
-    $paypal["notify_url"]="ccard_confirm.php";   // back door confirmation IPN
-    $paypal["return_method"]="2"; //1=GET 2=POST
-    $paypal["bn"]="toolkit-php";
-    $paypal["cmd"]="_xclick";
+    $paypal["business"] = $paypal_account;
+    $args = array( 'fsp' => PAGE_FINISH, 'ok' => 'yes' );
+    $paypal["success_url"] = add_query_arg( $args, $page_url );
+    $paypal["cancel_url"] = add_query_arg( 'fsp', PAGE_FINISH, $page_url );
+    $paypal["notify_url"] = "ccard_confirm.php";   // back door confirmation IPN
+    $paypal["return_method"] = "2"; //1=GET 2=POST
+    $paypal["bn"] = "toolkit-php";
+    $paypal["cmd"] = "_xclick";
 
     //Payment Page Settings
     $paypal["display_comment"]="1"; //0=yes 1=no
