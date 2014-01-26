@@ -60,8 +60,8 @@ function paypal_editparams($options) {
 function paypal_partner() {
   global $lang;
   ?>
-<!-- PayPal Logo --><div class="partner-block"><table border="0" cellpadding="10" cellspacing="0" align="center"><tr><td align="right"><i><?php echo $lang["we_accept"]; ?> </i></td></tr><tr>
-<td align="left"><a href="#" onclick="javascript:window.open('https://www.paypal.com/us/cgi-bin/webscr?cmd=xpt/cps/popup/OLCWhatIsPayPal-outside','olcwhatispaypal','toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, width=400, height=350');"><img src="https://www.paypal.com/en_US/i/bnr/horizontal_solution_PPeCheck.gif" border="0" alt="Solution Graphics"></a></td></tr></table></div><!-- PayPal Logo -->
+<!-- PayPal Logo --><div class="partner-block"><table border="0" cellpadding="10" cellspacing="0" align="center"><tr><td align="center"><i><?php echo $lang["we_accept"]; ?> </i></td></tr><tr>
+<td align="center"><a href="#" onclick="javascript:window.open('https://www.paypal.com/us/cgi-bin/webscr?cmd=xpt/cps/popup/OLCWhatIsPayPal-outside','olcwhatispaypal','toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, width=400, height=350');"><img src="https://www.paypal.com/en_US/i/bnr/horizontal_solution_PPeCheck.gif" border="0" alt="Solution Graphics"></a></td></tr></table></div><!-- PayPal Logo -->
 <?php
 
 }
@@ -107,9 +107,10 @@ function paypal_confirm_button() {
 /** Displays a button/link (a form with hidden fields from _SESSION)
 that will redirect the user to the ccard provider's payment form **/
 function paypal_paymentform() {
-	global $paypal,$lang;
+	global $paypal, $lang, $paypal_account;
 	
     //Configuration Settings
+    $paypal["business"]=$paypal_account;
     $paypal["success_url"]="finish.php?ok=yes";  // user is redirected here on success
     $paypal["cancel_url"]="finish.php";          // or here on cancel
     $paypal["notify_url"]="ccard_confirm.php";   // back door confirmation IPN
@@ -282,14 +283,14 @@ function paypal_pdt_check() {
   // On success, saves an array with all PDT data variables in $_SESSION['PDT'].
   // Accepts a pending status for eCheck transactions as ok.
   // On failure, the user is shown a failure message and we exit.
-  global $paypal, $PDT_auth_token,$lang;
+  global $paypal, $paypal_auth_token, $lang;
 
   if (!isset($_GET["ok"]) || !$_GET["ok"]) return;  // let main script deal with it 
-  if (!isset($PDT_auth_token)) return; // nothing to check
+  if (!isset($paypal_auth_token)) return; // nothing to check
   if ($_SESSION['payment']!=PAY_CCARD) return;  // wrong payment type
   if (isset($_GET['tx'])) {
     $tx_token = $_GET['tx'];
-    $req = "cmd=_notify-synch&tx=$tx_token&at=$PDT_auth_token";
+    $req = "cmd=_notify-synch&tx=$tx_token&at=$paypal_auth_token";
     // post back to PayPal system to validate
     $header = "POST /cgi-bin/webscr HTTP/1.0\r\n";
     $header .= "Content-Type: application/x-www-form-urlencoded\r\n";
