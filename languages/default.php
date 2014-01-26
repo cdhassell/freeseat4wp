@@ -126,7 +126,7 @@ $lang["hour"] = 'hr'; // abbreviated
 $lang["howmanyare"] = 'Among these %1$d seats, how many are';
 
 $lang["id"] = 'ID';
-$lang['imagesrc'] = 'Image location (Must be JPEG)';
+$lang['imagesrc'] = 'Image location';
 $lang["immediately"] = 'immediately';
 $lang["import"] = 'Upload this file';
 $lang["in"] = 'in %1$s'; // as in "in <ten days>"

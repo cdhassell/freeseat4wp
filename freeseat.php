@@ -86,9 +86,6 @@ if (isset($plugins) && is_array($plugins)) {
     foreach ($plugins as $name) {
 		use_plugin($name);
     }
-} else {
-	// something is terribly wrong
-	wp_die("Can't find the FreeSeat plugin list!");
 }
 
 // DEFINEs for workflow control
@@ -119,16 +116,18 @@ db_connect();
  * Using the defines PAGE_*
  */
 function freeseat_switch( $shortcode_fsp = 0 ) {
-	// Where are we?  Assemble a URL from the GET fields
+	// Where are we?  Switch to the right freeseat page based on fsp
 	global $post, $page_url;
 	// if we are passed a page number from a shortcode call, use it
 	$fsp = ( $shortcode_fsp ? $shortcode_fsp : 0 );
 	// however a page number from GET will override that
 	$fsp = (( isset( $_GET[ 'fsp' ] ) ) ? $_GET[ 'fsp' ] : $fsp );
 	// build a page URL
-	$page_url = (( isset( $post ) ) ? get_page_link() : $_SERVER['PHP_SELF'].'?page=freeseat-admin' );
+	$page_url = (( isset( $post ) ) ? get_permalink() : $_SERVER['PHP_SELF'].'?page=freeseat-admin' );
+	$page_url = add_query_arg( 'fsp', $fsp, $page_url);
+	sys_log( "permalink = ".get_permalink()." page = $page_url" );
 	// adjust for WP's strange inconsistent way of passing a post number
-	$page_url = str_replace('page_id','p',$page_url);
+	/* $page_url = str_replace('page_id','p',$page_url);
 	$args = '';
 	$and = '';
 	// keep relevant GET parameters
@@ -140,7 +139,7 @@ function freeseat_switch( $shortcode_fsp = 0 ) {
 	}
 	if ( !empty( $args ) ) {
 		$page_url .= (( false === strpos( $page_url, '?')) ? '?' : '&' ) . $args;
-	}
+	} */
 	// now call the right function and pass this url to it
 	switch( $fsp ) {
 		case 5:

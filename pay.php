@@ -48,7 +48,7 @@ function freeseat_pay( $page_url )
 	echo "</p>";
 	echo print_booked_seats();
 	echo '<h2>'.$lang["payment"].'</h2>';
-	echo '<form action="' . $page_url . '&fsp=' . PAGE_CONFIRM . '" method="post">';
+	echo '<form action="' . add_query_arg( 'fsp', PAGE_CONFIRM, $page_url ). '" method="post">';
 	
 	if (!isset($_SESSION["payment"])) $_SESSION["payment"]= PAY_CCARD;
 	
@@ -133,10 +133,8 @@ function freeseat_pay( $page_url )
 	do_hook('other_payment_info');
 	
 	echo "<div class='paymentinfo'>";
-	if (payment_open($sh,PAY_CCARD)) {
-	  do_hook('ccard_partner');
-	}
-	
+
+	echo '<div class="paymentblock">';
 	echo '<h2>'.$lang["youare"].'</h2>';
 	echo '<p class="main">'.$lang["reqd_info"].'</p>';
 	echo '<p class="main">';
@@ -146,13 +144,13 @@ function freeseat_pay( $page_url )
 	echo '</p><p class="main">';
 	input_field("phone");
 	echo ' ';
-	input_field("email");
+	input_field("email",""," size=15");
 	echo '</p><p class="main">';
-	input_field("address",""," size=60");
+	input_field("address",""," size=40");
 	echo '</p><p class="main">';
 	input_field("postalcode",""," size=8");
 	echo ' ';
-	input_field("city",""," size=20");
+	input_field("city",""," size=12");
 	// we will skip the us_state and/or country fields if the defaults are not set in config.php
 	if ($pref_state_code != "")  {
 		echo '</p><p class="main">';
@@ -164,7 +162,13 @@ function freeseat_pay( $page_url )
 		echo $lang["country"].'&nbsp;:&nbsp;';
 		select_country();
 	}
-	echo '</p></div><!-- end of paymentinfo -->';
+	echo '</p>';
+	echo '</div><!-- end of pamentblock -->'; 
+	if (payment_open($sh,PAY_CCARD)) {
+	  do_hook('ccard_partner');
+	}
+	echo '<div class="clear-both"></div>';
+	echo '</div><!-- end of paymentinfo -->';
 	echo '<p class="main"><input class="button button-primary" type="submit" value="'.$lang["continue"].'"></p></form>';
 	
 	show_foot();

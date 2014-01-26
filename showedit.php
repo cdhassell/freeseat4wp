@@ -419,7 +419,12 @@ function freeseat_showedit()
 	
 	echo '<input style="display : none;" type="submit" name="submit">';// default action when user presses enter in a field
 	
-	echo '<div class="image-selection"><h3>' . $lang['imagesrc'] . '</h3>' ;    // image upload form
+	echo '<div class="name-selection"><input type="hidden" name="id" value="'.$spec.'">';
+	print_var( "name", $perf['name'], $ready, $lang["name"], 40) ;
+	print_var( "description", $perf['description'], $ready, $lang["description"], 75);
+	echo '</div>';
+	
+	echo '<div class="image-selection"><h3>' . $lang['imagesrc'] . '</h3>' ; // image upload form
 	 // imagesrc: default, to be used if user does not upload an image.
 	echo '<input type="hidden" name="imagesrc" value="'.htmlspecialchars($perf["imagesrc"]).'">';
 	if ($perf['imagesrc']) {
@@ -429,11 +434,8 @@ function freeseat_showedit()
 		echo $lang['noimage'];
 	if (!$ready) choose_local_file('image');
 	echo '</div>';
-	echo '<input type="hidden" name="id" value="'.$spec.'">';
-	print_var( "name", $perf['name'], $ready, $lang["name"], 40) ;
-	print_var( "description", $perf['description'], $ready, $lang["description"], 75);
 	
-	echo '<div class="form">';
+	echo '<div class="form clear-both">';
 	echo '<h3>' . $lang['datesandtimes'] . '</h3>';
 	if (!$ready) echo '<p class="fine-print">' . $lang["warn_spectacle"] . '</p>';
 	

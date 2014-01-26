@@ -57,7 +57,7 @@ function admin_mode() {
     set $quiet to true to hide non critical warnings
 */
 function check_session( $n, $quiet=false ) {
-	global $lang;
+	global $lang, $page_url;
 	/* 
 	We are checking each time that the show exists - that's maybe a little
 	overkill (checking @ the end would suffice but anyway we are more
@@ -127,7 +127,6 @@ function check_session( $n, $quiet=false ) {
 	/* at this point we have failed */
 	show_head();
 	echo "<p class='main'>";
-	$page_url = $_SERVER['PHP_SELF'];
 	$pagelist = array( 
 		0 => 'index', 
 		1 => 'repr', 
@@ -135,20 +134,6 @@ function check_session( $n, $quiet=false ) {
 		3 => 'pay' );
 	$page = $pagelist[ $url ]; 
 	$newpage_url = add_query_arg( "fsp", $url, $page_url );
-	// if javascript is enabled, the kaboom will appear in a dialog
-	// clicking ok should redirect to the url
-	// this may be bad wordpress practice, but it works
-	// destination of the redirect is stored in .data('link') to be retrieved later
-	?>
-<script type="text/javascript" >
-jQuery(document).ready(function($) {
-$("#freeseat-dialog")
-.data('link', '<?php echo $newpage_url;  ?>')
-.dialog("open");
-});	
-</script>
-	<?php
-	
 	printf( $lang["backto"], "[<a href='$newpage_url'>".$lang["link_$page"]."</a>]" );
 	echo "</p>\n";
 	show_foot();  

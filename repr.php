@@ -95,7 +95,7 @@ function freeseat_repr( $page_url )
 	printf( $lang[ "showlist" ], htmlspecialchars( stripslashes( $spec[ "name" ] ) ) );
 	echo '</h2>';
 	echo "<p class='main'><i>";
-	echo htmlspecialchars( stripslashes( $spec['description'] ) );
+	echo stripslashes( $spec['description'] );
 	echo "</i></p>";
 	echo '</td>';
 	echo '</tr></table>';

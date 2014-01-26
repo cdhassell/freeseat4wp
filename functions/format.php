@@ -39,7 +39,7 @@ function show_head($wide = false,$half=false) {
 function flush_messages_html() {
   global $messages;
   
-  if (count($messages)) {
+  if ( !empty($messages) && count($messages) ) {
   	echo '<div id="freeseat-dialog" title="System Message">';
     foreach ($messages as $message) {
       echo "<p class='warning'>" . htmlspecialchars($message) . "</p>";
@@ -192,7 +192,7 @@ is optional stuff to add to the html tag
 function input_field($k,$d='',$a='') {
   global $lang;
   if (isset($lang[$k])) echo $lang[$k]."&nbsp;:&nbsp;";
-
+  if (empty($a)) $a = " size=10";
   echo "<input name='$k'";
   if (isset($_SESSION[$k])) $d=htmlspecialchars($_SESSION[$k]);
   if ($d!='')
@@ -228,12 +228,12 @@ function show_info($sh) {
  * pass false as second parameter if you don't want a link allowing
  * the user to change the selected show. */
 function show_show_info($sh=null,$correctlink=true) {
-  global $lang;
+  global $lang, $page_url;
   if (!$sh) $sh = get_show($_SESSION["showid"]);
   if ($sh) {
     echo htmlspecialchars(show_info($sh));
   } // else : get_show failed
-  if ($correctlink) echo " [<a href='".$_SERVER['PHP_SELF'].'&fsp='.PAGE_REPR."'>".$lang["change_date"]."</a>]";
+  if ($correctlink) echo " [<a href='".add_query_arg('fsp',PAGE_REPR,$page_url)."'>".$lang["change_date"]."</a>]";
 }
 
 function print_line($s,$fmt) {
@@ -298,7 +298,7 @@ function print_tablefooter($fmt) {
 $fmt: OR-mask of FMT_ constants to control list display.
 */
 function print_booked_seats($data = null,$fmt=FMT_CORRECTLINK) {
-  global $postaltax, $lang;
+  global $postaltax, $lang, $page_url;
   if (!$data) {
     $data = $_SESSION["seats"];
     if ($fmt & FMT_PRICE)
@@ -395,8 +395,8 @@ function print_booked_seats($data = null,$fmt=FMT_CORRECTLINK) {
   $result .= print_tablefooter($fmt);
 
   if (($fmt & FMT_CORRECTLINK)==FMT_CORRECTLINK) {
-  	$page_url = $_SERVER['PHP_SELF'].'?fsp='.PAGE_SEATS;
-  	$result .= '<p class="main">'.sprintf($lang["change_seats"],"[<a href='$page_url'>",'</a>]').'</p>';
+  	$url = add_query_arg( 'fsp', PAGE_REPR, $page_url );
+  	$result .= '<p class="main">'.sprintf($lang["change_seats"],"[<a href='$url'>",'</a>]').'</p>';
   }
   return $result;
 }

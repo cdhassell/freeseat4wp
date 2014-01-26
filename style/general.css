@@ -177,11 +177,17 @@ input.fine-print {
   }
 
 /* pagewide (or almost) paragraphs */
-p.main {
-    margin-left : 2em;
-    margin-right : 3em;
-    text-align : justify;
-  }
+#freeseat-narrow p.main, #freeseat-wide p.main {
+	margin-left : 2em;
+	margin-right : 3em;
+	text-align : justify;
+	width: auto;
+}
+
+/* pagewide (or almost) paragraphs */
+#freeseat-narrow select, #freeseat-wide select {
+	width: auto;
+}
 
 /* emph in a table */
 p.temph { 
@@ -253,9 +259,18 @@ div.form p {
    clear: left;
 }
 
-div.image-selection{
-    float : right;
+div.image-selection {
     margin-left: 1em;
+    padding-top: 1em;
+}
+
+div.name-selection {
+	float: left;
+	margin-right: 4em;
+}
+
+div.clear-both {
+	clear: both;
 }
 
 div.ticket { 
@@ -292,10 +307,11 @@ table.bookinglist td {
 	font-size: medium;
 }
 
-table.summary { 
+#freeseat-wide table.summary, #freeseat-narrow table.summary { 
   margin: 1em 2em;
   border: 1px solid black; 
   border-collapse: collapse; 
+  width: auto;
 }
 
 tr.seatmap {
@@ -330,7 +346,6 @@ td.cat, td.class, td.price {
 .showlist {
   padding: 1em;
   height: 300px;
-  /* background: white url(webcut.jpg) repeat-x; */
   color: black;
 }
 
@@ -428,11 +443,17 @@ div.highlight {
 	border: 1px solid #AAAAAA;
 } 
 
+#freeseat-narrow div.paymentblock {
+	padding: 10px;
+	float: left;
+} 
+
 #freeseat-narrow div.info-block {
 	float: left;
 }
 
-#freeseat-narrow div.partner-block {
-	float: right;
+#freeseat-narrow div.partner-block, #freeseat-narrow div.partner-block table {
+	/* float: right; */
+	width: auto;
 }
 

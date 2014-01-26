@@ -61,7 +61,7 @@ function freeseat_seats( $page_url )
 	
 	do_hook("seatmap_top");
 	
-	echo '<form action="' . $page_url . '&fsp=' . PAGE_PAY . '" method="post">';
+	echo '<form action="' . add_query_arg( 'fsp', PAGE_PAY, $page_url ) . '" method="post">';
 	echo '<input type="hidden" name="load_seats">';
 	
 	if ($sh["imagesrc"]!="") {
