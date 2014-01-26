@@ -99,6 +99,7 @@ define( 'PAGE_FINISH',	5 );
 // FreeSeat pages are now constructed by functions
 // rather than by global code so we have to include them
 require_once( FS_PATH . "install.php" );
+require_once( FS_PATH . "frontpage.php" );
 require_once( FS_PATH . "repr.php" );
 require_once( FS_PATH . "seats.php" );
 require_once( FS_PATH . "pay.php" );
@@ -111,9 +112,9 @@ require_once( FS_PATH . "showedit.php" );
 db_connect();
 
 /*
- * Switching station for entry to ticket workflow
- * Depending on GET vars to select next step
- * Using the defines PAGE_*
+ *  Switching station for entry to ticket workflow
+ *  Depending on GET vars to select next step
+ *  Using the defines PAGE_*
  */
 function freeseat_switch( $shortcode_fsp = 0 ) {
 	// Where are we?  Switch to the right freeseat page based on fsp
@@ -125,36 +126,21 @@ function freeseat_switch( $shortcode_fsp = 0 ) {
 	// build a page URL
 	$page_url = (( isset( $post ) ) ? get_permalink() : $_SERVER['PHP_SELF'].'?page=freeseat-admin' );
 	$page_url = add_query_arg( 'fsp', $fsp, $page_url);
-	sys_log( "permalink = ".get_permalink()." page = $page_url" );
-	// adjust for WP's strange inconsistent way of passing a post number
-	/* $page_url = str_replace('page_id','p',$page_url);
-	$args = '';
-	$and = '';
-	// keep relevant GET parameters
-	foreach( array( 'fsp', 'showid', 'spectacleid', 'offset', 'st', 'sort', 'ok', 'mode' ) as $key => $value ) {
-		if ( isset( $_GET[ $key ] ) ) {
-		    $args .= $and . $key . '=' . $value;
-		    if ( empty( $and ) ) $and = '&';
-		}
-	}
-	if ( !empty( $args ) ) {
-		$page_url .= (( false === strpos( $page_url, '?')) ? '?' : '&' ) . $args;
-	} */
 	// now call the right function and pass this url to it
 	switch( $fsp ) {
-		case 5:
+		case PAGE_FINISH:
 			freeseat_finish( $page_url );
 			break;
-		case 4:
+		case PAGE_CONFIRM:
 			freeseat_confirm( $page_url );
 			break;
-		case 3:
+		case PAGE_PAY:
 			freeseat_pay( $page_url );
 			break;
-		case 2:
+		case PAGE_SEATS:
 			freeseat_seats( $page_url );
 			break;
-		case 1:
+		case PAGE_REPR:
 			freeseat_repr( $page_url );
 			break;
 		default:
@@ -163,84 +149,6 @@ function freeseat_switch( $shortcode_fsp = 0 ) {
 			
 	}
 }
-
-/** Copyright (C) 2010 Maxime Gamboni. See COPYING for
-copying/warranty info.
-
-$Id: index.php 341 2011-04-25 19:03:48Z tendays $
-
-Modifications for Wordpress are Copyright (C) 2013 twowheeler.
-*/
-
-/*
- * This function replaces the former index.php file
- * It is the default starting page for freeseat
- */
-function freeseat_frontpage( $page_url ) {
-	global $lang, $upload_path;
-			
-	/** With no parameters, we show spectacles that have a representation
-	today or later. With a spectacleid parameter, show that spectacle
-	only 
-	**/
-	
-	if ( isset( $_GET[ "spectacleid" ] ) && ( $s = get_spectacle( (int) ( $_GET[ "spectacleid" ] ) ) ) ) {
-		$ss = array( $s );
-	} else {
-		$ss = fetch_all( "select spectacles.* from shows, spectacles where date >= curdate() and spectacles.id = shows.spectacle group by spectacles.id order by date asc" );
-	}
-
-	if ( $ss === false )
-		fatal_error( $lang[ "err_connect" ] . mysql_error() );
-	else if ( !count( $ss ) )
-		kaboom( $lang[ "err_noavailspec" ] );
-
-	/* displays an image and text description of spectacles on opening page */
-	
-	show_head();
-	echo '</div><div id="front-container">';
-	if ( !empty($lang['index_head'] ) ) 
-		echo '<h2>'. $lang[ "index_head" ] . '</h2>';
-	
-	// output a table showing all currently available shows with dates and times
-	// with links to the show pages
-	echo '<table>';
-	foreach ( $ss as $s ) {
-		$url = $page_url . '&fsp=' . PAGE_REPR . '&spectacleid=' . $s[ "id" ];
-		$linkl = "<a href='$url'>";
-		$linkr = '</a>';
-				  
-		echo '<tr>';
-		if ( $s[ 'imagesrc' ] ) {
-			$img = freeseat_url( $upload_path . $s[ 'imagesrc' ] );
-			echo '<td class="showlist">' . $linkl . '<img src="' . $img . '">' . $linkr . '</td>';
-		} else {
-			echo '<td class="showlist"></td>';
-		}
-		echo '<td class="showlist">' . $linkl . '<h3>' . $s[ 'name' ] . '</h3>' . $linkr;
-		/** WARN - we assume whoever filled the description field to be
-		  trustworthy enough not to write malicious or malformed html */
-		if ( $s[ "description" ] ) {
-			echo '<p><i>' . stripslashes( $s[ 'description' ] ) . '</i></p>';
-		}
-		if ($s) {
-			echo '<p>'.$lang['datesandtimes'].'</p><ul>';
-			$shows = fetch_all( "select * from shows where date >= curdate() and spectacle='".$s['id']."' order by date" );
-			foreach ($shows as $show) {
-				$showid = $show['id'];
-				$d = f_date($show['date']);
-				$t = f_time($show['time']);
-				$target = $page_url . '&fsp=' . PAGE_SEATS . '&showid=' . $showid;
-				echo "<li><p><a style='color: #303030;' href='$target'>$d, $t</a></p></li>";
-			}
-			echo '</ul>';
-		}
-		echo '</td></tr>';
-	}
-	echo '</table>';
-	do_hook( 'front_page_end' );
-	show_foot();
-}	// end of freeseat_frontpage
 
 /*
  * Checks the WP version and deactiviates FreeSeat if the version is too old

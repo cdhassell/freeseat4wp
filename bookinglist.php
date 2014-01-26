@@ -341,7 +341,7 @@ function freeseat_bookinglist()
 				// when no checkboxes we secretly check them all
 				$html[ $st ] .= '<input type="hidden" name="' . $id . '">';
 			}
-			$url = admin_url( 'admin.php&fsp='.PAGE_SEATS.'&showid=' . $b[ 'showid' ] . '&amp;bookinglist');
+			$url = admin_url( 'admin.php?page=freeseat-admin&fsp='.PAGE_SEATS.'&showid=' . $b[ 'showid' ] . '&amp;bookinglist');
 			$html[ $st ] .= $id . "<td bgcolor='#ffffb0'><a href='$url'>" . $b[ 'date' ] . ' ' . f_time( $b[ 'time' ] ) . 
 			// $html[ $st ] .= $id . '<td bgcolor="#ffffb0"><a href="seats.php?showid=' . $b[ 'showid' ] . '&amp;bookinglist">' . $b[ 'date' ] . ' ' . f_time( $b[ 'time' ] ) . 
 			// check for -1: don't display row/col information for
