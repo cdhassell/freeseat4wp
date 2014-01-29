@@ -398,7 +398,7 @@ function paypal_pdt_check() {
   exit;
 }
 
-function freeseat_paypal_init_handler {
+function freeseat_paypal_init_handler() {
 	global $lang, $transid, $paypal, $groupid, $unsafeamount;
 	
 	if ( isset( $_REQUEST[ 'freeseat_ipn' ] ) ) {
