@@ -162,8 +162,11 @@ function freeseat_repr( $page_url )
 	echo '</ul>';
 	echo '<p class="main">';
 	do_hook_function( 'repr_display', $page_url );
-	if ( admin_mode() )
-		echo ' <input class="button button-primary" type="submit" value="Save changes"></form>';
+	if ( admin_mode() ) {
+		// echo ' <input class="button button-primary" type="submit" value="Save changes"></form>';
+		submit_button("Save changes");
+		echo '</form>';
+	}
 	echo '</p>';
 	echo '<p class="main">';
 	printf( $lang[ "backto" ], '[<a href="' . $page_url . '">' . $lang[ "link_index" ] . '</a>]' );

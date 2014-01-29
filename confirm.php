@@ -109,7 +109,7 @@ function freeseat_confirm( $page_url )
 	if (get_total() > 0) show_pay_info();
 	
 	echo '<p class="main">';
-	$url = $page_url . '&fsp=' . PAGE_PAY;
+	$url = add_query_arg( 'fsp', PAGE_PAY, $page_url );
 	printf( $lang[ "change_pay" ], "[<a href='$url'>", "</a>]" );
 	echo '</p>';
 	echo '<form action="' . $page_url . '&fsp=' . PAGE_FINISH . '" method="post">';
@@ -124,8 +124,8 @@ function freeseat_confirm( $page_url )
 		
 		echo '</form>';
 	} else {
-		// echo "<pre>".print_r($_SESSION)."</pre>";
-		echo '<input class="button button-primary" type="submit" value="'.$lang["book_submit"].'">';
+		// echo '<input class="button button-primary" type="submit" value="'.$lang["book_submit"].'">';
+		submit_button($lang["book_submit"]);
 	}
 	echo '</form>';
 	
