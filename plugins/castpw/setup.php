@@ -87,6 +87,7 @@ function castpw_display( $page_url ) {
     // for the regular user, create a form to accept the password
     echo "<br /><br />";
     echo "<form action='$page_url&spectacleid=$spectacleid' method='post'>";
+    if (function_exists('wp_nonce_field')) wp_nonce_field('freeseat-castpw-password');
     echo "<p class='main fine-print'>&nbsp;&nbsp;";
     echo $lang['castpw_input'] . "<input class='fine-print' type='password' name='castpw'>&nbsp;";
     echo "<input class='fine-print' type='submit' value='Ok'></p></form>";

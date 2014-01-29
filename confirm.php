@@ -113,7 +113,7 @@ function freeseat_confirm( $page_url )
 	printf( $lang[ "change_pay" ], "[<a href='$url'>", "</a>]" );
 	echo '</p>';
 	echo '<form action="' . $page_url . '&fsp=' . PAGE_FINISH . '" method="post">';
-		
+	if (function_exists('wp_nonce_field')) wp_nonce_field('freeseat-confirm-purchase');
 	do_hook('confirm_bottom');
 	// let's check that the user actually owes us something
 	if ( $_SESSION[ "payment" ] == PAY_CCARD && get_total() > 0 ) {

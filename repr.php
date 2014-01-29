@@ -101,6 +101,7 @@ function freeseat_repr( $page_url )
 	echo '</tr></table>';
 	if ( admin_mode() ) {
 		echo '<form action="' . $page_url . '&fsp=' . PAGE_REPR . '" method="post">';
+		if (function_exists('wp_nonce_field')) wp_nonce_field('freeseat-repr-disable-shows');
 		echo '<input type="hidden" name="reset-disabled" value="on">';
 		echo '<input type="hidden" name="spectacleid" value="' . $spectacleid . '">';
 	}

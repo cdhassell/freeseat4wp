@@ -118,6 +118,7 @@ function freeseat_bookinglist()
 		
 	?>
 	<form action="<?php echo $bookinglist_url; ?>" method="POST" name="filterform">
+	<?php if (function_exists('wp_nonce_field')) wp_nonce_field('freeseat-bookinglist-filterform'); ?>
 	<p class="main"><?php
 		echo $lang[ "filter" ];
 	?>
@@ -294,17 +295,18 @@ function freeseat_bookinglist()
 	?>
 	
 	<form action="<?php echo $bookinglist_url; ?>" method="post">
+	<?php if (function_exists('wp_nonce_field')) wp_nonce_field('freeseat-bookinglist-offsetform'); ?>
 	<!-- default action : just save notes. Does not need any visible button -->
 	<input type="hidden" name="save">
 	
 	<?php
-	/* this is to persist filter settings accross links. We DON'T use
+	/* this is to persist filter settings across links. We DON'T use
 	session variables so that e.g. using "back" will work as expected,
 	so that many views can be opened simultaneously, so that starting
 	from main page will always show default view etc etc */
 	
 	foreach ( array(
-		 "offset",
+		"offset",
 		"st",
 		"showid",
 		"sort" 
@@ -383,7 +385,7 @@ function freeseat_bookinglist()
 		/* Foreaching on the states rather than on $html itself to preserve
 		state ordering */
 		foreach ( array(
-			 ST_BOOKED,
+			ST_BOOKED,
 			ST_SHAKEN,
 			ST_PAID,
 			ST_DELETED,
@@ -415,7 +417,7 @@ function freeseat_bookinglist()
 			echo '<a href="' . $bookinglist_url . '"';
 			$sep = "?"; // what comes between params
 			foreach ( array(
-				 "offset",
+				"offset",
 				"st",
 				"showid",
 				"sort" 

@@ -406,6 +406,7 @@ function freeseat_showedit()
 	
 	echo '<h2>' . $lang[$ready?'title_mconfirm':'title_maint'] . '</h2>';
 	echo "<form action='$showedit_url' name='choose_spec' method='post'>";
+	if (function_exists('wp_nonce_field')) wp_nonce_field('freeseat-showedit-choose-spectacle');
 	// spectacle selection form depends on the onchange action in choose_spectacle()
 	echo '<h3>' . $lang["spectacle_name"] . '</h3>';
 	
@@ -416,7 +417,7 @@ function freeseat_showedit()
 	echo '</form>';
 	echo '<div class="form">'; // the big div
 	echo "<form action='$showedit_url' method='post' enctype='multipart/form-data'>"; // data submission form
-	
+	if (function_exists('wp_nonce_field')) wp_nonce_field('freeseat-showedit-enter-data');
 	echo '<input style="display : none;" type="submit" name="submit">';// default action when user presses enter in a field
 	
 	echo '<div class="name-selection"><input type="hidden" name="id" value="'.$spec.'">';

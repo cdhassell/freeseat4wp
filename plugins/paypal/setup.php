@@ -140,6 +140,7 @@ function paypal_paymentform() {
 	$paypal['amount'] = price_to_string(get_total());
 	echo '<body onload="document.gopaypal.submit()">';
 	echo '<form method="post" name="gopaypal" action="'.$paypal["url"].'">';
+	if (function_exists('wp_nonce_field')) wp_nonce_field('freeseat-paypal-paymentform');
 	//show paypal hidden variables
 	// don't require another click, just go
 	paypal_show_variables(); 

@@ -174,7 +174,7 @@ function freeseat_disableseats() {
 	echo '<h2>'.$lang["disableseats"].'</h2><p class="main">';
 
 	echo '<form action="'.admin_url('admin.php?page=freeseat-disableseats&showid='.$_SESSION["showid"]).'" name="showform" method="post">';
-	
+	if (function_exists('wp_nonce_field')) wp_nonce_field('freeseat-disableseats-showform');
 	// limit this list to future shows 
 	$ss = get_shows( "date >= CURDATE()" );
 	if ( $ss ) {
@@ -194,6 +194,7 @@ function freeseat_disableseats() {
 	/* Now display the seatmaps */
 
 	echo '<form action="'.admin_url('admin.php?page=freeseat-disableseats&showid='.$_SESSION["showid"]).'" name="changeform" method="post">';
+	if (function_exists('wp_nonce_field')) wp_nonce_field('freeseat-disableseats-load-seats');
 	echo '<input type="hidden" name="load_seats">';
 	echo '<p class="main">'.__('Now displaying: ');
 	show_show_info($sh,false);	

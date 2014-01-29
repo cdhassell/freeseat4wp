@@ -62,6 +62,7 @@ function freeseat_seats( $page_url )
 	do_hook("seatmap_top");
 	
 	echo '<form action="' . add_query_arg( 'fsp', PAGE_PAY, $page_url ) . '" method="post">';
+	if (function_exists('wp_nonce_field')) wp_nonce_field('freeseat-seats-render-seatmap');
 	echo '<input type="hidden" name="load_seats">';
 	
 	if ($sh["imagesrc"]!="") {

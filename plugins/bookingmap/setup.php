@@ -129,7 +129,7 @@ function freeseat_bookingmap() {
 	
 	// display a select box with shows to choose from
 	echo '<form action="'.admin_url('admin.php?page=freeseat-bookingmap&showid='.$_SESSION["showid"]).'" name="showform" method="post">';
-	
+	if (function_exists('wp_nonce_field')) wp_nonce_field('freeseat-bookingmap-showform');
 	// limit this list to future shows 
 	$ss = get_shows( "date >= CURDATE()" );
 	if ( $ss ) {

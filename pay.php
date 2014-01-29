@@ -49,7 +49,7 @@ function freeseat_pay( $page_url )
 	echo print_booked_seats();
 	echo '<h2>'.$lang["payment"].'</h2>';
 	echo '<form action="' . add_query_arg( 'fsp', PAGE_CONFIRM, $page_url ). '" method="post">';
-	
+	if (function_exists('wp_nonce_field')) wp_nonce_field('freeseat-pay-input');
 	if (!isset($_SESSION["payment"])) $_SESSION["payment"]= PAY_CCARD;
 	
 	/* If the price doesn't depend on the category, then don't offer
