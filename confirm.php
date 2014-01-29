@@ -124,8 +124,7 @@ function freeseat_confirm( $page_url )
 		
 		echo '</form>';
 	} else {
-		// echo '<input class="button button-primary" type="submit" value="'.$lang["book_submit"].'">';
-		submit_button($lang["book_submit"]);
+		echo '<input class="button button-primary" type="submit" value="'.$lang["book_submit"].'">';
 	}
 	echo '</form>';
 	

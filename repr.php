@@ -163,8 +163,7 @@ function freeseat_repr( $page_url )
 	echo '<p class="main">';
 	do_hook_function( 'repr_display', $page_url );
 	if ( admin_mode() ) {
-		// echo ' <input class="button button-primary" type="submit" value="Save changes"></form>';
-		submit_button("Save changes");
+		echo ' <input class="button button-primary" type="submit" value="Save changes"></form>';
 		echo '</form>';
 	}
 	echo '</p>';

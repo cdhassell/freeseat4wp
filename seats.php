@@ -84,8 +84,7 @@ function freeseat_seats( $page_url )
 		$currseat = false;
 	}
 	if ( !do_hook_exists("seatmap_hide_button") ) { 
-		submit_button($lang["continue"]);
-		// echo '<p><input class="button button-primary" type="submit" value="'.$lang["continue"].'"></p>';
+		echo '<p><input class="button button-primary" type="submit" value="'.$lang["continue"].'"></p>';
 	}
 	echo '</form>';
 	show_foot();

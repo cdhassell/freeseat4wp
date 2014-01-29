@@ -170,8 +170,7 @@ function freeseat_pay( $page_url )
 	echo '<div class="clear-both"></div>';
 	echo '</div><!-- end of paymentinfo -->';
 	echo '<p class="main">';
-	submit_button($lang["continue"]);
-	// echo '<input class="button button-primary" type="submit" value="'.$lang["continue"].'">';
+	echo '<input class="button button-primary" type="submit" value="'.$lang["continue"].'">';
 	echo '</p></form>';
 	
 	show_foot();
