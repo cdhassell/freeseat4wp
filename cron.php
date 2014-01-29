@@ -1,16 +1,13 @@
 #!/usr/local/bin/php
-<?php
+<?php namespace freeseat;
 
 // import wordpress stuff
-require_once( $_SERVER['DOCUMENT_ROOT'] . '/wp2/wp-load.php' );
+require_once( '../../../wp-load.php' );
 
 // import freeseat stuff
-define ('FS_PATH',dirname($_SERVER['SCRIPT_FILENAME']).'/');
-
 require_once (FS_PATH . "vars.php");
 
 require_once (FS_PATH . "functions/booking.php");
-require_once (FS_PATH . "functions/configuration.php");
 require_once (FS_PATH . "functions/format.php");
 require_once (FS_PATH . "functions/session.php");
 require_once (FS_PATH . "functions/send.php");
@@ -48,33 +45,16 @@ if (isset($_SERVER["REQUEST_METHOD"]) && !$unsecure_login) {
   fatal_error($lang["err_shellonly"]);
 } else {
 
-  if ($_SERVER["argc"]!=2)
-    die($lang["err_cronusage"]);
-
-  $passwd = $_SERVER["argv"][1];
-
-  /* For email message ids */
-  $_SERVER["REMOTE_PORT"] = "1";
-  $_SERVER["REMOTE_ADDR"] = "127.0.0.1";
-  $_SERVER["SERVER_NAME"] = $default_server_name;
-
-  $r = mysql_connect($dbserv, $systemuser, $passwd);
-
-  if ($r) $r = mysql_select_db($dbdb);
-
-  if (!$r) {
-    die($lang["err_connect"].mysql_error());
-  }
   prepare_log("cronjob");
 
   /* 1 - clean up seat_locks */
 
   $q = "delete from seat_locks where until < ".$now;
   print $q."\n";
-  mysql_query($q);
+  freeseat_query($q);
   $q = "delete from booking where state=".ST_DELETED." and firstname='Disabled' and lastname='Seat'";
   print $q."\n";
-  mysql_query($q);
+  freeseat_query($q);
 
   /* 2 - send reminders+cancellation notices */
 
