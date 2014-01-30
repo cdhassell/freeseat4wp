@@ -1,6 +1,6 @@
 <?php namespace freeseat;
 
-define("FS_VERSION", "1.4.1b");
+define("FS_VERSION", "2.0");
 
 require_once ( FS_PATH . "config-default.php");
 
