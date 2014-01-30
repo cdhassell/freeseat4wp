@@ -1,7 +1,7 @@
 <?php
 
 // import wordpress stuff
-require_once( $_SERVER['DOCUMENT_ROOT'] . '/wp2/wp-load.php' );
+require_once( $_SERVER['DOCUMENT_ROOT'] . '/wp-load.php' );
 
 // import freeseat stuff
 define ('FS_PATH','../../');
