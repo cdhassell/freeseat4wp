@@ -170,10 +170,10 @@ function paypal_paymentform() {
 	
     //Configuration Settings
     $paypal["business"] = $paypal_account;
-    $args = array( 'fsp' => PAGE_FINISH, 'ok' => 'yes' );
-    $paypal["success_url"] = add_query_arg( $args, $page_url );
-    $paypal["cancel_url"] = add_query_arg( 'fsp', PAGE_FINISH, $page_url );
-    $paypal["notify_url"] = add_query_arg( 'freeseat_ipn', 1, $page_url );   // back door confirmation IPN
+    $paypal["site_url"] = add_query_arg( 'fsp', FALSE, $page_url );
+    $paypal["success_url"] = "&fsp=".PAGE_FINISH."&ok=yes";
+    $paypal["cancel_url" ] = "&fsp=".PAGE_FINISH;
+    $paypal["notify_url" ] = "&freeseat_ipn=1";   // back door confirmation IPN
     $paypal["return_method"] = "2"; //1=GET 2=POST
     $paypal["bn"] = "toolkit-php";
     $paypal["cmd"] = "_xclick";
