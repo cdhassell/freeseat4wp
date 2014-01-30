@@ -5,6 +5,8 @@ This is a port of the Freeseat ticketing application to Wordpress as a native WP
 
 I want to express my thanks to Maxime for creating Freeseat as it has been a very useful program.  All hail Maxime!  :-)
 
+This is a development release for public comment and testing purposes.  It is not fully tested and should *not* be used in production.
+
 
 <h3>INSTALLATION</h3>
 
