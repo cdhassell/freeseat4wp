@@ -125,7 +125,9 @@ function freeseat_switch( $shortcode_fsp = 0 ) {
 	$fsp = (( isset( $_GET[ 'fsp' ] ) ) ? $_GET[ 'fsp' ] : $fsp );
 	// build a page URL
 	$page_url = (( isset( $post ) ) ? get_permalink() : $_SERVER['PHP_SELF'].'?page=freeseat-admin' );
-	$page_url = add_query_arg( 'fsp', $fsp, $page_url);
+	$page_url = add_query_arg( 'fsp', FALSE, $page_url ); 
+	// because add_query_arg() is lame, and will not overwrite an arg
+	$page_url = add_query_arg( 'fsp', $fsp,  $page_url );
 	// now call the right function and pass this url to it
 	switch( $fsp ) {
 		case PAGE_FINISH:
