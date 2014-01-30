@@ -8,6 +8,8 @@ I want to express my thanks to Maxime for creating Freeseat as it has been a ver
 
 <h3>INSTALLATION</h3>
 
+<p>The following assumes that you have installed Wordpress and it is working correctly.</p>
+
 <ol><li>Just do the usual Wordpress thing - download the tarball and save it somewhere.  Then go to Plugins - Add New - Upload and upload the file, then install it.  There is also an optional link to install sample data on the plugins screen.
 
 <li>Once installed, you will have a new Freeseat menu on the administrative screens.  Point your mouse at the menu item, and you should see a submenu of items like "Current Shows", "Settings", etc.  If there is no data in the tables,  most of these won't do much.
