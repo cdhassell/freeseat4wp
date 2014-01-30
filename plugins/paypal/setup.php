@@ -166,14 +166,17 @@ function paypal_confirm_button() {
 /** Displays a button/link (a form with hidden fields from _SESSION)
 that will redirect the user to the ccard provider's payment form **/
 function paypal_paymentform() {
-	global $paypal, $lang, $paypal_account, $page_url;
+	global $paypal, $lang, $paypal_account;
 	
     //Configuration Settings
     $paypal["business"] = $paypal_account;
-    $paypal["site_url"] = add_query_arg( 'fsp', FALSE, $page_url );
-    $paypal["success_url"] = "&fsp=".PAGE_FINISH."&ok=yes";
-    $paypal["cancel_url" ] = "&fsp=".PAGE_FINISH;
-    $paypal["notify_url" ] = "&freeseat_ipn=1";   // back door confirmation IPN
+    // paypal is picky about the urls passed here
+    $parts = parse_url( "http://".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'] );
+    $path = $parts['path'] . ( isset( $parts['query'] ) ? '?'.$parts['query'] : '' );
+    $paypal["site_url"] = $parts['scheme']."://".$parts['host'];
+    $paypal["success_url"] = $path."&fsp=".PAGE_FINISH."&ok=yes";
+    $paypal["cancel_url" ] = $path."&fsp=".PAGE_FINISH;
+    $paypal["notify_url" ] = $path."&freeseat_ipn=1";   // back door confirmation IPN
     $paypal["return_method"] = "2"; //1=GET 2=POST
     $paypal["bn"] = "toolkit-php";
     $paypal["cmd"] = "_xclick";
@@ -197,6 +200,7 @@ function paypal_paymentform() {
 	$paypal['item_number'] = $_SESSION['groupid'];
 	$paypal['item_name'] = get_memo();		// construct memo field with summary
 	$paypal['amount'] = price_to_string(get_total());
+	sys_log( "paypal vars = " . print_r($paypal,1) );
 	echo '<body onload="document.gopaypal.submit()">';
 	echo '<form method="post" name="gopaypal" action="'.$paypal["url"].'">';
 	if (function_exists('wp_nonce_field')) wp_nonce_field('freeseat-paypal-paymentform');
