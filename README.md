@@ -6,7 +6,7 @@ This is a port of the Freeseat ticketing application to Wordpress as a native WP
 I want to express my thanks to Maxime for creating Freeseat as it has been a very useful program.  All hail Maxime!  :-)
 
 
-INSTALLATION
+<h3>INSTALLATION</h3>
 
 Just do the usual Wordpress thing - download the tarball and save it somewhere.  Then go to Plugins - Add New - Upload and upload the file, then install it.  There is also an optional link to install sample data on the plugins screen.
 
@@ -33,7 +33,7 @@ In order to display your shows on the Wordpress front end, create a page or a po
 Finally, you will need to set up a daily call to cron.php on the command line, in order to send email and update statuses.  Consult your hosting service for how to do that.
 
 
-NOTES ON THIS VERSION
+<h3>NOTES ON THIS VERSION</h3>
 
 A "namespace freeseat" has been added to all files to prevent name collisions within WP.  As a result, PHP version 5.3 or newer is required, both in apache and on the command line.
 
@@ -59,7 +59,7 @@ A new installation routine creates the database tables and loads example data an
 The pdftickets copy of dompdf has been upgraded to version 0.6. The old version of dompdf was not compatible with WP.
 
 
-TODO
+<h3>TODO</h3>
 
 Plugins not yet converted: seasontickets, remail, post_pay, klikandpay, and htmltickets. Currently the only payment plugin is paypal and the only ticket generation plugin is pdftickets.
 
