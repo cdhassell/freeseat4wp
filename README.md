@@ -8,7 +8,7 @@ I want to express my thanks to Maxime for creating Freeseat as it has been a ver
 
 <h3>INSTALLATION</h3>
 
-<p>The following assumes that you have installed Wordpress and it is working correctly.</p>
+<p>The following assumes that you have installed Wordpress and it is working correctly.  A current version of Wordpress is recommended.  Versions prior to 3.8 have not been tested.</p>
 
 <ol><li>Just do the usual Wordpress thing - download the tarball and save it somewhere.  Then go to Plugins - Add New - Upload and upload the file, then install it.  There is also an optional link to install sample data on the plugins screen.
 
