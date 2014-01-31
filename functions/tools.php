@@ -223,7 +223,7 @@ function freeseat_url($path, $secure=null) {
 	/*global $normal_area, $sec_area;
 	if ($secure === null) $secure = admin_mode();
 	return ($secure? $sec_area : $normal_area) . '/' . $path; */
-	return plugins_url() . '/freeseat/' . $path;	
+	return plugins_url( $path, dirname( __FILE__ ) );	
 }
 
 function enhanced_list_box($options, $params, $text_new, $resultname) {

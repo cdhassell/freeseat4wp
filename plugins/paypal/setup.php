@@ -163,20 +163,46 @@ function paypal_confirm_button() {
     '</div>';
 }
 
+function paypal_modify_url( $mod, $remove = FALSE ) {
+	// modifies or replaces pieces of the url query
+	// accepts an array of key-value pairs to build a URL
+	// retrieves the current host and URI from the server 
+	$scheme = ( is_ssl() ? 'https://' : 'http://' );
+    $url = $scheme.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
+    $query = explode("&", $_SERVER['QUERY_STRING']);
+    // modify/delete data
+    foreach($query as $q) {
+        list($key, $value) = explode("=", $q);
+        if(array_key_exists($key, $mod)) {
+            if($mod[$key]) {
+                $url = preg_replace('/'.$key.'='.$value.'/', $key.'='.$mod[$key], $url);
+            } elseif ($remove)  {  // this removes keys not in $mod
+                $url = preg_replace('/&?'.$key.'='.$value.'/', '', $url);
+            }
+        }
+    }
+    // add new data, using ? for the first item
+    $glue = ((strpos($url,'?') === FALSE) ? '?' : '&');
+    foreach($mod as $key => $value) {
+        if($value && !preg_match('/'.$key.'=/', $url)) {
+            $url .= $glue.$key.'='.$value;
+            $glue = '&';
+        }
+    }
+    return $url;
+}
+
 /** Displays a button/link (a form with hidden fields from _SESSION)
 that will redirect the user to the ccard provider's payment form **/
 function paypal_paymentform() {
-	global $paypal, $lang, $paypal_account;
+	global $paypal, $lang, $freeseat_vars;
 	
     //Configuration Settings
-    $paypal["business"] = $paypal_account;
+    $paypal["business"] = $freeseat_vars['paypal_account'];
     // paypal is picky about the urls passed here
-    $parts = parse_url( "http://".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'] );
-    $path = $parts['path'] . ( isset( $parts['query'] ) ? '?'.$parts['query'] : '' );
-    $paypal["site_url"] = $parts['scheme']."://".$parts['host'];
-    $paypal["success_url"] = $path."&fsp=".PAGE_FINISH."&ok=yes";
-    $paypal["cancel_url" ] = $path."&fsp=".PAGE_FINISH;
-    $paypal["notify_url" ] = $path."&freeseat_ipn=1";   // back door confirmation IPN
+    $paypal["success_url"] = paypal_modify_url( array( 'fsp' => PAGE_FINISH, 'ok' => 'yes' )); 
+    $paypal["cancel_url" ] = paypal_modify_url( array( 'fsp' => PAGE_FINISH ));
+    $paypal["notify_url" ] = paypal_modify_url( array( 'freeseat_ipn' => '1' )); // back door confirmation IPN
     $paypal["return_method"] = "2"; //1=GET 2=POST
     $paypal["bn"] = "toolkit-php";
     $paypal["cmd"] = "_xclick";
@@ -294,9 +320,9 @@ function paypal_show_variables() {
 <!-- PayPal Configuration -->
 <input type="hidden" name="business" value="<?php echo $paypal["business"];?>">
 <input type="hidden" name="cmd" value="<?php echo $paypal["cmd"];?>">
-<input type="hidden" name="return" value="<?php echo freeseat_url($paypal['success_url']); ?>">
-<input type="hidden" name="cancel_return" value="<?php echo freeseat_url($paypal['cancel_url']); ?>">
-<input type="hidden" name="notify_url" value="<?php echo freeseat_url($paypal['notify_url'], false); ?>">
+<input type="hidden" name="return" value="<?php echo $paypal['success_url']; ?>">
+<input type="hidden" name="cancel_return" value="<?php echo $paypal['cancel_url']; ?>">
+<input type="hidden" name="notify_url" value="<?php echo $paypal['notify_url']; ?>">
 <input type="hidden" name="rm" value="<?php echo $paypal["return_method"];?>">
 <input type="hidden" name="currency_code" value="<?php echo $paypal["currency_code"];?>">
 <input type="hidden" name="lc" value="<?php echo $paypal["lc"];?>">
@@ -345,66 +371,72 @@ function paypal_checksession($level) {
 }
 
 function paypal_pdt_check() { 
-  // On success, saves an array with all PDT data variables in $_SESSION['PDT'].
-  // Accepts a pending status for eCheck transactions as ok.
-  // On failure, the user is shown a failure message and we exit.
-  global $paypal, $paypal_auth_token, $lang;
-
-  if (!isset($_GET["ok"]) || !$_GET["ok"]) return;  // let main script deal with it 
-  if (!isset($paypal_auth_token)) return; // nothing to check
-  if ($_SESSION['payment']!=PAY_CCARD) return;  // wrong payment type
-  if (isset($_GET['tx'])) {
-    $tx_token = $_GET['tx'];
-    $req = "cmd=_notify-synch&tx=$tx_token&at=$paypal_auth_token";
-    // post back to PayPal system to validate
-    $header = "POST /cgi-bin/webscr HTTP/1.0\r\n";
-    $header .= "Content-Type: application/x-www-form-urlencoded\r\n";
-    $header .= "Content-Length: " . strlen($req) . "\r\n\r\n";
-    // If possible, securely post back to paypal using HTTPS
-    // $fp = fsockopen ('www.paypal.com', 80, $errno, $errstr, 30);
-    $fp = fsockopen ('ssl://www.paypal.com', 443, $errno, $errstr, 30);
-    if (!$fp) {
-      sys_log("Unable to reach PayPal site to verify transaction");
-      return;
-    } 
-    fputs ($fp, $header . $req);
-    $res = '';
-    $headerdone = false;
-    while (!feof($fp)) {
-      $line = fgets ($fp, 1024);
-      if (strcmp($line, "\r\n") == 0) 
-        $headerdone = true;
-      elseif ($headerdone) 
-        $res .= $line;
-    }
-    // parse the data
-    $lines = explode("\n", $res);
-    $keyarray = array();
-    if (strcmp ($lines[0], "SUCCESS") == 0) {
-      foreach ($lines as $i => $j){
-        list($key,$val) = explode("=", $j);
-        $keyarray[urldecode($key)] = urldecode($val);
-      }
-      if (((strcmp("Completed",$keyarray["payment_status"]) == 0) ||
-           (strcmp("Pending",$keyarray["payment_status"]) == 0)) &&	
-           (strcmp($keyarray["receiver_email"],$paypal["business"]) == 0)) {
-        $keyarray["txnok"] = TRUE;
-        $_SESSION['PDT'] = $keyarray;
-        return;
-      } 
-    }
-    sys_log("Paypal transaction failed\nHeader: ".$header."\nReq: ".$req."\nRes: ".$res);
-    fclose ($fp);
-  }
-  show_head();
-  echo sprintf( $lang["pdt_failure_page"], 'seats.php' ); 
-  show_foot();
-  exit;
+	// On success, saves an array with all PDT data variables in $_SESSION['PDT'].
+	// Accepts a pending status for eCheck transactions as ok.
+	// On failure, the user is shown a failure message and we exit.
+	global $paypal, $freeseat_vars, $lang;
+	
+	$paypal_auth_token = $freeseat_vars['paypal_auth_token'];
+	if (!isset($_GET["ok"]) || !$_GET["ok"]) return;  // let main script deal with it 
+	if (!isset($paypal_auth_token)) return; // nothing to check
+	if ($_SESSION['payment']!=PAY_CCARD) return;  // wrong payment type
+	if (isset($_GET['tx'])) {
+		$tx_token = $_GET['tx'];
+		$req = "cmd=_notify-synch&tx=$tx_token&at=$paypal_auth_token";
+		// post back to PayPal system to validate
+		$header = "POST /cgi-bin/webscr HTTP/1.0\r\n";
+		$header .= "Content-Type: application/x-www-form-urlencoded\r\n";
+		$header .= "Content-Length: " . strlen($req) . "\r\n\r\n";
+		// If possible, securely post back to paypal using HTTPS
+		// $fp = fsockopen ('www.paypal.com', 80, $errno, $errstr, 30);
+		$fp = fsockopen ('ssl://www.paypal.com', 443, $errno, $errstr, 30);
+		if (!$fp) {
+			sys_log("Unable to reach PayPal site to verify transaction");
+			return;
+		} 
+		fputs ($fp, $header . $req);
+		$res = '';
+		$headerdone = false;
+		while (!feof($fp)) {
+			$line = fgets ($fp, 1024);
+			if (strcmp($line, "\r\n") == 0) 
+				$headerdone = true;
+			elseif ($headerdone) 
+				$res .= $line;
+		}
+		// parse the data
+		$lines = explode("\n", $res);
+ 		$keyarray = array();
+		if (strcmp ($lines[0], "SUCCESS") == 0) {
+			foreach ($lines as $i => $j){
+				list($key,$val) = explode("=", $j);
+				$keyarray[urldecode($key)] = urldecode($val);
+			}
+			if (((strcmp("Completed",$keyarray["payment_status"]) == 0) ||
+				(strcmp("Pending",$keyarray["payment_status"]) == 0)) &&	
+				(strcmp($keyarray["receiver_email"],$paypal["business"]) == 0)) {
+				$keyarray["txnok"] = TRUE;
+				$_SESSION['PDT'] = $keyarray;
+				return;
+			} 
+		}
+		sys_log("Paypal transaction failed\nHeader: ".$header."\nReq: ".$req."\nRes: ".$res);
+		fclose ($fp);
+	}
+	show_head();
+	echo sprintf( $lang["pdt_failure_page"], 'seats.php' ); 
+	show_foot();
+	exit;
 }
 
 function freeseat_paypal_init_handler() {
-	global $lang, $transid, $paypal, $groupid, $unsafeamount;
+	global $lang, $transid, $paypal, $groupid, $unsafeamount, $smtp_sender, $admin_mail;
+	/*
 	
+	[31-Jan-2014 11:56:38] PHP Notice:  Undefined index: business in /home/danhassell/wordpress/wp-content/plugins/freeseat/plugins/paypal/setup.php on line 260
+[31-Jan-2014 11:56:38] PHP Notice:  Undefined index: business in /home/danhassell/wordpress/wp-content/plugins/freeseat/plugins/paypal/setup.php on line 272
+	
+	*/
 	if ( isset( $_REQUEST[ 'freeseat_ipn' ] ) ) {
 		// paypal is loading this page with an IPN
 
