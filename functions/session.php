@@ -133,7 +133,7 @@ function check_session( $n, $quiet=false ) {
 		2 => 'seats', 
 		3 => 'pay' );
 	$page = $pagelist[ $url ]; 
-	$newpage_url = add_query_arg( "fsp", $url, $page_url );
+	$newpage_url = replace_fsp( $page_url, $url );
 	printf( $lang["backto"], "[<a href='$newpage_url'>".$lang["link_$page"]."</a>]" );
 	echo "</p>\n";
 	show_foot();  

@@ -164,9 +164,10 @@ function paypal_confirm_button() {
 }
 
 function paypal_modify_url( $mod, $remove = FALSE ) {
-	// modifies or replaces pieces of the url query
-	// accepts an array of key-value pairs to build a URL
-	// retrieves the current host and URI from the server 
+	/* modifies or replaces pieces of the url query
+	   accepts an array of key-value pairs to build a URL
+	   retrieves the current host and URI from the server 
+	   if $remove is true, remove args not present in $mod  */
 	$scheme = ( is_ssl() ? 'https://' : 'http://' );
     $url = $scheme.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
     $query = explode("&", $_SERVER['QUERY_STRING']);

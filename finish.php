@@ -202,7 +202,8 @@ function freeseat_finish( $page_url )
 	   echo '</p>';
 	 } 
 	 echo '<div class="dontprint"><p class="main">';
-	 $url = add_query_arg( array('fsp' => PAGE_REPR, 'spectacleid' => $spec['id'] ), $page_url ); 
+	 $url = replace_fsp( $page_url, PAGE_REPR );
+	 $url = add_query_arg( 'spectacleid', $spec['id'], $url ); 
 	 printf($lang["bookagain"],"[<a href='$url'>","</a>]");
 	 echo '</p></div>';
 	

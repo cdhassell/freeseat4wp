@@ -48,7 +48,7 @@ function freeseat_pay( $page_url )
 	echo "</p>";
 	echo print_booked_seats();
 	echo '<h2>'.$lang["payment"].'</h2>';
-	echo '<form action="' . add_query_arg( 'fsp', PAGE_CONFIRM, $page_url ). '" method="post">';
+	echo '<form action="' . replace_fsp( $page_url, PAGE_CONFIRM ). '" method="post">';
 	if (function_exists('wp_nonce_field')) wp_nonce_field('freeseat-pay-input');
 	if (!isset($_SESSION["payment"])) $_SESSION["payment"]= PAY_CCARD;
 	

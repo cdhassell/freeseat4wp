@@ -233,7 +233,7 @@ function show_show_info($sh=null,$correctlink=true) {
   if ($sh) {
     echo htmlspecialchars(show_info($sh));
   } // else : get_show failed
-  if ($correctlink) echo " [<a href='".add_query_arg('fsp',PAGE_REPR,$page_url)."'>".$lang["change_date"]."</a>]";
+  if ($correctlink) echo " [<a href='".replace_fsp( $page_url, PAGE_REPR )."'>".$lang["change_date"]."</a>]";
 }
 
 function print_line($s,$fmt) {
@@ -395,7 +395,7 @@ function print_booked_seats($data = null,$fmt=FMT_CORRECTLINK) {
   $result .= print_tablefooter($fmt);
 
   if (($fmt & FMT_CORRECTLINK)==FMT_CORRECTLINK) {
-  	$url = add_query_arg( 'fsp', PAGE_REPR, $page_url );
+  	$url = replace_fsp( $page_url, PAGE_REPR );
   	$result .= '<p class="main">'.sprintf($lang["change_seats"],"[<a href='$url'>",'</a>]').'</p>';
   }
   return $result;

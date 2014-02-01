@@ -41,7 +41,7 @@ function freeseat_frontpage( $page_url ) {
 	// with links to the show pages
 	echo '<table>';
 	foreach ( $ss as $s ) {
-		$url = $page_url . '&fsp=' . PAGE_REPR . '&spectacleid=' . $s[ "id" ];
+		$url = replace_fsp( $page_url, PAGE_REPR ). '&spectacleid=' . $s[ "id" ];
 		$linkl = "<a href='$url'>";
 		$linkr = '</a>';
 				  
@@ -65,7 +65,7 @@ function freeseat_frontpage( $page_url ) {
 				$showid = $show['id'];
 				$d = f_date($show['date']);
 				$t = f_time($show['time']);
-				$target = $page_url . '&fsp=' . PAGE_SEATS . '&showid=' . $showid;
+				$target = replace_fsp( $page_url, PAGE_SEATS ) . '&showid=' . $showid;
 				echo "<li><p><a style='color: #303030;' href='$target'>$d, $t</a></p></li>";
 			}
 			echo '</ul>';

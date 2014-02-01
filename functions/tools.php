@@ -226,6 +226,16 @@ function freeseat_url($path, $secure=null) {
 	return plugins_url( $path, dirname( __FILE__ ) );	
 }
 
+/**
+ *  A small helper function to replace the 'fsp' page number
+ *  $url is the url with a ?fsp=something embedded
+ *  $newpage is one of the PAGE_* constants for a redirect
+ *
+ **/
+function replace_fsp( $url, $newpage ) {
+	return add_query_arg( 'fsp', $newpage, add_query_arg( 'fsp', FALSE, $url ));
+}
+
 function enhanced_list_box($options, $params, $text_new, $resultname) {
 // From http://www.cgi-interactive-uk.com/populate_combo_box_function_php.html
 // creates a list box from data in a mysql field

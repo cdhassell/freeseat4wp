@@ -100,7 +100,7 @@ function freeseat_repr( $page_url )
 	echo '</td>';
 	echo '</tr></table>';
 	if ( admin_mode() ) {
-		echo '<form action="' . $page_url . '&fsp=' . PAGE_REPR . '" method="post">';
+		echo '<form action="' . replace_fsp( $page_url, PAGE_REPR ) . '" method="post">';
 		if (function_exists('wp_nonce_field')) wp_nonce_field('freeseat-repr-disable-shows');
 		echo '<input type="hidden" name="reset-disabled" value="on">';
 		echo '<input type="hidden" name="spectacleid" value="' . $spectacleid . '">';
@@ -142,7 +142,7 @@ function freeseat_repr( $page_url )
 			echo "($bk/$tot) [<a href='admin.php?page=freeseat-reservations&showid=" . $sh[ "id" ] . "'>" . $lang[ "link_bookinglist" ] . "</a>] ";
 		
 		if ( $remaining > 0 || admin_mode() )
-			echo "[<a href='$page_url&fsp=" . PAGE_SEATS . "&showid=" . $sh[ "id" ] . "'>" . $lang[ "book" ] . "</a>]";
+			echo "[<a href='".replace_fsp($page_url,PAGE_SEATS)."&showid=".$sh[ "id" ]."'>".$lang[ "book" ] . "</a>]";
 		else
 			echo "[" . $lang[ "closed" ] . "]";
 		

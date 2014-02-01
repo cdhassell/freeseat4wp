@@ -109,10 +109,10 @@ function freeseat_confirm( $page_url )
 	if (get_total() > 0) show_pay_info();
 	
 	echo '<p class="main">';
-	$url = add_query_arg( 'fsp', PAGE_PAY, $page_url );
+	$url = replace_fsp( $page_url, PAGE_PAY );
 	printf( $lang[ "change_pay" ], "[<a href='$url'>", "</a>]" );
 	echo '</p>';
-	echo '<form action="' . $page_url . '&fsp=' . PAGE_FINISH . '" method="post">';
+	echo '<form action="' . replace_fsp( $page_url, PAGE_FINISH ) . '" method="post">';
 	if (function_exists('wp_nonce_field')) wp_nonce_field('freeseat-confirm-purchase');
 	do_hook('confirm_bottom');
 	// let's check that the user actually owes us something
