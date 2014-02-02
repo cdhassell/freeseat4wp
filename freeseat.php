@@ -151,6 +151,16 @@ function freeseat_switch( $shortcode_fsp = 0 ) {
 }
 
 /*
+ *  A small helper function to replace the 'fsp' page number
+ *  $url is the url with a ?fsp=something embedded
+ *  $newpage is one of the PAGE_* constants for a redirect
+ *
+ */
+function replace_fsp( $url, $newpage ) {
+	return add_query_arg( 'fsp', $newpage, add_query_arg( 'fsp', FALSE, $url ));
+}
+
+/*
  * Checks the WP version and deactiviates FreeSeat if the version is too old
  */
 function freeseat_wordpress_version() {
