@@ -432,12 +432,7 @@ function paypal_pdt_check() {
 
 function freeseat_paypal_init_handler() {
 	global $lang, $transid, $paypal, $groupid, $unsafeamount, $smtp_sender, $admin_mail;
-	/*
-	
-	[31-Jan-2014 11:56:38] PHP Notice:  Undefined index: business in /home/danhassell/wordpress/wp-content/plugins/freeseat/plugins/paypal/setup.php on line 260
-[31-Jan-2014 11:56:38] PHP Notice:  Undefined index: business in /home/danhassell/wordpress/wp-content/plugins/freeseat/plugins/paypal/setup.php on line 272
-	
-	*/
+
 	if ( isset( $_REQUEST[ 'freeseat_ipn' ] ) ) {
 		// paypal is loading this page with an IPN
 

@@ -252,7 +252,7 @@ function centerin($message,$length) {
 function bocatickets_checkbox() {
   echo '<!-- bocatickets -->';
   if (admin_mode()) {
-    echo '<input type="checkbox" name="boca" style="margin: 0 1em 0 2em;"'; 
+    echo '<input type="checkbox" name="boca" style="margin: 0 2em 0 1em;"'; 
     if (isset($_SESSION["boca"]) && $_SESSION["boca"]) {
       echo ' checked="checked"';
     }
