@@ -13,11 +13,13 @@
    */
 
 /* 
- * May 2013 - twowheeler
- * Added JS to use jzebra applet to do raw printing
- * See http://code.google.com/p/jzebra/
- * 
+ *  May 2013 - twowheeler
+ *  Added JS to use jzebra applet to do raw printing
+ *  See http://code.google.com/p/jzebra/
+ *   
  */
+
+add_action( 'init', __NAMESPACE__ . '\\bocatickets_load_js' );
 
 function freeseat_plugin_init_bocatickets() {
 	global $freeseat_plugin_hooks;
@@ -31,6 +33,10 @@ function freeseat_plugin_init_bocatickets() {
 	$freeseat_plugin_hooks['adminprint_process']['bocatickets'] = 'bocatickets_process';
     $freeseat_plugin_hooks['params_post']['bocatickets'] = 'bocatickets_postedit';
     $freeseat_plugin_hooks['params_edit']['bocatickets'] = 'bocatickets_editparams';    
+}
+
+function bocatickets_load_js() {
+	wp_enqueue_script( 'boca-script', plugins_url( 'boca.js', __FILE__ ) );
 }
 
 function bocatickets_postedit( &$options ) {
@@ -180,54 +186,7 @@ function bocatickets_end() {
   
   if (isset($_SESSION['boca']) && $_SESSION['boca']) {
 ?>
-   <script type="text/javascript">
-      function print() {
-         var applet = document.jzebra;
-         if (applet != null) {
-            // Searches for locally installed printer with "Boca" in the name
-            applet.findPrinter("Boca");
-            
-            // Send characters/raw commands to applet using "append"
-            // Hint:  Carriage Return = \r, New Line = \n, Escape Double Quotes= \"
-            applet.append( <?php echo '"' . addslashes($printfile) . '"'; ?> );
-            
-            // Mark the end of a label, in this case  P1 plus a newline character
-            // jZebra knows to look for this and treat this as the end of a "page"
-            // for better control of larger spooled jobs (i.e. 50+ labels)
-            // applet.setEndOfDocument("<p>");
-            
-            // The amount of labels to spool to the printer at a time. When
-            // jZebra counts this many `EndOfDocument`'s, a new print job will 
-            // automatically be spooled to the printer and counting will start
-            // over.
-            // applet.setDocumentsPerSpool("3");
-            
-            // Send characters/raw commands to printer
-            applet.print();
-            // applet.printToFile("~/jzebra_test.txt");
-         } else {
-            alert("Printer driver not found");
-         }
-      }
-      function jzebraReady() {
-          // Change title when applet is ready
-          var applet = document.jzebra;
-          var title = document.getElementById("bocawaiting");
-          if (applet != null) {
-              title.innerHTML = "<input type=button onClick='print()' value='Print' >";
-          }
-      }
-   </script>
-   <applet name="jzebra" code="jzebra.PrintApplet.class" archive="plugins/bocatickets/jzebra.jar" width="5px" height="5px">
-      <!-- Note:  It is recommended to use applet.findPrinter() instead for ajax heavy applications -->
-      <param name="printer" value="Boca">
-      <!-- Optional, these "cache_" params enable faster loading "caching" of the applet -->
-      <param name="cache_option" value="plugin">
-      <!-- Change "cache_archive" to point to relative URL of jzebra.jar -->
-      <param name="cache_archive" value="plugins/bocatickets/jzebra.jar">
-      <!-- Change "cache_version" to reflect current jZebra version -->
-      <param name="cache_version" value="1.4.8.0">
-   </applet>
+<applet name="jzebra" code="jzebra.PrintApplet.class" archive="<?php echo FS_PATH . 'plugins/bocatickets/jzebra.jar'; ?>" width="5px" height="5px"><param name="printer" value="Boca"><param name="cache_option" value="plugin"><!-- Change "cache_archive" to point to relative URL of jzebra.jar --><param name="cache_archive" value="<?php echo FS_PATH . 'plugins/bocatickets/jzebra.jar'; ?>"><param name="cache_version" value="1.4.8.0"></applet>
    <div style="margin-left:2em;">
    <h2>Boca Ticket Printing</h2><br />
    <div style="font-size:large; font-weight:bold;" id="bocawaiting">Please wait ...</div>

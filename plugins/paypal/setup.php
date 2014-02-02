@@ -129,7 +129,7 @@ function paypal_readparams($void) {
 	// get data back from transaction if it worked, or false if not
 	global $transid, $unsafeamount, $groupid;
 
-if (isset($_POST["item_number"])) {
+	if (isset($_POST["item_number"])) {
 		$groupid = (int)($_POST["item_number"]);
 		if (isset($_POST["txn_id"]) && (strlen($_POST["txn_id"])==17)) {
 		    $transid  = nogpc($_POST["txn_id"]); 
@@ -163,47 +163,18 @@ function paypal_confirm_button() {
     '</div>';
 }
 
-function paypal_modify_url( $mod, $remove = FALSE ) {
-	/* modifies or replaces pieces of the url query
-	   accepts an array of key-value pairs to build a URL
-	   retrieves the current host and URI from the server 
-	   if $remove is true, remove args not present in $mod  */
-	$scheme = ( is_ssl() ? 'https://' : 'http://' );
-    $url = $scheme.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
-    $query = explode("&", $_SERVER['QUERY_STRING']);
-    // modify/delete data
-    foreach($query as $q) {
-        list($key, $value) = explode("=", $q);
-        if(array_key_exists($key, $mod)) {
-            if($mod[$key]) {
-                $url = preg_replace('/'.$key.'='.$value.'/', $key.'='.$mod[$key], $url);
-            } elseif ($remove)  {  // this removes keys not in $mod
-                $url = preg_replace('/&?'.$key.'='.$value.'/', '', $url);
-            }
-        }
-    }
-    // add new data, using ? for the first item
-    $glue = ((strpos($url,'?') === FALSE) ? '?' : '&');
-    foreach($mod as $key => $value) {
-        if($value && !preg_match('/'.$key.'=/', $url)) {
-            $url .= $glue.$key.'='.$value;
-            $glue = '&';
-        }
-    }
-    return $url;
-}
-
 /** Displays a button/link (a form with hidden fields from _SESSION)
 that will redirect the user to the ccard provider's payment form **/
 function paypal_paymentform() {
-	global $paypal, $lang, $freeseat_vars;
+	global $paypal, $lang, $freeseat_vars, $page_url;
 	
     //Configuration Settings
     $paypal["business"] = $freeseat_vars['paypal_account'];
     // paypal is picky about the urls passed here
-    $paypal["success_url"] = paypal_modify_url( array( 'fsp' => PAGE_FINISH, 'ok' => 'yes' )); 
-    $paypal["cancel_url" ] = paypal_modify_url( array( 'fsp' => PAGE_FINISH ));
-    $paypal["notify_url" ] = paypal_modify_url( array( 'freeseat_ipn' => '1' )); // back door confirmation IPN
+    $url = replace_fsp( $page_url, PAGE_FINISH );
+    $paypal["cancel_url" ] = $url;
+    $paypal["success_url"] = add_query_arg( 'ok', 'yes', $url );     
+    $paypal["notify_url" ] = add_query_arg( 'freeseat_ipn', '1', $url ); // back door confirmation IPN
     $paypal["return_method"] = "2"; //1=GET 2=POST
     $paypal["bn"] = "toolkit-php";
     $paypal["cmd"] = "_xclick";
@@ -375,7 +346,7 @@ function paypal_pdt_check() {
 	// On success, saves an array with all PDT data variables in $_SESSION['PDT'].
 	// Accepts a pending status for eCheck transactions as ok.
 	// On failure, the user is shown a failure message and we exit.
-	global $paypal, $freeseat_vars, $lang;
+	global $paypal, $freeseat_vars, $lang, $page_url;
 	
 	$paypal_auth_token = $freeseat_vars['paypal_auth_token'];
 	if (!isset($_GET["ok"]) || !$_GET["ok"]) return;  // let main script deal with it 
@@ -425,7 +396,7 @@ function paypal_pdt_check() {
 		fclose ($fp);
 	}
 	show_head();
-	echo sprintf( $lang["pdt_failure_page"], 'seats.php' ); 
+	echo sprintf( $lang["pdt_failure_page"], replace_fsp( $page_url, PAGE_SEATS ) ); 
 	show_foot();
 	exit;
 }
