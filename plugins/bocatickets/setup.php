@@ -19,7 +19,7 @@
  *   
  */
 
-add_action( 'init', __NAMESPACE__ . '\\bocatickets_load_js' );
+add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\\bocatickets_load_js' );
 
 function freeseat_plugin_init_bocatickets() {
 	global $freeseat_plugin_hooks;
@@ -36,7 +36,8 @@ function freeseat_plugin_init_bocatickets() {
 }
 
 function bocatickets_load_js() {
-	wp_enqueue_script( 'boca-script', plugins_url( 'boca.js', __FILE__ ) );
+	wp_enqueue_script( 'boca-deploy', plugins_url( 'js/deployJava.js', __FILE__ ) );
+	wp_enqueue_script( 'boca-script', plugins_url( 'bocaQZ.js', __FILE__ ) );
 }
 
 function bocatickets_postedit( &$options ) {
@@ -159,9 +160,12 @@ function bocatickets_body($booking) {
   literal("<RC195,234>$classlong");             // cut to length
 
   literal("<RC252,350><F2><HW2,1>".$tickettext_closing[0]); 
-  literal("<RC285,370><HW2,2><F1>".$tickettext_closing[1]);
-  literal("<RC305,370>".$tickettext_closing[2]); 	// address box
-  literal("<RC325,370>".$tickettext_closing[3]);
+	if (isset($tickettext_closing[1])) 
+		literal("<RC285,370><HW2,2><F1>".$tickettext_closing[1]);
+	if (isset($tickettext_closing[2])) 
+		literal("<RC305,370>".$tickettext_closing[2]); 	// address box
+	if (isset($tickettext_closing[3])) 
+		literal("<RC325,370>".$tickettext_closing[3]);
   literal("<RC345,370>".$legal_info[0]);
 
   literal("<F2><HW1,1><RR><RC40,1036>$name");	// tear-off part
@@ -175,25 +179,25 @@ function bocatickets_body($booking) {
 
 function literal($text) {
   global $printfile;
-  // print to the screen with no html translation
-  // $printfile .= str_replace(" ","&nbsp;",htmlspecialchars($text))."<br>";
+  // capture all output in the global $printfile variable
   $printfile .= $text;
 }
 
  
 function bocatickets_end() {
-  global $printfile;
-  
-  if (isset($_SESSION['boca']) && $_SESSION['boca']) {
+	global $printfile;
+	
+	if (isset($_SESSION['boca']) && $_SESSION['boca']) {
+		wp_localize_script( 'boca-script', 'bocaticketsText', array( 'output' => addslashes($printfile) ));
 ?>
-<applet name="jzebra" code="jzebra.PrintApplet.class" archive="<?php echo FS_PATH . 'plugins/bocatickets/jzebra.jar'; ?>" width="5px" height="5px"><param name="printer" value="Boca"><param name="cache_option" value="plugin"><!-- Change "cache_archive" to point to relative URL of jzebra.jar --><param name="cache_archive" value="<?php echo FS_PATH . 'plugins/bocatickets/jzebra.jar'; ?>"><param name="cache_version" value="1.4.8.0"></applet>
-   <div style="margin-left:2em;">
-   <h2>Boca Ticket Printing</h2><br />
-   <div style="font-size:large; font-weight:bold;" id="bocawaiting">Please wait ...</div>
-   </div>
-<?php 
-    $printfile = '';
-  }
+<applet id="qz" archive="<?php echo plugins_url('qz-print.jar', __FILE__); ?>" name="QZ Print Plugin" code="qz.PrintApplet.class" width="5" height="5"><param name="jnlp_href" value="<?php echo plugins_url('qz-print_jnlp.jnlp',__FILE__); ?>"><param name="cache_option" value="plugin"><param name="disable_logging" value="false"><param name="initial_focus" value="false"></applet>
+<div style="margin-left:2em;">
+<h2>Boca Ticket Printing</h2><br />
+<div style="font-size:large; font-weight:bold;" id="bocawaiting">Please wait ...</div>
+</div>
+<?php
+		$printfile = '';
+	}
 }
 
 function centerin($message,$length) {
@@ -211,11 +215,11 @@ function centerin($message,$length) {
 function bocatickets_checkbox() {
   echo '<!-- bocatickets -->';
   if (admin_mode()) {
-    echo '<input type="checkbox" name="boca" style="margin: 0 2em 0 1em;"'; 
+    echo '<input type="checkbox" name="boca" style="margin: 0 0.5em;"'; 
     if (isset($_SESSION["boca"]) && $_SESSION["boca"]) {
       echo ' checked="checked"';
     }
-    echo '>Use BOCA ticket printer ';
+    echo '>Use BOCA ticket printer&nbsp; ';
   }
 }
 
