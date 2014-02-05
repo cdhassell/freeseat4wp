@@ -35,8 +35,8 @@ function freeseat_plugin_init_bocatickets() {
 }
 
 function bocatickets_load_js() {
-	wp_enqueue_script( 'boca-deploy', plugins_url( 'js/deployJava.js', __FILE__ ), '0.1.0', FALSE );
-	wp_enqueue_script( 'boca-script', plugins_url( 'bocaQZ.js', __FILE__ ), '0.1.0', FALSE );
+	wp_enqueue_script( 'boca-deploy', plugins_url( 'js/deployJava.js', __FILE__ ), '0.1.0', TRUE );
+	wp_enqueue_script( 'boca-script', plugins_url( 'bocaQZ.js', __FILE__ ), '0.1.0', TRUE );
 }
 
 function bocatickets_postedit( &$options ) {
