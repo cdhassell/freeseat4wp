@@ -1,25 +1,24 @@
 function freeseatPrint() {
-	if (qz) {
-		// Searches for locally installed printer with "Boca" in the name
+	if (isLoaded()) { 
 		qz.findPrinter("BOCA");
-		// Send characters/raw commands to applet using "append"
-		// Hint:  Carriage Return = \r, New Line = \n, Escape Double Quotes= \"
-		qz.append(bocaticketsText.output);
-		// Mark the end of a label, in this case "<p>".
-		// qz knows to look for this and treat this as the end of a "page"
-		// for better control of larger spooled jobs
-		qz.setEndOfDocument("<p>");
-		// The amount of labels to spool to the printer at a time. When
-		// qz counts this many `EndOfDocument`'s, a new print job will 
-		// automatically be spooled to the printer and counting will start
-		// over.
-		qz.setDocumentsPerSpool("10");
-		// Send characters/raw commands to printer
-		qz.print();
-		// applet.printToFile("~/jzebra_test.txt");
-	} else {
-		alert("Printer driver not found");
- 	}
+		window['qzDoneFinding'] = function() {
+			// Send characters/raw commands to applet using "append"
+			// Hint:  Carriage Return = \r, New Line = \n, Escape Double Quotes= \"
+			qz.append(bocaticketsText.output);
+			// Mark the end of a label, in this case "<p>".
+			// qz knows to look for this and treat this as the end of a "page"
+			// for better control of larger spooled jobs
+			qz.setEndOfDocument("<p>");
+			// The amount of labels to spool to the printer at a time. When
+			// qz counts this many `EndOfDocument`'s, a new print job will 
+			// automatically be spooled to the printer and counting will start over.
+			qz.setDocumentsPerSpool("10");
+			// Send characters/raw commands to printer
+			qz.print();
+			// qz.printToFile("/home/dan/output.txt");
+			window['qzDoneFinding'] = null;
+		}
+	} else { alert("Printer not found"); }
 }
 
 /**
@@ -43,23 +42,6 @@ function qzReady() {
 				"settings from the Java Control Panel.");
 		}
 	}		
-}
-
-/**
-* Returns whether or not the applet is not ready to print.
-* Displays an alert if not ready.
-*/
-function notReady() {
-	// If applet is not loaded, display an error
-	if (!isLoaded()) {
-		return true;
-	}
-	// If a printer hasn't been selected, display a message.
-	else if (!qz.getPrinter()) {
-		alert('No printer selected.');
-		return true;
-	}
-	return false;
 }
 
 /**
@@ -93,12 +75,8 @@ function qzDonePrinting() {
 		qz.clearException();
 		return; 
 	}
-	
 	// Alert success message
-	alert('Successfully sent print data to "' + qz.getPrinter() + '" queue.');
+	// alert('Successfully sent print data to "' + qz.getPrinter() + '" queue.');
 }
 
-function qzDoneFinding() {
-	return;
-}
 
