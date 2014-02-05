@@ -1,16 +1,15 @@
 <?php namespace freeseat;
 
-
-  /** bocatickets/setup.php
-   *
-   * Copyright (c) 2010 by twowheeler
-   * Licensed under the GNU GPL 2. For full terms see the file COPYING.
-   *
-   * Render tickets for a Boca ticket printer.
-   *
-   * $Id$
-   *
-   */
+/** bocatickets/setup.php
+ *
+ * Copyright (c) 2010 by twowheeler
+ * Licensed under the GNU GPL 2. For full terms see the file COPYING.
+ *
+ * Render tickets for a Boca ticket printer.
+ *
+ * $Id$
+ *
+ */
 
 /* 
  *  May 2013 - twowheeler
@@ -36,8 +35,8 @@ function freeseat_plugin_init_bocatickets() {
 }
 
 function bocatickets_load_js() {
-	wp_enqueue_script( 'boca-deploy', plugins_url( 'js/deployJava.js', __FILE__ ) );
-	wp_enqueue_script( 'boca-script', plugins_url( 'bocaQZ.js', __FILE__ ) );
+	wp_enqueue_script( 'boca-deploy', plugins_url( 'js/deployJava.js', __FILE__ ), '0.1.0', FALSE );
+	wp_enqueue_script( 'boca-script', plugins_url( 'bocaQZ.js', __FILE__ ), '0.1.0', FALSE );
 }
 
 function bocatickets_postedit( &$options ) {
@@ -78,16 +77,16 @@ function bocatickets_editparams($options) {
 }
 
 function bocatickets_start() {
-  if (isset($_SESSION['boca']) && $_SESSION['boca']) {
-    echo "</div>";  // close the regular page div
-    return true;    // return true to suppress other ticket output 
-  }
+	if (isset($_SESSION['boca']) && $_SESSION['boca']) {
+		echo "</div>";  // close the regular page div
+		return true;    // return true to suppress other ticket output 
+	}
 }
 
 function bocatickets_body($booking) {
-  global $tickettext_opening,$tickettext_closing,$lang,$legal_info,$currency;
-  if (!isset($_SESSION['boca']) || !$_SESSION['boca']) return;
-  /*	Prints one ticket in a standard format on a Boca ghostscript ticket printer
+	global $tickettext_opening,$tickettext_closing,$lang,$legal_info,$currency;
+	if (!isset($_SESSION['boca']) || !$_SESSION['boca']) return;
+	/*	Prints one ticket in a standard format on a Boca ghostscript ticket printer
     Boca FGL21 printer commands used here:
     PURGE PRINTER OF REMAINING TICKETS COMMAND - <PP>
 
@@ -119,68 +118,68 @@ function bocatickets_body($booking) {
     NORMAL PRINT / CUT COMMAND - 0CH (FF) or <p>
     */
 
-  $sp = $booking["spectacleid"];
-  $cat = $booking["cat"];
-  $pay = f_payment($booking["payment"]);  //?
-  $cls = $booking["class"];
-  $class = $lang["class"] . " " . $cls;
-  $prices = get_spec_prices( $sp );
-  $com = $prices[$cls]['comment'];
-  $classlong = centerin( "$class $com", 45 );	// for F9 font
-  $price = $currency . price_to_string($prices[$cls][$cat]);
-  $seat = ($booking["row"]!=-1 ? $booking["col"] : "GEN");
-  $row = ($booking["row"]!=-1 ? $booking["row"] : "ADM");
-  $sh = get_show($booking["showid"]);  //?
-  $date = f_date($sh["date"]) . " " . f_time($sh["time"]);
-  $datelong = centerin( $date, 46 );		// for F9 font
-  if (isset($booking["id"])) $bookid =  $booking["id"];
-  elseif (isset($booking["bookid"])) $bookid = $booking["bookid"];
-  $spectacle = get_spectacle($sp);
-  $name = $spectacle['name'];
-  $namelong = centerin( $name, 32);	// for F3 font
+	$sp = $booking["spectacleid"];
+	$cat = $booking["cat"];
+	$pay = f_payment($booking["payment"]);  //?
+	$cls = $booking["class"];
+	$class = $lang["class"] . " " . $cls;
+	$prices = get_spec_prices( $sp );
+	$com = $prices[$cls]['comment'];
+	$classlong = centerin( "$class $com", 45 );	// for F9 font
+	$price = $currency . price_to_string($prices[$cls][$cat]);
+	$seat = ($booking["row"]!=-1 ? $booking["col"] : "GEN");
+	$row = ($booking["row"]!=-1 ? $booking["row"] : "ADM");
+	$sh = get_show($booking["showid"]);  //?
+	$date = f_date($sh["date"]) . " " . f_time($sh["time"]);
+	$datelong = centerin( $date, 46 );		// for F9 font
+	if (isset($booking["id"])) $bookid =  $booking["id"];
+	elseif (isset($booking["bookid"])) $bookid = $booking["bookid"];
+	$spectacle = get_spectacle($sp);
+	$name = $spectacle['name'];
+	$namelong = centerin( $name, 32);	// for F3 font
 
-  literal("<PP><RC5,5><LT4><BX380,880>");	// big box
-  literal("<RC50,75><HW1,1><F2>".$lang["col"]);	// Seat
-  literal("<RC74,75><HW2,2><F2>$seat");		// Seat number
-  literal("<RC68,34><LT2><BX36,140>");		// small box
-  literal("<RC138,75><HW1,1>".$lang["row"]);	// Row
-  literal("<RC162,75><HW2,2>$row");						// Row number
-  literal("<RC156,34><LT2><BX36,140>");		// small box
+	literal("<PP><RC5,5><LT4><BX380,880>");	// big box
+	literal("<RC50,75><HW1,1><F2>".$lang["col"]);	// Seat
+	literal("<RC74,75><HW2,2><F2>$seat");		// Seat number
+	literal("<RC68,34><LT2><BX36,140>");		// small box
+	literal("<RC138,75><HW1,1>".$lang["row"]);	// Row
+	literal("<RC162,75><HW2,2>$row");						// Row number
+	literal("<RC156,34><LT2><BX36,140>");		// small box
 
-  literal("<RC230,70><HW1,1>".$lang["price"]);	// Price
-  literal("<RC254,45><HW2,2>$price");		// Amount
-  literal("<RC248,34><LT2><BX36,140>");		// small box
-  literal("<RC333,45><F3><HW1,1>#$bookid");	// Booking ID
-  literal("<RC328,34><LT2><BX36,140>");		// small box
+	literal("<RC230,70><HW1,1>".$lang["price"]);	// Price
+	literal("<RC254,45><HW2,2>$price");		// Amount
+	literal("<RC248,34><LT2><BX36,140>");		// small box
+	literal("<RC333,45><F3><HW1,1>#$bookid");	// Booking ID
+	literal("<RC328,34><LT2><BX36,140>");		// small box
 
-  literal("<RC30,220><LT2><BX200,620>");	// medium box
-  literal("<F2><HW2,1><RC40,230>".centerin($tickettext_opening,66));
-  literal("<F3><HW2,1><RC87,230>$namelong");	// these should already 
-  literal("<F9><HW1,1><RC165,230>$datelong");	// be centered & 
-  literal("<RC195,234>$classlong");             // cut to length
+	literal("<RC30,220><LT2><BX200,620>");	// medium box
+	literal("<F2><HW2,1><RC40,230>".centerin($tickettext_opening,66));
+	literal("<F3><HW2,1><RC87,230>$namelong");	// these should already 
+	literal("<F9><HW1,1><RC165,230>$datelong");	// be centered & 
+	literal("<RC195,234>$classlong");             // cut to length
 
-  literal("<RC252,350><F2><HW2,1>".$tickettext_closing[0]); 
+	literal("<RC252,350><F2><HW2,1>".$tickettext_closing[0]); 
 	if (isset($tickettext_closing[1])) 
 		literal("<RC285,370><HW2,2><F1>".$tickettext_closing[1]);
 	if (isset($tickettext_closing[2])) 
 		literal("<RC305,370>".$tickettext_closing[2]); 	// address box
 	if (isset($tickettext_closing[3])) 
 		literal("<RC325,370>".$tickettext_closing[3]);
-  literal("<RC345,370>".$legal_info[0]);
+	literal("<RC345,370>".$legal_info[0]);
 
-  literal("<F2><HW1,1><RR><RC40,1036>$name");	// tear-off part
-  literal("<RC40,1018>$date");			// sideways & short
-  literal("<RC40,1000>#$bookid");
-  literal("<RC40,982>$pay");
-  literal("<RC40,964>$class");
-  literal("<RC40,946>".$lang["col"]. " ".$seat.", ".$lang["row"]." ".$row."<NR>");
-  literal("<p>");
+	literal("<F2><HW1,1><RR><RC40,1036>$name");	// tear-off part
+	literal("<RC40,1018>$date");			// sideways & short
+	literal("<RC40,1000>#$bookid");
+	literal("<RC40,982>$pay");
+	literal("<RC40,964>$class");
+	literal("<RC40,946>".$lang["col"]. " ".$seat.", ".$lang["row"]." ".$row."<NR>");
+	literal("<p>");
 }
 
 function literal($text) {
-  global $printfile;
-  // capture all output in the global $printfile variable
-  $printfile .= $text;
+	global $printfile;
+	// capture all output in the global $printfile variable
+	$printfile .= $text;
 }
 
  
@@ -201,29 +200,29 @@ function bocatickets_end() {
 }
 
 function centerin($message,$length) {
-  // helper function for bocatickets
-  // centers $message within a field $length long, padded with spaces
-  // if $length is shorter than $message, truncate from the right to fit
-  $messlen = strlen($message);
-  if ($length > $messlen) {
-    return rtrim(str_pad( $message, $length, " ", STR_PAD_BOTH ));
-  } else {
-    return substr($message, 0, $length);
-  }
+	// helper function for bocatickets
+	// centers $message within a field $length long, padded with spaces
+	// if $length is shorter than $message, truncate from the right to fit
+	$messlen = strlen($message);
+	if ($length > $messlen) {
+		return rtrim(str_pad( $message, $length, " ", STR_PAD_BOTH ));
+	} else {
+		return substr($message, 0, $length);
+	}
 }
 
 function bocatickets_checkbox() {
-  echo '<!-- bocatickets -->';
-  if (admin_mode()) {
-    echo '<input type="checkbox" name="boca" style="margin: 0 0.5em;"'; 
-    if (isset($_SESSION["boca"]) && $_SESSION["boca"]) {
-      echo ' checked="checked"';
-    }
-    echo '>Use BOCA ticket printer&nbsp; ';
-  }
+	echo '<!-- bocatickets -->';
+	if (admin_mode()) {
+		echo '<input type="checkbox" name="boca" style="margin: 0 0.5em;"'; 
+		if (isset($_SESSION["boca"]) && $_SESSION["boca"]) {
+			echo ' checked="checked"';
+		}
+		echo '>Use BOCA ticket printer&nbsp; ';
+	}
 }
 
 function bocatickets_process() {
-  $_SESSION["boca"] = isset($_POST["boca"]) and admin_mode();
+	$_SESSION["boca"] = isset($_POST["boca"]) and admin_mode();
 }
 
