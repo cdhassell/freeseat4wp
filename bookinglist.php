@@ -14,7 +14,7 @@ Modifications for Wordpress are Copyright (C) 2013 twowheeler.
  */
 function freeseat_bookinglist()
 {
-	global $lang, $bookings_on_a_page, $filterst, $now;
+	global $lang, $bookings_on_a_page, $filterst, $now, $ab;
 	if ( !current_user_can('administer_freeseat' ) ) { 
 		wp_die( __( 'You do not have sufficient permissions to access this page. 1' ) );
 	}	
