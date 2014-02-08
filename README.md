@@ -48,7 +48,8 @@ This is a development release for public comment and testing purposes.  It is no
 <li>Entry points from WP pages or posts are now from WP shortcodes. The shortcode "[freeseat-shows]" displays the front page list of all available shows. The shortcode "[freeseat-direct showid=xx]" enters the seatmap display formerly at seats.php.
 
 <li>A new function freeseat_switch() is called on every page of the ticket purchase process. A parameter $fsp determines whether to display repr, seats, pay, confirm or finish pages.
-The showedit and showlist plugins have been moved into core.
+
+<li>The showedit and showlist plugins have been moved into core.
 
 <li>A new plugin has been added to allow administrator upload of seatmap CSV files. A help screen explains how to format a spreadsheet and save it as a CSV file for upload.
 
