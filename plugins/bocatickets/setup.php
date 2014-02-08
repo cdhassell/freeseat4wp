@@ -157,7 +157,7 @@ function bocatickets_body($booking) {
 	literal("<F3><HW2,1><RC87,230>$namelong");	// these should already 
 	literal("<F9><HW1,1><RC165,230>$datelong");	// be centered & 
 	literal("<RC195,234>$classlong");             // cut to length
-
+	
 	literal("<RC252,350><F2><HW2,1>".$tickettext_closing[0]); 
 	if (isset($tickettext_closing[1])) 
 		literal("<RC285,370><HW2,2><F1>".$tickettext_closing[1]);
@@ -187,8 +187,17 @@ function bocatickets_end() {
 	global $printfile;
 	
 	if (isset($_SESSION['boca']) && $_SESSION['boca']) {
-		wp_localize_script( 'boca-script', 'bocaticketsText', array( 'output' => addslashes($printfile) ));
-?>
+		$printfile = str_replace(array('.', "\n", "\t", "\r"), '', $printfile);
+		// this doesn't work as WP escapes the data and makes it useless
+		// wp_localize_script( 'boca-script', 'bocaticketsText', array('output' => $printfile ) );
+		// so we directly write the data out where javascript can find it
+		?>
+<script type='text/javascript'>
+/* <![CDATA[ */
+var bocaticketsText = {"output":"<?php echo $printfile; ?>"};
+/* ]]> */
+</script> 
+
 <applet id="qz" archive="<?php echo plugins_url('qz-print.jar', __FILE__); ?>" name="QZ Print Plugin" code="qz.PrintApplet.class" width="5" height="5"><param name="jnlp_href" value="<?php echo plugins_url('qz-print_jnlp.jnlp',__FILE__); ?>"><param name="cache_option" value="plugin"><param name="disable_logging" value="false"><param name="initial_focus" value="false"></applet>
 <div style="margin-left:2em;">
 <h2>Boca Ticket Printing</h2><br />
