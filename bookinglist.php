@@ -12,12 +12,14 @@ Modifications for Wordpress are Copyright (C) 2013 twowheeler.
  *  Creates a page for editing and printing ticket reservations
  *  Replaces the former bookinglist.php
  */
+// http://localhost/wp2/wp-admin/admin.php?page=freeseat-reservations?offset=25&st=-5&showid=&sort=id 
+
 function freeseat_bookinglist()
 {
 	global $lang, $bookings_on_a_page, $filterst, $now, $ab;
-	if ( !current_user_can('administer_freeseat' ) ) { 
+	/* if ( !admin_mode() ) { 
 		wp_die( __( 'You do not have sufficient permissions to access this page. 1' ) );
-	}	
+	} */
 	echo '<h2>View Reservations</h2>';
 		
 	prepare_log( "booking administration" );
@@ -260,7 +262,7 @@ function freeseat_bookinglist()
 				echo "(";
 				$closing = ") ";
 			} else {
-				echo "[<a href='" . $bookinglist_url . "?offset=$coffset&amp;st=$filterst&amp;showid=$filtershow&amp;sort=$orderby'>";
+				echo "[<a href='" . $bookinglist_url . "&offset=$coffset&amp;st=$filterst&amp;showid=$filtershow&amp;sort=$orderby'>";
 				$closing = "</a>] ";
 			}
 			if ( $a != $z ) {
@@ -415,7 +417,7 @@ function freeseat_bookinglist()
 			// submit_button( $lang['confirmation'], 'primary', 'confirm', false );
 			echo '<p class="main"><input class="button button-primary" type="submit" value="' . $lang[ "confirmation" ] . '">';
 			echo '<a href="' . $bookinglist_url . '"';
-			$sep = "?"; // what comes between params
+			$sep = "&amp;"; // what comes between params
 			foreach ( array(
 				"offset",
 				"st",
