@@ -5,8 +5,6 @@ jQuery(document).ready(function($) {
 		buttons: {
 			Ok: function() {
 				$( this ).dialog( "close" );
-				var path = $( this ).data( 'link' ).href;	
-				// $(location).attr('href', path);
 			}
 		}	
 	});

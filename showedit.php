@@ -144,6 +144,7 @@ function set_perf( $perf )
 // set spectacle description info into tables, returning the id of the
 // spectacle - unchanged if it was an existing one, bigger than zero
 // if this is a new spectacle.
+// Using WP $wpdb->prepare() method to sanitize data
 {
 	$spec = ( isset( $perf[ "id" ] ) ? (int) $perf[ "id" ] : 0 );
 	$values = array( stripslashes($perf['name']), stripslashes($perf['description']), $perf['imagesrc'] );
@@ -348,7 +349,6 @@ function freeseat_showedit()
 	// BUT storing failed. And in that case the if is not taken so we
 	// proceed to user interface without redirection.
 	if ($ready && isset($_POST["save"])) {
-		
 	/* 4 - data is valid and user requested saving */
 
 	    $spec = set_perf( $perf );
@@ -363,7 +363,7 @@ function freeseat_showedit()
 			} else {
 			    // success
 			    kaboom($lang["show_stored"]);
-			    $_SESSION["messages"] = $messages;
+			    // $_SESSION["messages"] = $messages;
 			    $perf['id'] = $spec;
 				$ready = false;
 			    do_hook_function("showedit_save", $perf);

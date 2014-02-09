@@ -44,7 +44,7 @@ function bocatickets_postedit( &$options ) {
 	// called in freeseat_validate_options()
 	if ( is_array( $options ) ) {
 		$options['tickettext_opening'] = wp_filter_nohtml_kses($options['tickettext_opening']); 
-		$options['tickettext_closing'] = explode( '\n', $options['tickettext_closing'] );
+		$options['tickettext_closing'] = explode( PHP_EOL, $options['tickettext_closing'] );
 		$arr = array();
 		foreach ( $options['tickettext_closing'] as $line ) 
 			$arr[] = wp_filter_nohtml_kses( $line );
@@ -68,9 +68,9 @@ function bocatickets_editparams($options) {
 		<?php _e( 'Ticket top line text' ); ?><br />
 		<input type="text" size="25" name="freeseat_options[tickettext_opening]" value="<?php echo $options['tickettext_opening']; ?>" />
 	</td>
-	<td>
+	<td colspan="2">
 		<br /><?php _e( 'Ticket closing lines' ); ?><br />
-		<textarea name="freeseat_options[tickettext_closing]" rows="3" cols="25" type='textarea'><?php echo ( is_array( $options['tickettext_closing'] ) ? implode( '\n', $options['tickettext_closing'] ) : $options['tickettext_closing'] ); ?></textarea>
+		<textarea name="freeseat_options[tickettext_closing]" rows="3" cols="35" type='textarea'><?php echo ( is_array( $options['tickettext_closing'] ) ? implode( PHP_EOL, $options['tickettext_closing'] ) : $options['tickettext_closing'] ); ?></textarea>
 	</td>
 </tr>
 <?php

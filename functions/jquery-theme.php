@@ -28,6 +28,7 @@ function freeseat_jquery_dialog() {
     $url = "$protocol://ajax.googleapis.com/ajax/libs/jqueryui/{$ui->ver}/themes/smoothness/jquery-ui.min.css";
     wp_enqueue_style('jquery-ui-smoothness', $url, false, null);
     
+    // load popup_script.js which makes the jquery call
 	wp_enqueue_script( 'popup-script', plugins_url( 'js/popup_script.js', dirname(__FILE__) ),
 		array( 'jquery', 'jquery-ui-core', 'jquery-ui-dialog' ) );
 }
