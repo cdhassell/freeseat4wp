@@ -220,7 +220,7 @@ function civicrm_showedit($spec) {
 	
 	// get freeseat data
 	$name = $spec['name']; 
-	$desc = mysql_real_escape_string( $spec['description'] ); 
+	$desc = $spec['description']; 
 	$dates = get_shows("spectacle = ".$spec['id']);
 	$n = 0;
 	foreach($dates as &$date) {

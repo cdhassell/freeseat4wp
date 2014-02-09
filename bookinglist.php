@@ -17,9 +17,9 @@ Modifications for Wordpress are Copyright (C) 2013 twowheeler.
 function freeseat_bookinglist()
 {
 	global $lang, $bookings_on_a_page, $filterst, $now, $ab;
-	/* if ( !admin_mode() ) { 
-		wp_die( __( 'You do not have sufficient permissions to access this page. 1' ) );
-	} */
+	if ( !admin_mode() ) { 
+		wp_die( 'You do not have sufficient permissions to access this page.' );
+	}
 	echo '<h2>View Reservations</h2>';
 		
 	prepare_log( "booking administration" );
@@ -233,10 +233,10 @@ function freeseat_bookinglist()
 		$slice = get_slice( $orderby, $cond, $coffset );
 		while ( $slice !== false ) {
 			list( $a, $z ) = $slice;
-			if ( $orderby != "id" ) {
+			/*if ( $orderby != "id" ) {
 				$a = $a{0};
 				$z = $z{0};
-			}
+			}*/
 			if ( $firstloop ) {
 				echo '<p>' . $lang[ $orderby ] . '&nbsp;: ';
 				$firstloop = false;

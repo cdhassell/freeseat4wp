@@ -16,7 +16,7 @@ Modifications for Wordpress are Copyright (C) 2013 twowheeler.
 function get_upload( &$perf ) {
 	global $upload_path, $lang;
 
-	$permitted = array("jpeg","jpg" /*,"gif","png","bmp"*/);
+	$permitted = array("jpeg","jpg","gif","png","bmp");
 	foreach( $_FILES as $file_name => $file_array ) {
 		if ($file_array['name'] != "") {
 			// do nothing if user didn't submit a file
@@ -44,8 +44,6 @@ function get_upload( &$perf ) {
    performance. Pass currently selected value as second parameter */
 function choose_seatmap( $perf, $theatre=null )
 {
-	global $lang;
-	
 	enhanced_list_box(array( 'table' => 'theatres', 'id_field' => 'id', 
 		'value_field' => 'name', 'highlight_id' => $theatre), '', '', "theatre_$perf" );
 	return "";
@@ -55,8 +53,6 @@ function choose_local_file($spec)
 /* opens a file dialog to upload a file to the server
 - Maximum allowable file size is curently 100K */
 {
-	global $lang;
-	
 	echo '<input type="hidden" name="MAX_FILE_SIZE" value="100000">';
 	echo '<input name="uploadedfile" type="file" accept="image/*"><br>';
 }
@@ -150,7 +146,7 @@ function set_perf( $perf )
 // if this is a new spectacle.
 {
 	$spec = ( isset( $perf[ "id" ] ) ? (int) $perf[ "id" ] : 0 );
-	$values = array( $perf['name'], $perf['description'], $perf['imagesrc'] );
+	$values = array( stripslashes($perf['name']), stripslashes($perf['description']), $perf['imagesrc'] );
 	if ( $spec > 0 ) {
 		/* $q = "UPDATE spectacles set name=".quoter($perf["name"])
 		    .", description=".quoter($perf["description"])
@@ -187,8 +183,8 @@ function freeseat_showedit()
 	The print_var() function sets up the HTML input fields based on the $ready variable. */
 	
 	global $lang, $upload_url, $messages, $plugins;
-	if ( !current_user_can('administer_freeseat' ) ) { 
-		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
+	if ( !admin_mode() ) { 
+		wp_die( 'You do not have sufficient permissions to access this page.' );
 	}
 	$showedit_url = admin_url( 'admin.php?page=freeseat-showedit' );
 	load_alerts();
@@ -233,11 +229,11 @@ function freeseat_showedit()
 			$item = "p_$i"."_$j";   //implode( "_", array( 'p', $i, $j ));
 			if (isset( $_POST[ $item ] ) ) {
 				if (
-				$totalbooked && 
-				$permit_warn_booking &&
-				isset( $prices[ $i ] ) && 
-				isset( $prices[ $i ][ $j ] ) &&
-				$prices[ $i ][ $j ] != string_to_price( $_POST[ $item ] ) 
+					$totalbooked && 
+					$permit_warn_booking &&
+					isset( $prices[ $i ] ) && 
+					isset( $prices[ $i ][ $j ] ) &&
+					$prices[ $i ][ $j ] != string_to_price( $_POST[ $item ] ) 
 				) {
 					$permit_warn_booking = false;
 					kaboom( $lang[ "warn_bookings" ] );
@@ -311,7 +307,7 @@ function freeseat_showedit()
 		}
 		if ( !isset( $prices[ $i ][ 'comment' ] ) ) $prices[ $i ][ 'comment' ] = "";
 	}
-	foreach ( array( 'name', 'description', 'imagesrc' /*, 'active'*/ ) as $item ) {
+	foreach ( array( 'name', 'description', 'imagesrc' ) as $item ) {
 		if ( !isset( $perf[ $item ] ) ) $perf[ $item ] = "";
 	}
 	
@@ -511,10 +507,6 @@ function freeseat_showedit()
 	  echo '<p class="emph">' . $lang["warn_show_confirm"] . '</p>';
 	  echo '<p class="main">';
 	  submit_button( $lang[ "save" ], 'primary', 'save', false );
-	  // echo '<p class="main"><input type="submit" name="save" value="' . $lang["save"] . '"></p>';
-	  // echo '<p class="main">';
-	  // printf($lang["backto"],'<input type="submit" name="edit" value="'.$lang["link_edit"].'">');
-	  // echo '</p>';
 	  echo '  ';
 	  submit_button( $lang[ "link_edit" ], 'primary', 'edit', false );
 	  echo '</p>';

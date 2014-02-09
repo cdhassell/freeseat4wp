@@ -196,7 +196,7 @@ function freeseat_disableseats() {
 	echo '<form action="'.admin_url('admin.php?page=freeseat-disableseats&showid='.$_SESSION["showid"]).'" name="changeform" method="post">';
 	if (function_exists('wp_nonce_field')) wp_nonce_field('freeseat-disableseats-load-seats');
 	echo '<input type="hidden" name="load_seats">';
-	echo '<p class="main">'.__('Now displaying: ');
+	echo '<p class="main">'.$lang['nowdisplaying'];
 	show_show_info($sh,false);	
 	$zonelist = get_zones($sh['theatre']);
 	if ($zonelist) {
