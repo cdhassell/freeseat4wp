@@ -121,7 +121,8 @@ function freeseat_add_options_page() {
 
 // Render the options form
 function freeseat_params() {
-	global $freeseat_available_plugins, $us_state, $country, $moneyfactor, $freeseat_plugin_hooks;
+	global $freeseat_available_plugins, $us_state, $country, $moneyfactor, $freeseat_plugin_hooks, $upload_path;
+	
 	$freeseat_plugin_groups = array();
 	foreach ( $freeseat_available_plugins as $name => $details ) {
 		$freeseat_plugin_groups[$details['category']][$name] = $details;
@@ -134,7 +135,7 @@ function freeseat_params() {
 		<h2>FreeSeat System Settings</h2>
 		
 		<!-- Beginning of the Plugin Options Form -->
-		<form method="post" action="options.php">
+		<form method="post" action="options.php" enctype="multipart/form-data">
 			<?php settings_fields('freeseat_plugin_options'); ?>
 			<?php 
 				$options = get_option('freeseat_options');
@@ -274,10 +275,14 @@ function freeseat_params() {
 				<tr>
 					<td>
 					</td>
-					<td colspan="3"><!-- FIXME: need to upload the image file -->
+					<td colspan="3">
 						<?php _e( 'Default ticket logo image' ); ?><br />
-						<input type="file" size="40" name="freeseat_options[ticket_logo]" value="<?php echo htmlspecialchars( $options['ticket_logo'] ); ?>" accept="image/*" />&nbsp;
-						<?php echo htmlspecialchars($options['ticket_logo']); ?>
+						<label for="freeseat_options[ticket_logo]">Filename: </label>
+						<input type="hidden" name="MAX_FILE_SIZE" value="500000" />
+						<input type="file" size="40" name="freeseat_options[ticket_logo]" accept="image/*" />&nbsp;
+						<?php echo htmlspecialchars($options['ticket_logo']); ?>&nbsp;&nbsp;
+						<input type="hidden" name="freeseat_options[old_logo]" value="<?php echo htmlspecialchars($options['ticket_logo']); ?>" />
+						<img src="<?php echo plugins_url($upload_path.$options['ticket_logo'],__FILE__); ?>" width="50" height="50">
 					</td>
 				</tr>
 				<tr valign="top" style="border-top:#dddddd 1px solid;"><!-- Major Heading -->
@@ -375,26 +380,25 @@ function freeseat_validate_options($input) {
 	if (!isset($input['disabled_ccard'])) $input['disabled_ccard'] = 0;
 	if (!isset($input['disabled_post'])) $input['disabled_post'] = 0;
 	$input['websitename'] = wp_filter_nohtml_kses($input['websitename']); 
-	$input['ticket_logo'] = wp_filter_nohtml_kses($input['ticket_logo']); 
+	$input['ticket_logo'] = $input['old_logo']; 
 	// get the ticket logo image file if the user submitted one
 	$permitted = array( "jpeg", "jpg", "gif", "png", "bmp" );
 	foreach( $_FILES as $file_name => $file_array ) {
-		if ($file_array['name'] != "") {
+		if (!empty($file_array['name'])) {
 			// do nothing if user didn't submit a file
-			$parts = pathinfo($file_array['name']);
+			$parts = pathinfo($file_array['name']['ticket_logo']);
 			$target = $parts["basename"];
-			if ( is_uploaded_file( $file_array['tmp_name'] )
+			if ( is_uploaded_file( $file_array['tmp_name']['ticket_logo'] )
 				&& isset($parts["extension"])
 				&& in_array(strtolower($parts["extension"]),$permitted)) {
-				if ( !move_uploaded_file( $file_array['tmp_name'], FS_PATH . $upload_path . $target ) ) {
+				if ( !move_uploaded_file( $file_array['tmp_name']['ticket_logo'], FS_PATH . $upload_path . $target ) ) {
 					kaboom( $lang['err_upload'] ) ;
-					/* (keep old value if upload failed) */
 				} else {
+					/* file upload succeeded, so overwrite the old value  */
 					$input['ticket_logo'] = $target;
 				}
 			} else  {
 				kaboom( $lang['err_filetype'] . "image" );
-				$input['ticket_logo'] = "";
 			}
 		}
 	}
