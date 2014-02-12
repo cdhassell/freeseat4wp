@@ -1,8 +1,0 @@
-INSTALLATION INSTRUCTIONS
-
-The pdftickets plugin depends on the DomPDF plugin. Get it from
-http://code.google.com/p/dompdf/downloads/list, unpack the
-dompdf-x.y.z.zip file in the plugins/pdftickets directory and rename
-the resulting dompdf-x.y.z directory to just dompdf.
-
-

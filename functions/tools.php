@@ -82,20 +82,18 @@ function kaboom($s) {
 
 /** Abort current script (with the given error message, if any) */
 function fatal_error($s='',$print_header=true) {
-  global $lang, $page_url;
-  if ($s) kaboom($s);
-  if ($print_header) show_head();
-  else {
-    flush_messages_html();
-  }
-
-  echo '<p class="main">';
-  $url = ( empty( $page_url ) ? $_SERVER['PHP_SELF'].'?page=freeseat-admin' : $page_url );
-  printf($lang["backto"],'[<a href="'.$page_url.'&fsp=0">'.$lang["link_index"].'</a>]');
-  echo '</p>';
-  
-  show_foot();
-  exit;
+	global $lang, $page_url;
+	if ($s) kaboom($s);
+	if ($print_header) 
+		show_head();
+	else 
+		flush_messages_html();
+	echo '<p class="main">';
+	$url = ( empty( $page_url ) ? $_SERVER['PHP_SELF'].'?page=freeseat-admin' : $page_url );
+	printf($lang["backto"],'[<a href="'.replace_fsp($url,PAGE_INDEX).'">'.$lang["link_index"].'</a>]');
+	echo '</p>';
+	show_foot();
+	exit;
 }
 
 /** You must call this function if you intend to use a function that

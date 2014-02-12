@@ -193,6 +193,7 @@ function freeseat_admin_menu() {
 
 /*
  *  Handler for the shortcode call freeseat-direct
+ *  Must return output rather than echo it
  */
 function freeseat_direct( $atts ) {
 	extract( shortcode_atts( array(
@@ -206,6 +207,7 @@ function freeseat_direct( $atts ) {
 
 /*
  *  Handler for the shortcode call freeseat-shows
+ *  Must return output rather than echo it
  */
 function freeseat_front() {
 	ob_start();

@@ -171,7 +171,7 @@ function freeseat_bookingmap() {
 		}
 	}
 	echo '<p class="main">';
-	printf($lang["backto"],'[<a href="'.admin_url().'?page=freeseat-admin&fsp=2&showid='.$_SESSION['showid'].'">'.$lang["link_seats"].'</a>]');
+	printf($lang["backto"],'[<a href="'.admin_url().'?page=freeseat-admin&fsp='.PAGE_SEATS.'&showid='.$_SESSION['showid'].'">'.$lang["link_seats"].'</a>]');
 	echo '</p>';
 	show_foot();
 }

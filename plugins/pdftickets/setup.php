@@ -91,11 +91,11 @@ function pdftickets_finalise() {
 	echo "<p class='main'><table><tr><td>";
 	echo "<div id='download-image'>";
 	echo "<img src='".plugins_url( "down.png", __FILE__ )."'></div></td><td><p>";
-	printf($lang["pdftickets_download_link"],'[<a href="'.$page_url.'&fsp=5&key='.$pdftickets_id.'&mode=pdf-file">','</a>]');
+	printf($lang["pdftickets_download_link"],'[<a href="'.replace_fsp($page_url,PAGE_FINISH).'&key='.$pdftickets_id.'&mode=pdf-file">','</a>]');
 	echo '</p>';
 	if (isset($_SESSION['email']) && is_email_ok($_SESSION['email'])) {
 		echo '<p>';
-		printf($lang["pdftickets_email_link"],'[<a href="'.$page_url.'&fsp=5&key='.$pdftickets_id.'&mode=pdf-mail">','</a>]',$_SESSION['email'])."<div id='mailsent'></div>";
+		printf($lang["pdftickets_email_link"],'[<a href="'.replace_fsp($page_url,PAGE_FINISH).'&key='.$pdftickets_id.'&mode=pdf-mail">','</a>]',$_SESSION['email'])."<div id='mailsent'></div>";
 		if (isset($_SESSION['pdftickets_emailsent'])) echo "&nbsp;&nbsp;&nbsp;<b> Sent!</b>";
 		echo '</p>';
 	}

@@ -26,7 +26,7 @@ This is a development release for public comment and testing purposes.  It is no
 
 <li>Prices are entered by class of seat, which are set in the seatmap.  For example, if your seatmap contains seats organized into classes 1, 2, and 3, you will need to enter prices for those 3 classes on this page.  A column is provided for reduced price tickets, for example, a special price for children.
 
-<li>If you are uploading an image for the show, be careful of the size.  Files larger than one megabyte will be refused.  The image will not be resized, so consider how large you want it to be on the screen without crowding out the text.  A JPEG image of about 300 pixels wide is recommended.
+<li>If you are uploading an image for the show, be careful of the size.  Files larger than 100kb will be refused.  The image will not be resized, so consider how large you want it to be on the screen without crowding out the text.  A JPEG image of about 300 pixels wide is recommended.
 
 <li>Save the show setup, and confirm it on the next screen if everything is accurate.  Now go to the Current Shows page, and your show should be visible.  
 
@@ -55,7 +55,9 @@ This is a development release for public comment and testing purposes.  It is no
 
 <li>A new plugin has been added that requires the user to be logged in to WP, and stores and retrieves the user name and address details in the WP user account.
 
-<li>A new plugin has been added to record user purchase information in a civicrm database.
+<li>A new plugin has been added to record shows as events and users as event participants in a civicrm database.
+
+<li>A new plugin has been added to allow the admin user to print theatre tickets on a Boca FGL21 ticket printer.  This incorporates a java applet from the excellent QZ-print project (https://code.google.com/p/jzebra) to permit output to a local printer from the browser.  This requires some additional setup as described in the plugin README file.  Users may also want to try their hand at supporting different brands of ticket printers by copying and modifying this code.  If you do this, please share the result here. 
 
 <li>A new installation routine creates the database tables and loads example data and configuration options.  An uninstall file drops all freeseat tables and deletes the options.
 
@@ -64,7 +66,7 @@ This is a development release for public comment and testing purposes.  It is no
 
 <h3>TODO</h3>
 
-<ul><li>Plugins not yet converted: seasontickets, remail, post_pay, klikandpay, and htmltickets. Currently the only payment plugin is paypal and the only ticket generation plugin is pdftickets.
+<ul><li>Plugins not yet converted: seasontickets, remail, post_pay, klikandpay, and htmltickets. Currently the only payment plugin is paypal.
 
 <li>The setup.sql files in groupdiscount, civicrm, bookingnotes, and castpw are not handled yet.  For the moment, the default install includes all of the extra fields required by those plugins. 
 
