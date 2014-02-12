@@ -201,7 +201,7 @@ var bocaticketsText = {"output":"<?php echo $printfile; ?>"};
 <applet id="qz" archive="<?php echo plugins_url('qz-print.jar', __FILE__); ?>" name="QZ Print Plugin" code="qz.PrintApplet.class" width="1" height="1"><param name="jnlp_href" value="<?php echo plugins_url('qz-print_jnlp.jnlp',__FILE__); ?>"><param name="cache_option" value="plugin"><param name="disable_logging" value="false"><param name="initial_focus" value="false"></applet>
 <div style="margin-left:2em;">
 <h2>Boca Ticket Printing</h2><br />
-<div style="font-size:large; font-weight:bold;" id="bocawaiting"><img src="<?php echo plugins_url('spinner2.gif', __FILE__); ?>"> Please wait ...</div>
+<div style="font-size:large; font-weight:bold;" id="bocawaiting"><img src="<?php echo plugins_url('spinner.gif', __FILE__); ?>"> Please wait ...</div>
 </div>
 <?php
 		$printfile = '';
