@@ -14,7 +14,7 @@ version 2
 */
 
 if ( !function_exists( 'is_plugin_inactive' ) ) 
-	include_once ( ABSPATH . '/wp-admin/includes/plugin.php' );
+	include_once ( ABSPATH . 'wp-admin/includes/plugin.php' );
 if ( is_plugin_inactive( 'civicrm/civicrm.php' ) ) 
 	kaboom( "Aborting civicrm integration, civicrm not found" ); 
 
@@ -22,7 +22,6 @@ if ( is_plugin_inactive( 'civicrm/civicrm.php' ) )
 define( 'PARTICIPANT_ROLE',	1 );	// attendee
 define( 'FINANCIAL_TYPE',	4 );	// event fee
 define( 'EVENT_TYPE',		5 );	// performance
-define( 'LOCAL_WP_ROOT', FS_PATH."../../../" );
 define( 'DESCRIPTION_TEXT', "<p>For tickets please visit <a>".home_url()."</a></p>" );
 
 function freeseat_plugin_init_civicrm() {
@@ -73,10 +72,7 @@ function civicrm_sync() {
 	$detail = "$sp_name on $date ticket #$groupid for $amtstr";
 	sys_log("Recording ticket sale to $groupid for $amtstr ");
 	$eventid = m_eval( "SELECT civicrm_id FROM shows WHERE id=$showid" );
-	if ( isset( $post ) ) { 
-		$url = str_replace('page_id','p', get_page_link() );
-		$detail .= " at $url";
-	}
+	$detail .= ( isset($post) ? " at ".get_page_link() : '' );
 	// Check for reservations we don't want to keep
 	if (strpos($firstname.' '.$lastname,'Disabled') !== FALSE ||
 		strpos($firstname.' '.$lastname,'Office') !== FALSE ||
@@ -86,22 +82,28 @@ function civicrm_sync() {
 	}
 	
   	// now do it the WordPress way
-  	require_once LOCAL_WP_ROOT."wp-content/plugins/civicrm/civicrm.settings.php";
+  	require_once ABSPATH."wp-content/plugins/civicrm/civicrm.settings.php";
 	require_once 'CRM/Core/Config.php';
 	$config = \CRM_Core_Config::singleton( );
 	require_once 'api/api.php';
 	
-	// how many matching contacts?
-	$contact_count = civicrm_api( "Contact", "getcount", 
-		array (
-			'version' =>'3', 
-			'first_name' => $firstname,
-			'last_name' => $lastname, 
-			'email' => $email 
-		) 
-	);
-	$cid = NULL;
-	
+	// check if we have a saved contact id for the logged in user
+	$cid = civicrm_getvalue('civicrm-contactid');
+	if ($cid) { 
+		// if so, use it
+		$contact_count = 1;
+	} else {
+		// otherwise, search for contact by name
+		$contact_count = civicrm_api( "Contact", "getcount", 
+			array (
+				'version' =>'3', 
+				'first_name' => $firstname,
+				'last_name' => $lastname, 
+				'email' => $email 
+			) 
+		);
+		$cid = NULL;
+	} 
 	// if none found, create a contact using chained API calls
 	if ($contact_count == 0) {  
 		$params = array (
@@ -131,7 +133,7 @@ function civicrm_sync() {
 				// 'format.only_id' => 1,
 			)
 		);
-		/*  We could record the transaction but that is too complex
+		/*  We could record the money transaction but that is too complex
 			Requires setup of price sets for ticket prices
 		if ( isset( $amtstr ) ) {
 			$params[ 'api.contribution.create' ] = array(
@@ -156,53 +158,65 @@ function civicrm_sync() {
 			sys_log( "Created $cid in civicrm for $groupid" );
 		} else sys_log( "Cannot create civicrm contact for $groupid: ".print_r($contact_create,1) );
 	}
-	
 	// if one/more is found, get the contact_id then add a participant
 	else {
-		$params = array (
-			'version' =>'3', 
-			'first_name' => $firstname,
-			'last_name' => $lastname, 
-			'email' => $email
-		);
-		$contact_get=civicrm_api( "Contact", "get", $params );
-		if ($contact_get['is_error'] == 0) {
-			if ($contact_count == 1) {  
-				$cid = $contact_get['id'];
-				sys_log( "Found $cid in civicrm for $groupid ");
-			} else {
-				$cid = array_shift(array_keys($contact_get['values']));
-				sys_log( "Selected $cid from multiple contacts in civicrm for $groupid " );
-			}
+		if (!$cid) { // skip the search if we have the id already
 			$params = array (
-				'version' =>'3',
-				'contact_id' => $cid,
-				'event_id' => $eventid,
-				'status_id' => 1,
-				'role_id' => PARTICIPANT_ROLE,
-				'note' => $detail,
-				// 'format.only_id' => 1,
+				// search by name and email
+				'version' =>'3', 
+				'first_name' => $firstname,
+				'last_name' => $lastname, 
+				'email' => $email
 			);
-			/*
-			if ( isset( $amtstr ) ) {
-				$params[ 'api.contribution.create' ] = array(
-					'financial_type_id' => FINANCIAL_TYPE,
-					'total_amount' => $amtstr,
-					'format.only_id' => 1,
-					'receive_date' => date("Y-m-d H:i:s"),
-					'payment_instrument_id' => 1,
-					'invoice_id' => $groupid,
-					'source' => 'Tickets',
-					'contribution_status_id' => 1,				
-				);
-				$params[ 'api.participant_payment.create' ] = array(
-					'contribution_id' => '$value.api.contribution.create',
-					'participant_id' => '$value.api.participant'
-				);
+			$contact_get=civicrm_api( "Contact", "get", $params );
+			if ($contact_get['is_error'] == 0) {
+				// how many did we find?
+				if ($contact_count == 1) {  
+					$cid = $contact_get['id'];
+					sys_log( "Found $cid in civicrm for $groupid ");
+				} else {
+					// if more than one, take the first one
+					$cid = array_shift(array_keys($contact_get['values']));
+					sys_log( "Selected $cid from multiple contacts in civicrm for $groupid " );
+				}
+			} else {
+				sys_log( "Cannot get civicrm contact for $groupid ".print_($contact_get,1) );
+				return;
 			}
-			*/
-			$result = civicrm_api( "participant", "create", $params );
-		} else sys_log( "Cannot get civicrm contact for $groupid ".print_($contact_get,1) );
+		}
+		// at this point we have a contact id
+		$params = array (
+			'version' =>'3',
+			'contact_id' => $cid,
+			'event_id' => $eventid,
+			'status_id' => 1,
+			'role_id' => PARTICIPANT_ROLE,
+			'note' => $detail,
+		);
+		/*
+		if ( isset( $amtstr ) ) {
+			$params[ 'api.contribution.create' ] = array(
+				'financial_type_id' => FINANCIAL_TYPE,
+				'total_amount' => $amtstr,
+				'format.only_id' => 1,
+				'receive_date' => date("Y-m-d H:i:s"),
+				'payment_instrument_id' => 1,
+				'invoice_id' => $groupid,
+				'source' => 'Tickets',
+				'contribution_status_id' => 1,				
+			);
+			$params[ 'api.participant_payment.create' ] = array(
+				'contribution_id' => '$value.api.contribution.create',
+				'participant_id' => '$value.api.participant'
+			);
+		}
+		*/
+		// make a participant record
+		$result = civicrm_api( "participant", "create", $params );
+		if ($result['is_error'] != 0)  // if there was an error then delete the id
+			civicrm_delvalue( 'civicrm-contactid' );
+		else  // otherwise save the contact id for next time
+			civicrm_setvalue( 'civicrm-contactid', $cid );
 	}
 	return;
 }
@@ -234,7 +248,7 @@ function civicrm_showedit($spec) {
 	sys_log("Civicrm found ".count($dates)." shows of $name, $n with IDs");
 	
 	// now do it the WordPress way
-	require_once LOCAL_WP_ROOT."wp-content/plugins/civicrm/civicrm.settings.php";
+	require_once ABSPATH."wp-content/plugins/civicrm/civicrm.settings.php";
 	require_once 'CRM/Core/Config.php';
 	$config = \CRM_Core_Config::singleton( );
 	require_once 'api/api.php';  
@@ -315,4 +329,27 @@ function civicrm_config_db($user) {
 	return config_checksql_for('plugins/civicrm/setup.sql', $user);
 }
 
+function civicrm_getvalue( $metakey ) {
+	// retrieves an arbitrary value from the usermeta table
+	$userid = get_current_user_id();
+	if ( 0 == $userid ) return FALSE;
+	if ( empty( $metakey ) ) return FALSE;
+	return get_user_meta( $userid, "freeseat_$metakey", TRUE );
+}
+
+function civicrm_setvalue( $metakey, $metavalue ) {
+	// saves an arbitrary value to the usermeta table
+	$userid = get_current_user_id();
+	if ( 0 == $userid ) return FALSE;
+	if ( empty( $metakey ) ) return FALSE;
+	return add_user_meta( $userid, "freeseat_$metakey", $metavalue, TRUE ); 
+}
+
+function civicrm_delvalue( $metakey ) {
+	// deletes an arbitrary value from the usermeta table
+	$userid = get_current_user_id();
+	if ( 0 == $userid ) return FALSE;
+	if ( empty( $metakey ) ) return FALSE;
+	return delete_user_meta( $userid, "freeseat_$metakey" );
+}
 
