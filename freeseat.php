@@ -123,6 +123,10 @@ function freeseat_switch( $shortcode_fsp = 0 ) {
 	$fsp = ( $shortcode_fsp ? $shortcode_fsp : 0 );
 	// however a page number from GET will override that
 	$fsp = (( isset( $_GET[ 'fsp' ] ) ) ? $_GET[ 'fsp' ] : $fsp );
+	if (isset($_POST['clearcart'])) {
+		$fsp = 0;
+		kill_booking_done();
+	}
 	// build a page URL
 	$page_url = (( isset( $post ) ) ? get_permalink() : $_SERVER['PHP_SELF'].'?page=freeseat-admin' );
 	$page_url = replace_fsp( $page_url, $fsp );

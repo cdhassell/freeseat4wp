@@ -32,7 +32,7 @@ function freeseat_pay( $page_url )
 	/** if no set of seats is provided then just keep the one in session **/
 	if (isset($_POST["load_seats"])) {
 		/* (if the following fails it will be handled by check_session) */
-		unlock_seats();
+		unlock_seats(FALSE);
 		load_seats($_POST);
 		check_session(3);
 		compute_cats();
@@ -47,7 +47,8 @@ function freeseat_pay( $page_url )
 	show_show_info($sh);
 	echo "</p>";
 	echo print_booked_seats();
-	echo '<h2>'.$lang["payment"].'</h2>';
+	echo "<div class='user-info'>";
+	echo '<h3>'.$lang["ticket_details"].'</h3>';
 	echo '<form action="' . replace_fsp( $page_url, PAGE_CONFIRM ). '" method="post">';
 	if (function_exists('wp_nonce_field')) wp_nonce_field('freeseat-pay-input');
 	if (!isset($_SESSION["payment"])) $_SESSION["payment"]= PAY_CCARD;
@@ -114,7 +115,7 @@ function freeseat_pay( $page_url )
 		    echo "<p class='main'>".sprintf($lang["howmanyare"],$seatcount). ":</p>\n<ul>";
 			foreach ($cats as $cat => $label) {
 				if ($cat == CAT_NORMAL) continue;
-				echo "<li><p> ".$lang[$label]."&nbsp;:&nbsp;";
+				echo "<li><p class='main'> ".$lang[$label]."&nbsp;:&nbsp;";
 				input_field("ncat$cat", '0', ' size="2"');
 				echo "</p>";
 			}
@@ -129,8 +130,8 @@ function freeseat_pay( $page_url )
 	pay_option(PAY_CASH);
 	pay_option(PAY_OTHER);
 	echo '</p>';
-	
 	do_hook('other_payment_info');
+	echo "</div>";	
 	
 	echo "<div class='paymentinfo'>";
 

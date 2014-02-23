@@ -19,10 +19,16 @@ function freeseat_confirm( $page_url )
 	load_alerts();
 	kill_booking_done();
 	
+	// capture the user data from the pay form
 	foreach (array("firstname","lastname","phone","email","address","postalcode","city","us_state","country") as $n => $a) {
-		if (isset($_POST[$a]))
-		$_SESSION[$a] = make_reasonable(nogpc($_POST[$a]));
+		if (isset($_POST[$a])) $_SESSION[$a] = make_reasonable(nogpc($_POST[$a]));
 	}
+
+	// remove any seats checked by the user for removal
+	foreach ($_SESSION['seats'] as $id => $seat) {
+		if (isset($_POST[$id])) unset($_SESSION['seats'][$id]);
+	}
+	
 	/* See how many seats must be marked reduced/invitation. This map maps
 		CAT_xyz entries to the number of requested seats. */
 	$hook_catmap = array();
@@ -100,18 +106,20 @@ function freeseat_confirm( $page_url )
 	show_head();
 	echo '<h2>' . $lang[ "summary" ] . '</h2>';
 	echo '<p class="main">'.$lang[ "intro_confirm" ].'</p>';
-	echo '<p class="main">';
+	/* echo '<p class="main">';
 	show_show_info();
-	echo '</p>';
+	echo '</p>'; */
 	
-	echo print_booked_seats(null,FMT_PRICE|FMT_CORRECTLINK);
+	echo print_booked_seats(null,FMT_PRICE|FMT_CORRECTLINK|FMT_SHOWINFO|FMT_FORM);
+	echo '<div class="user-info">';	
+	echo '<h3>'.$lang['youare'].'</h3>';
 	show_user_info();
 	if (get_total() > 0) show_pay_info();
-	
 	echo '<p class="main">';
 	$url = replace_fsp( $page_url, PAGE_PAY );
 	printf( $lang[ "change_pay" ], "[<a href='$url'>", "</a>]" );
 	echo '</p>';
+	echo '</div>';
 	echo '<form action="' . replace_fsp( $page_url, PAGE_FINISH ) . '" method="post">';
 	if (function_exists('wp_nonce_field')) wp_nonce_field('freeseat-confirm-purchase');
 	do_hook('confirm_bottom');

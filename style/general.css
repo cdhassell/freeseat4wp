@@ -182,7 +182,7 @@ input.fine-print {
 #freeseat-narrow p.main, #freeseat-wide p.main {
 	margin-left : 2em;
 	margin-right : 3em;
-	text-align : justify;
+	/* text-align : justify; */
 	width: auto;
 }
 
@@ -345,6 +345,15 @@ td.cat, td.class, td.price {
   text-align: right;
 }
 
+td.remove {
+	text-align: center;
+}
+
+#freeseat-narrow tr.boxed {
+	border: 1px solid black;
+	font-weight: bold;
+}
+
 .showlist {
   padding: 1em;
   height: 300px;
@@ -458,4 +467,13 @@ div.highlight {
 	/* float: right; */
 	width: auto;
 }
+
+#freeseat-narrow div.user-info {
+	margin: 10px;
+	padding: 10px;
+	-moz-border-radius: 15px;
+	border-radius: 15px;
+	border: 1px solid #AAAAAA;
+	width: 600px;  /* why doesn't auto work here?? */
+} 
 

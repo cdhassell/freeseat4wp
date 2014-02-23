@@ -66,54 +66,56 @@ function is_seat_checked($id) {
 
      **/
 function load_seats($k,$check_limit = TRUE) {
-  global $lang, $sh;
-
-  $seatcount = 0; // how many seats were *requested*.
-  $seats = array();
-  //  $sh = get_show($_SESSION["showid"]);
-
-  // better way would be to make check_seats have a parameter telling
-  // if to do the filtering, instead of load_seats
-  foreach ($k as $key => $value) {
-    if (is_numeric($key)) {
-	$n = (int)$key;
-	$cnt = 1;
-    } else if (substr($key,0,6)=='nncnt-') {
-      $n = (int)(substr($key,6));
-      $cnt = (int)$value;
-      $_SESSION["nncnt-$n"] = $cnt;
-    } else $cnt=0; // other data is ignored
-    if ($cnt) {
-      $proto = get_seat($n);
-      /* we just leave a single entry mentioning it counts as $cnt
-	 seats. */
-      if ($proto && ($proto["theatre"]==$sh["theatre"])) {
-	// we have to set ["cat"] here because lock_seats expects it
-	// (probably not for a good reason but let's leave it like
-	// this)
-	$proto["cat"] = CAT_NORMAL; // default category
-	$proto["cnt"] = $cnt;
-	$seatcount += $cnt;
+	global $lang, $sh;
 	
-	$seats[$n] = $proto;
-      } // else: we ignore requests for unexistant seats
-    }
-  }
-  if ($check_limit && $seatcount > get_config("max_seats"))
-    return kaboom($lang["err_seatcount"]);
-
-  // we copy show information into each seat (for generic
-  // functions that also work with booking entries that are
-  // not all for the same show)
-  array_setall($seats,"date",$sh["date"]);
-  array_setall($seats,"time",$sh["time"]);
-  array_setall($seats,"theatrename",$sh["theatrename"]);
-  array_setall($seats,"spectacleid",$sh["spectacleid"]);
-  
-  $_SESSION["seats"] = $seats;
-  return true;
+	$seatcount = 0; // how many seats were *requested*.
+	$seats = array();
+	//  $sh = get_show($_SESSION["showid"]);
+	
+	// better way would be to make check_seats have a parameter telling
+	// if to do the filtering, instead of load_seats
+	foreach ($k as $key => $value) {
+		if (is_numeric($key)) {
+			$n = (int)$key;
+			$cnt = 1;
+		} else if (substr($key,0,6)=='nncnt-') {
+			$n = (int)(substr($key,6));
+			$cnt = (int)$value;
+			$_SESSION["nncnt-$n"] = $cnt;
+		} else $cnt=0; // other data is ignored
+		if ($cnt) {
+			$proto = get_seat($n);
+			/* we just leave a single entry mentioning it counts as $cnt seats. */
+			if ($proto && ($proto["theatre"]==$sh["theatre"])) {
+				// we have to set ["cat"] here because lock_seats expects it
+				// (probably not for a good reason but let's leave it like this)
+				$proto["cat"] = CAT_NORMAL; // default category
+				$proto["cnt"] = $cnt;
+				$seatcount += $cnt;
+				$seats['rxs'.$sh['id'].'s'.$n] = $proto;
+			} // else: we ignore requests for unexistant seats
+		}
+	}
+	if ($check_limit && $seatcount > get_config("max_seats"))
+		return kaboom($lang["err_seatcount"]);
+	// we copy show information into each seat (for generic
+	// functions that also work with booking entries that are
+	// not all for the same show)
+	array_setall($seats,"date",$sh["date"]);
+	array_setall($seats,"time",$sh["time"]);
+	array_setall($seats,"theatrename",$sh["theatrename"]);
+	array_setall($seats,"spectacleid",$sh["spectacleid"]);
+	// adding showid in case we have seats from different shows
+	array_setall($seats,"showid",$sh["id"]);  
+	// remove existing seat selections from the same showid
+	if (isset($_SESSION['seats'])) {
+		foreach ($_SESSION['seats'] as $id => $seat) {
+			if ($seat['showid']==$sh['id']) unset($_SESSION['seats'][$id]);
+		}
+		$_SESSION['seats'] = $seats + $_SESSION['seats'];
+	} else $_SESSION["seats"] = $seats;
+	return true;
 }
-
 
 /** Attempts to lock the given seat for the given show. Returns an
     array of seat structures.
@@ -167,7 +169,7 @@ function lock_seats($seat,$showid) {
   // point...
 
   /* First check the seat state - we don't try locking it if it's taken */
-  $st = get_seat_state($seat["id"],$showid,true);
+  $st = get_seat_state($seat["id"],$seat["showid"],true);
   if (($st==ST_FREE) || ($st==ST_DELETED)) { // seat still available
     /* We first remove any stale lock, or our own if there's any. We
        don't use update because if our lock is too old, this might
@@ -185,10 +187,10 @@ function lock_seats($seat,$showid) {
        concurrent updates would both succeed, but two concurrent
        delete+insert would have one fail and one succeed. (Actually,
        in some cases update is safe ... Oh well) */
-    if (!freeseat_query("delete from seat_locks where seatid=".$seat['id']." and showid=$showid and (until<".$now." or sid='".mysql_real_escape_string(session_id())."')")) {
+    if (!freeseat_query("delete from seat_locks where seatid=".$seat['id']." and showid=".$seat['showid']." and (until<".$now." or sid='".mysql_real_escape_string(session_id())."')")) {
       myboom("Failed deleting seat lock");
     }
-    $rows = freeseat_query("insert into seat_locks (seatid,showid,sid,until) values (".$seat['id']." , $showid,'".mysql_real_escape_string(session_id())."',".($now+$lockingtime).")");
+    $rows = freeseat_query("insert into seat_locks (seatid,showid,sid,until) values (".$seat['id']." , ".$seat['showid'].",'".mysql_real_escape_string(session_id())."',".($now+$lockingtime).")");
     
     if ($rows==1) {
 		// echo "<pre> set lock success ".$seat['id']."</pre>"; 
@@ -207,10 +209,11 @@ function lock_seats($seat,$showid) {
 				     // seats if $seat isn't
   else {			     // unnumbered)
     $pot = fetch_all( $q = "select *,1 as cnt,".((int)$seat["cat"]).
-				   " as cat,seats.id as id from seats left join booking on booking.seat=seats.id and booking.showid=$showid and booking.state!=".ST_DELETED.
-				   " where booking.id is null and seats.row=-1 and seats.class=".$seat["class"].
-				   " and seats.theatre=".$seat["theatre"].         // Lets put all the seats in the same theatre  :-)
-				   " and seats.zone='".mysql_real_escape_string($seat["zone"])."'");
+		   " as cat,seats.id as id from seats left join booking on booking.seat=seats.id and booking.showid =".
+			   $seat['showid']." and booking.state!=".ST_DELETED.
+		   " where booking.id is null and seats.row=-1 and seats.class=".$seat["class"].
+		   " and seats.theatre=".$seat["theatre"].         // Lets put all the seats in the same theatre  :-)
+		   " and seats.zone='".mysql_real_escape_string($seat["zone"])."'");
     if ($pot===false) {
       myboom($q.": couldn't get set of equivalent seats");
       return $res;
@@ -237,7 +240,7 @@ function lock_seats($seat,$showid) {
     if ($rows!=1) continue; // seat was locked. Try next
     /*     echo "..success"; */
     /* if this point is reached then lock was successful */
-    $res[$s["id"]] = $s;
+    $res['rxs'.$showid.'s'.$s["id"]] = $s;
     $cnt--;
     if ($cnt==0) return $res;
   }
@@ -277,34 +280,36 @@ function check_seats() {
 		array_setall($expanded,"time",$sh["time"]);
 		array_setall($expanded,"theatrename",$sh["theatrename"]);
 		array_setall($expanded,"spectacleid",$sh["spectacleid"]);
-    /*       echo "<pre>MERGING EXPANDED INTO SEATS\nseats = "; print_r($seats); */
-    /*       echo "\nexpanded = ";  print_r($expanded); */
+    	/*       echo "<pre>MERGING EXPANDED INTO SEATS\nseats = "; print_r($seats); */
+    	/*       echo "\nexpanded = ";  print_r($expanded); */
 		$seats = array_union($seats,$expanded);
-    //      echo "\nunion = "; print_r($seats); echo "</pre>";
-    if (count($expanded)<$s["cnt"]) {$success = false;}
+    	//       echo "\nunion = "; print_r($seats); echo "</pre>";
+		if (count($expanded)<$s["cnt"]) {$success = false;}
 	}
-	$_SESSION["seats"] = $seats;
+	// $_SESSION["seats"] = $seats;
 	return $success;
 }
 
 /* helper function for compute_cats.
  */
 function seat_reduce(&$s,$n) {
-  global $ncls,$ccls,$cats,$counts,$total; // "global"? eeek - what abt passin 'em as third "userdata" parameter?
-  if ($total==0) return; // there's no way to abort the walk()ing ..
-  if ($s["class"]==$ccls) {
-
-    foreach ($cats as $cat) {
-      if ($counts[$cat] > 0) {
-	$s["cat"]=$cat;
-	$counts[$cat] --;
-	$total--;
-	break;
-      }
-    }
-  } else if (($s["cat"]==CAT_NORMAL) && $s["class"]<$ncls) {
-    $ncls = $s["class"];
-  }
+	global $ncls,$ccls,$cats,$counts,$total; 
+	// "global"? eeek - what abt passin 'em as third "userdata" parameter?
+	
+	if ($total==0) return; // there's no way to abort the walk()ing ..
+	
+	if ($s["class"]==$ccls) {
+		foreach ($cats as $cat) {
+			if ($counts[$cat] > 0) {
+				$s["cat"]=$cat;
+				$counts[$cat] --;
+				$total--;
+				break;
+			}
+		}
+	} else if (($s["cat"]==CAT_NORMAL) && $s["class"]<$ncls) {
+		$ncls = $s["class"];
+	}
 }
 
 /** add category information (i.e. whether reduced or not reduced) to $seats
@@ -343,57 +348,53 @@ function seat_reduce(&$s,$n) {
     even though the minimal price is 1.
 */
 function compute_cats($truncate=false) {
-  global $ccls,$ncls,$cats,$counts,$lang,$total; // made global so that seat_reduce sees them.
-  $seatcount = count($_SESSION["seats"]);
-
-  $cats = array_merge
-    (array(CAT_REDUCED, CAT_NORMAL, CAT_FREE),
-     do_hook_array('get_cats'));
-
-  // counts as taken from SESSION. They will be decremented by
-  // seat_reduce until they're both zero
-  $counts = array();
-  $total = 0; // the sum of everything in $counts.
-  foreach ($cats as $cat) {
-    $counts[$cat] =  isset($_SESSION["ncat$cat"])?
-      $_SESSION["ncat$cat"] : 0;
-    $total += $counts[$cat];
-  }
-
-  if ($total > $seatcount) {
-    /* NOTE: duplicate code from pay.php!! */
-    $skip = $total - $seatcount;
-    $total = $seatcount;
-
-    foreach ($cats as $cat) {
-      if ($counts[$cat] > $skip) {
-	$counts[$cat] -= $skip;
-	break;
-      } else {
-	$skip -= $counts[$cat];
-	$counts[$cat] = 0;
-      }
-    }
-    
-    if ($truncate) {
-      foreach ($cats as $cat) {
-	$_SESSION["ncat$cat"] = $counts[$cat];
-      }
-	kaboom($lang["warn-nonsensicalcat"]);
-    }
-  }
-
-  $cats = array_reverse($cats); // seat_reduce wants to traverse from cheap to expensive...
-
-  foreach ($_SESSION["seats"] as $n => $s)
-    { $_SESSION["seats"][$n]["cat"]=CAT_NORMAL; } // default
-  
-  $ccls = 0; // current seat class
-  while ($total > 0) {
-    $ncls = 99; // next seat class
-    array_walk($_SESSION["seats"],'seat_reduce'); 
-    $ccls = $ncls;
-  }
+	global $ccls,$ncls,$cats,$counts,$lang,$total; // made global so that seat_reduce sees them.
+	
+	$seatcount = count($_SESSION["seats"]);
+	
+	$cats = array_merge
+		(array(CAT_REDUCED, CAT_NORMAL, CAT_FREE),
+		do_hook_array('get_cats'));
+	
+	// counts as taken from SESSION. They will be decremented by
+	// seat_reduce until they're both zero
+	$counts = array();
+	$total = 0; // the sum of everything in $counts.
+	foreach ($cats as $cat) {
+		$counts[$cat] =  isset($_SESSION["ncat$cat"])?
+		$_SESSION["ncat$cat"] : 0;
+		$total += $counts[$cat];
+	}
+	
+	if ($total > $seatcount) {
+		/* NOTE: duplicate code from pay.php!! */
+		$skip = $total - $seatcount;
+		$total = $seatcount;
+		foreach ($cats as $cat) {
+			if ($counts[$cat] > $skip) {
+				$counts[$cat] -= $skip;
+				break;
+			} else {
+				$skip -= $counts[$cat];
+				$counts[$cat] = 0;
+			}
+		}
+		if ($truncate) {
+			foreach ($cats as $cat) {
+				$_SESSION["ncat$cat"] = $counts[$cat];
+			}
+			kaboom($lang["warn-nonsensicalcat"]);
+		}
+	}
+	$cats = array_reverse($cats); // seat_reduce wants to traverse from cheap to expensive...
+	foreach ($_SESSION["seats"] as $n => $s)
+		{ $_SESSION["seats"][$n]["cat"]=CAT_NORMAL; } // default
+	$ccls = 0; // current seat class
+	while ($total > 0) {
+		$ncls = 99; // next seat class
+		array_walk($_SESSION["seats"],'seat_reduce'); 
+		$ccls = $ncls;
+	}
 }
 
 

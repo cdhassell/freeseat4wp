@@ -141,7 +141,8 @@ function check_session( $n, $quiet=false ) {
 }
 
 function kill_booking_done() {
-	if (isset($_SESSION["booking_done"]) && $_SESSION["booking_done"]) {
+	if (isset($_SESSION["booking_done"]) && $_SESSION["booking_done"] || 
+		isset($_POST["clearcart"])) {
 		unlock_seats();
 		$_SESSION["booking_done"] = false;
 		// foreach'ing and unset'ting on the same array tends to create instabilities.

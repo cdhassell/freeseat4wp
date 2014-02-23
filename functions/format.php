@@ -13,13 +13,14 @@ user
 // these are options for print_booked_seats
 
 define("FMT_PRICE",1); // whether to display the prices
-define("FMT_CORRECTLINK",10); /* whether to offer a link to change the
-			       list of selected seats (implies html) */
+define("FMT_CORRECTLINK",42); /* whether to offer a link to change the
+			       list of selected seats (implies html & showinfo) */
 define("FMT_SHOWID",4); // whether reservation id should be displayed
 define("FMT_HTML",8); /* set to have html code and unset for plain
 		         text */
 define("FMT_NOCOUNT",16); /* Don't show seat count */
 define("FMT_SHOWINFO",32); /* show show info and group according to */
+define("FMT_FORM",64); /* Set up form with checkboxes */
 
 /** set $wide to true to have a full width body. Set $half to true to
  just print the header up to, but not including, </head>, so that you
@@ -79,7 +80,7 @@ function show_foot() {
 <div class='dontprint'>
 <br style="clear: both;">
 <div id="trailerboard">
- <div class="ad"><p class="fine-print">
+<div class="ad"><p class="fine-print">
 (<?php
  /* NOTE - Please don't remove the link to the project page when
  running your ticketing site (You may move the link around though).
@@ -212,8 +213,6 @@ function state2css($st) {
 function show_info($sh) {
   global $lang;
   return sprintf($lang["show_info"],f_date($sh["date"]),f_time($sh["time"]),lang_at_the($sh["theatrename"]));
-  // . $sh["theatrelocation"];
- 
 }
 
 /** first show is a verb, second is a noun
@@ -222,7 +221,7 @@ function show_info($sh) {
  *
  * pass false as second parameter if you don't want a link allowing
  * the user to change the selected show. */
-function show_show_info($sh=null,$correctlink=true) {
+function show_show_info($sh=null,$correctlink=FALSE) {
   global $lang, $page_url;
   if (!$sh) $sh = get_show($_SESSION["showid"]);
   if ($sh) {
@@ -239,15 +238,15 @@ function print_line($s,$fmt) {
 
 // Takes header names from $lang
 function print_tableheader($columns,$fmt) {
-  global $lang;
-  if ($fmt & FMT_HTML) {
-    $result = '<table class="summary"><tr>';
-    foreach ($columns as $h => $w) $result .= "<th align='center' class='ticket'>".$lang[$h];
-  } else {
-    $result = '';
-    foreach ($columns as $h => $w) $result .= str_pad($lang[$h],$w);
-  }
-  return $result."\n";
+	global $lang;
+	if ($fmt & FMT_HTML) {
+		$result = '<table class="summary"><tr>';
+		foreach ($columns as $h => $w) $result .= "<th align='center' class='ticket'>".$lang[$h];
+	} else {
+		$result = '';
+		foreach ($columns as $h => $w) $result .= str_pad($lang[$h],$w);
+	}
+	return $result."\n";
 }
 
 function print_tablerow($line,$columns,$fmt) {
@@ -269,23 +268,30 @@ $price the *text* written on the last column (for consistency with
 $numcols how many columns there are in total
 $fmt controls whether html or rawtext is to be returned */
 function print_tablespecialrow($label,$price,$columns,$fmt) {
-  if ($fmt & FMT_HTML) {
-      return "<tr><td class='price' colspan=".(count($columns)-1)."><b>$label</b><td class='price'>$price\n";
-  } else {
-    $padding = 0;
-    $prev = 0;
-    foreach ($columns as $h => $w) {
-      // weird trick to avoid counting the last column when padding
-      $padding += $prev;
-      $prev = $w;
-    }
-    return str_pad($label,$padding)."$price\n";
-  }
+	if ($fmt & FMT_HTML) {
+		return "<tr class='boxed'><td class='price' colspan=".(count($columns)-1).">$label<td class='price'>$price\n";
+	} else {
+		$padding = 0;
+		$prev = 0;
+		foreach ($columns as $h => $w) {
+			// weird trick to avoid counting the last column when padding
+			$padding += $prev;
+			$prev = $w;
+		}
+		return str_pad($label,$padding)."$price\n";
+	}
 }
 
 function print_tablefooter($fmt) {
-  if ($fmt & FMT_HTML) return "</table>\n";
-  else return "";
+	if ($fmt & FMT_HTML) {
+		return "</table>\n";
+	} else {
+		return "";
+	}
+}
+
+function sort_seats($seats) {
+	
 }
 
 /** RETURNS a formatted list of selected seats. (i.e. doesn't echo anything)
@@ -293,107 +299,124 @@ function print_tablefooter($fmt) {
 $fmt: OR-mask of FMT_ constants to control list display.
 */
 function print_booked_seats($data = null,$fmt=FMT_CORRECTLINK) {
-  global $postaltax, $lang, $page_url;
-  if (!$data) {
-    $data = $_SESSION["seats"];
-    if ($fmt & FMT_PRICE)
-      $payment = $_SESSION["payment"];
-  } else if ($fmt & FMT_PRICE) {
-    if (isset($_SESSION["payment"]))
-      $payment = $_SESSION["payment"];
-    else {
-      reset($data);$bk = current($data); // get first item
-      $payment = $bk["payment"];
-      /* WARN will not work if user ordered heterogeneous payment */
-    }
-  }
-  $result = '';
-
-  $seatcount = count($data);
-  $total = 0; // price
-  if (!($fmt & FMT_NOCOUNT)) {
-    if ($seatcount==1)
-      $result .= print_line($lang["selected_1"],$fmt);
-    else
-      $result .= print_line(sprintf($lang["selected_n"],$seatcount),$fmt);
-  }
-  // $seatcount=0 "should" not happen as session_check has already
-  // dealt with it.
-
-  $columns = array(); // associate column header to column width in chars
-  if ($fmt & FMT_SHOWID) $columns["bookid"] = 8;  // give us some room here
-  $columns = array_merge($columns,array("row" => 4,"zoneextra" => 21,
+	global $postaltax, $lang, $page_url;
+	
+	if (!$data) {
+		$data = $_SESSION["seats"];
+		if ($fmt & FMT_PRICE)
+			$payment = $_SESSION["payment"];
+	} else if ($fmt & FMT_PRICE) {
+		if (isset($_SESSION["payment"]))
+			$payment = $_SESSION["payment"];
+		else {
+			reset($data);$bk = current($data); // get first item
+			$payment = $bk["payment"];
+			/* WARN will not work if user ordered heterogeneous payment */
+		}
+	}
+	// use seats array keys to sort by show date
+	uksort( $data, "strnatcmp" );
+	$result = '';
+	$total = 0; // price
+	$columns = array(); // associate column header to column width in chars
+	if ($fmt & FMT_FORM) $columns["remove"] = 8;
+	if ($fmt & FMT_SHOWID) $columns["bookid"] = 8;  // give us some room here
+	$columns = array_merge($columns,array("row" => 4,"zoneextra" => 21,
 					"col" => 6,"class" => 12));
-  if ($fmt & FMT_PRICE) $columns = array_merge($columns,array("cat" => 11,"price" => 6));
+	if ($fmt & FMT_PRICE) $columns = array_merge($columns,array("cat" => 11,"price" => 6));
+	
+	if ($fmt & FMT_CORRECTLINK) {
+		$url = replace_fsp( $page_url, PAGE_REPR );
+		$result .= "<form action='$url' method='post'><p class='main'>";
+		$result .= "<input class='button button-primary' type='submit' value='".$lang["change_seats"]."'>";
+		$result .= "&nbsp;<input class='button button-primary' type='submit' name='clearcart' value='".$lang["clearcart"]."'>";
+		$result .= "</p></form>";
+	}
+	
+	if ($fmt & FMT_CORRECTLINK) {
+		$result .= "<div class='user-info'>";
+		$result .= "<h3>".$lang['contentsofcart']."</h3>";
+		if ($fmt & FMT_FORM) $result .= "<form action='$page_url' name='' method='post'>";
+	}
+	$seatcount = count($data);
+	if (!($fmt & FMT_NOCOUNT)) {
+		if ($seatcount==1)
+			$result .= print_line($lang["selected_1"],$fmt);
+		else
+			$result .= print_line(sprintf($lang["selected_n"],$seatcount),$fmt);
+		// $seatcount=0 "should" not happen as session_check has already
+		// dealt with it.
+	}	
+	if ($fmt & FMT_SHOWINFO) {
+		reset($data);$bk = current($data); // get first item
+		$bksh = array("date" => $bk["date"],
+			"time" => $bk["time"],
+			"showid" => $bk["showid"],
+			"theatrename" => $bk["theatrename"]);
+		// \n has no effect in html but no <br> is needed there because
+		//	<p></p> has appropriate spaces already 
+		$result .= print_line("\n".$lang["date"].": ".show_info($bksh),$fmt);
+	}
 
-  if ($fmt & FMT_SHOWINFO) {
-    reset($data);$bk = current($data); // get first item
-    $bksh = array("date" => $bk["date"],
-		  "time" => $bk["time"],
-		  "theatrename" => $bk["theatrename"]);
-    /* \n has no effect in html but no <br> is needed there because
- <p></p> has appropriate spaces already */
-    $result .= print_line("\n".$lang["date"].": ".show_info($bksh),$fmt);
-  }
-
-  $result .= print_tableheader($columns,$fmt);
-
-  foreach ($data as $s) {
-    if ($s["zone"]!="" && $s["extra"]!="")
-      $s["zoneextra"] = "(".$s["zone"]." / ".$s["extra"].")";
-    else
-      $s["zoneextra"] = "(".$s["zone"].$s["extra"].")";
-    if ($s["row"] == -1) {
-      $s["row"] = "";
-      $s["col"] = "";
-    }
-    if ($fmt & FMT_PRICE) {
-      $itemprice = get_seat_price($s);
-      $s["cat"] = f_cat($s["cat"]);
-      $s["price"] = price_to_string($itemprice);
-      $total += $itemprice;
-    }
-
-    if ($fmt & FMT_SHOWINFO) {
-      if (($bksh["date"] != $s["date"]) ||
-	  ($bksh["time"] != $s["time"]) ||
-	  ($bksh["theatrename"] != $s["theatrename"])) {
-	$bksh["date"] = $s["date"];
-	$bksh["time"] = $s["time"];
-	$bksh["theatrename"] = $s["theatrename"];
-	$result .= print_tablefooter($fmt);
-	$result .= print_line("\n".$lang["date"].": ".show_info($bksh),$fmt);
 	$result .= print_tableheader($columns,$fmt);
-      }
-    }
-
-    $result .= print_tablerow($s,$columns,$fmt);
-  }
-
-  if (($fmt & FMT_PRICE) && !($fmt&FMT_NOCOUNT)) {
-    if ($postaltax) {
-      if ($payment==PAY_POSTAL) {
-	  $tax = postaltax($total);
-	$result .= print_tablespecialrow($lang["postaltax"],price_to_string($tax),$columns,$fmt);
-	$total += $tax;
-      }
-    }
-    $result .= do_hook_concat('get_print',array_merge($data,array($fmt,$columns)));
-    $extra_charges = do_hook_sum('extra_charges', $data);
-    if ($extra_charges != 0) {
-      $result .= print_tablespecialrow($lang["reduction_or_charges"],price_to_string($extra_charges),$columns,$fmt);
-    }
-    $total += $extra_charges;
-    $result .= print_tablespecialrow($lang["total"],price_to_string($total),$columns,$fmt);
-  }
-
-  $result .= print_tablefooter($fmt);
-
-  if (($fmt & FMT_CORRECTLINK)==FMT_CORRECTLINK) {
-  	$url = replace_fsp( $page_url, PAGE_REPR );
-  	$result .= '<p class="main">'.sprintf($lang["change_seats"],"[<a href='$url'>",'</a>]').'</p>';
-  }
-  return $result;
+	
+	foreach ($data as $s) {
+		if ($s["zone"]!="" && $s["extra"]!="")
+			$s["zoneextra"] = "(".$s["zone"]." / ".$s["extra"].")";
+		else
+			$s["zoneextra"] = "(".$s["zone"].$s["extra"].")";
+		if ($s["row"] == -1) {
+			$s["row"] = "";
+			$s["col"] = "";
+		}
+		if ($fmt & FMT_PRICE) {
+			$itemprice = get_seat_price($s);
+			$s["cat"] = f_cat($s["cat"]);
+			$s["price"] = price_to_string($itemprice);
+			$total += $itemprice;
+		}
+		if ($fmt & FMT_FORM) {
+			$c = "rxs".$s['showid']."s".$s['id'];
+			$s["remove"] = "<input type='checkbox' name='$c' title='Remove'>";
+		}	
+		if ($fmt & FMT_SHOWINFO) {
+			if ($bksh["showid"] != $s["showid"]) {
+				$bksh["date"] = $s["date"];
+				$bksh["time"] = $s["time"];
+				$bksh["showid"] = $s["showid"];
+				$bksh["theatrename"] = $s["theatrename"];
+				$result .= print_tablefooter($fmt);
+				$result .= print_line("\n".$lang["date"].": ".show_info($bksh),$fmt);
+				$result .= print_tableheader($columns,$fmt);
+			}
+		}
+	
+		$result .= print_tablerow($s,$columns,$fmt);
+	}
+	
+	if (($fmt & FMT_PRICE) && !($fmt&FMT_NOCOUNT)) {
+		if ($postaltax) {
+			if ($payment==PAY_POSTAL) {
+				$tax = postaltax($total);
+				$result .= print_tablespecialrow($lang["postaltax"],price_to_string($tax),$columns,$fmt);
+				$total += $tax;
+			}
+		}
+		$result .= do_hook_concat('get_print',array_merge($data,array($fmt,$columns)));
+		$extra_charges = do_hook_sum('extra_charges', $data);
+		if ($extra_charges != 0) {
+			$result .= print_tablespecialrow($lang["reduction_or_charges"],price_to_string($extra_charges),$columns,$fmt);
+		}
+		$total += $extra_charges;
+		$result .= print_tablespecialrow($lang["total"],price_to_string($total),$columns,$fmt);
+	}
+	
+	$result .= print_tablefooter($fmt);
+	if ($fmt & FMT_CORRECTLINK) {
+		if ($fmt & FMT_FORM) $result .= "<p class='main'><input class='button button-primary' type='submit' value='".$lang['remove_items']."'></p></form>";
+		$result .= "</div>";
+	}
+	return $result;
 }
 
 /** to be shown whenever tickets are put on screen */

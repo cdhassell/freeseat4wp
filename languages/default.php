@@ -6,6 +6,7 @@ $lang["_encoding"] = "ISO-8859-1";
 $lang["access_denied"] = 'ACCESS DENIED - Your session must have expired';
 $lang["acknowledge"] = 'Confirm Payment'; // used with check_st_update
 $lang["address"] = 'Address';
+$lang["addtocart"] = 'Add to Cart';
 $lang["admin"] = 'Administrative Functions';
 $lang["admin_buy"] = 'Select and %1$sBuy%2$s tickets';
 $lang["alert"] = 'ALERT';
@@ -31,14 +32,16 @@ $lang["cat_reduced"] = 'Children';
 $lang["ccard_failed"] = '%1$s WHILE PROCESSING A CREDIT CARD NOTIFICATION\n\n\n';
 $lang["ccard_partner"] = 'Credit card payment made secure by&nbsp;%1$s';
 $lang["change_date"] = 'Change date';
-$lang["change_pay"] = 'Change %1$sPersonal and payment information%2$s';
-$lang["change_seats"] = 'Change %1$sSeat selection%2$s';
+$lang["change_pay"] = 'Edit %1$sPurchaser information%2$s';
+$lang["change_seats"] = 'Back to Seat Selection';
 $lang["check_st_update"] = 'To %1$s these entries, click Confirmation';
 $lang["choose_reduced"] = 'Please select any reduced price tickets below.';
 $lang["choose_show"] = 'Please choose a show';
 $lang["city"] = 'City';
+$lang["clearcart"] = 'Clear cart';
 $lang["comment"] = 'Comment';
 $lang["confirmation"] = 'Confirmation';
+$lang["contentsofcart"] = 'Contents of Cart';
 $lang["continue"] = 'Continue';
 $lang["country"] = 'Country';
 $lang["class"] = 'Class';
@@ -497,6 +500,8 @@ $lang["rebook-info"] = 'To reactivate deleted reservations, first select the "De
 $lang["regular_ticket"] = ' Std ';	// as in standard
 $lang["remail"] = 'Have you lost your ticket? Click here for %1$sReservation retrieval%2$s';
 $lang["reminders"] = 'Reminders';
+$lang["remove"] = 'Remove';
+$lang["remove_items"] = 'Remove checked items';
 $lang["reqd_info"] = 'Please provide all of the following information.  Double check your email address.<br>
 If you enter an incorrect email address, we will not be able to send you a receipt.';
 $lang["reserved-header"] = 'Reserved Seat Tickets';
@@ -540,6 +545,7 @@ $lang["stage"] = 'Stage';
 $lang["summary"] = 'Summary';
 
 $lang["theatre_name"] = 'Theatre Seatmap Name';
+$lang["ticket_details"] = 'Ticket Details';
 $lang["time"] = 'Time';
 $lang["time_title"] = 'Time<br>(hh:mm)';
 $lang["timestamp"] = 'Reserved on';
@@ -568,7 +574,7 @@ $lang["we_accept"] = "We Accept"; // credit card logos come after that
 $lang["weekdays"] = array("Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday");
 $lang["workingdays"] = 'working days';
 
-$lang["youare"] = 'Purchase Information';
+$lang["youare"] = 'Purchaser Information';
 
 $lang["zoneextra"] = ''; // intentionally left blank
 

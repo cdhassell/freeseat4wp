@@ -112,7 +112,7 @@ function pdftickets_maketickets($key) {
 	}
 	if (count($showids) == 0)
 		// we shouldn't get here, but just in case
-		sys_log("Error: no showids found in pdfticket/index.php");
+		sys_log("Error: no showids found in pdfticket/setup.php");
 		
 	// start accumulating html with the header and css
 	$html = "<html><head><style>";

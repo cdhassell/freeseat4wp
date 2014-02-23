@@ -112,7 +112,7 @@ function seatcallback($currseat) {
   global $sh;
   // in-session selected seats have already been checked and are
   // locked - so no need to check their state
-  if (is_seat_checked($currseat['id'])) {
+  if (is_seat_checked('rxs'.$sh['id'].'s'.$currseat['id'])) {
     $chkd = true;
     $st = ST_FREE;
   } else {
