@@ -392,7 +392,7 @@ function compute_cats($truncate=false) {
 	$ccls = 0; // current seat class
 	while ($total > 0) {
 		$ncls = 99; // next seat class
-		array_walk($_SESSION["seats"],'seat_reduce'); 
+		array_walk($_SESSION["seats"], __NAMESPACE__.'\\seat_reduce'); 
 		$ccls = $ncls;
 	}
 }
