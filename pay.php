@@ -43,9 +43,9 @@ function freeseat_pay( $page_url )
 	show_head();
 	
 	echo '<h2>'.$lang["summary"].'</h2>';
-	echo "<p>";
+	/* echo "<p>";
 	show_show_info($sh);
-	echo "</p>";
+	echo "</p>"; */
 	echo print_booked_seats();
 	echo "<div class='user-info'>";
 	echo '<h3>'.$lang["ticket_details"].'</h3>';
@@ -112,14 +112,15 @@ function freeseat_pay( $page_url )
 					}
 				}
 			}
-		    echo "<p class='main'>".sprintf($lang["howmanyare"],$seatcount). ":</p>\n<ul>";
+		    echo "<p class='main'>".sprintf($lang["howmanyare"],$seatcount). ":</p>\n";
+		    echo "<div style='margin: 0 3em;'><ul>";
 			foreach ($cats as $cat => $label) {
 				if ($cat == CAT_NORMAL) continue;
-				echo "<li><p class='main'> ".$lang[$label]."&nbsp;:&nbsp;";
+				echo "<li>".$lang[$label]."&nbsp;:&nbsp;";
 				input_field("ncat$cat", '0', ' size="2"');
-				echo "</p>";
+				echo "</li>";
 			}
-			echo '</ul>';
+			echo "</ul></div>";
 		}
 	}
 	

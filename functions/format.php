@@ -325,15 +325,15 @@ function print_booked_seats($data = null,$fmt=FMT_CORRECTLINK) {
 					"col" => 6,"class" => 12));
 	if ($fmt & FMT_PRICE) $columns = array_merge($columns,array("cat" => 11,"price" => 6));
 	
-	if ($fmt & FMT_CORRECTLINK) {
+	if (($fmt & FMT_CORRECTLINK)==FMT_CORRECTLINK) {
 		$url = replace_fsp( $page_url, PAGE_REPR );
 		$result .= "<form action='$url' method='post'><p class='main'>";
-		$result .= "<input class='button button-primary' type='submit' value='".$lang["change_seats"]."'>";
-		$result .= "&nbsp;<input class='button button-primary' type='submit' name='clearcart' value='".$lang["clearcart"]."'>";
+		$result .= " <input class='button' type='submit' value='".$lang["change_seats"]."'>";
+		$result .= " <input class='button' type='submit' name='clearcart' value='".$lang["clearcart"]."'>";
 		$result .= "</p></form>";
 	}
 	
-	if ($fmt & FMT_CORRECTLINK) {
+	if (($fmt & FMT_CORRECTLINK)==FMT_CORRECTLINK) {
 		$result .= "<div class='user-info'>";
 		$result .= "<h3>".$lang['contentsofcart']."</h3>";
 		if ($fmt & FMT_FORM) $result .= "<form action='$page_url' name='' method='post'>";
@@ -414,8 +414,8 @@ function print_booked_seats($data = null,$fmt=FMT_CORRECTLINK) {
 	}
 	
 	$result .= print_tablefooter($fmt);
-	if ($fmt & FMT_CORRECTLINK) {
-		if ($fmt & FMT_FORM) $result .= "<p class='main'><input class='button button-primary' type='submit' value='".$lang['remove_items']."'></p></form>";
+	if (($fmt & FMT_CORRECTLINK)==FMT_CORRECTLINK) {
+		if ($fmt & FMT_FORM) $result .= "<p class='main'><input class='button' type='submit' value='".$lang['remove_items']."'></p></form>";
 		$result .= "</div>";
 	}
 	return $result;

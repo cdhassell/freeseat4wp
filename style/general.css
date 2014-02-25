@@ -393,7 +393,7 @@ img.ticketsponsors {
 
 /* if we put a p into each li then only the bullet will be coloured */
 ul li {
-     color:#99cce5;
+     color:#577482; /*99cce5;*/
 }
 
 #download-image img {
@@ -477,3 +477,10 @@ div.highlight {
 	width: 600px;  /* why doesn't auto work here?? */
 } 
 
+.nowrap {
+	white-space: nowrap;
+}
+
+.inline {
+	display: inline-block;
+}

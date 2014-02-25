@@ -104,7 +104,7 @@ function freeseat_confirm( $page_url )
 	}
 	
 	show_head();
-	echo '<h2>' . $lang[ "summary" ] . '</h2>';
+	echo '<h2>' . $lang[ "confirmation" ] . '</h2>';
 	echo '<p class="main">'.$lang[ "intro_confirm" ].'</p>';
 	/* echo '<p class="main">';
 	show_show_info();
