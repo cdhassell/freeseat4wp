@@ -92,7 +92,7 @@ function load_seats($k,$check_limit = TRUE) {
 				$proto["cat"] = CAT_NORMAL; // default category
 				$proto["cnt"] = $cnt;
 				$seatcount += $cnt;
-				$seats['rxs'.$sh['id'].'s'.$n] = $proto;
+				$seats['carts'.$sh['id'].'s'.$n] = $proto;
 			} // else: we ignore requests for unexistant seats
 		}
 	}
@@ -240,7 +240,7 @@ function lock_seats($seat,$showid) {
     if ($rows!=1) continue; // seat was locked. Try next
     /*     echo "..success"; */
     /* if this point is reached then lock was successful */
-    $res['rxs'.$showid.'s'.$s["id"]] = $s;
+    $res['carts'.$showid.'s'.$s["id"]] = $s;
     $cnt--;
     if ($cnt==0) return $res;
   }

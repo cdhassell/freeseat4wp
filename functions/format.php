@@ -338,6 +338,7 @@ function print_booked_seats($data = null,$fmt=FMT_CORRECTLINK) {
 		$result .= "<h3>".$lang['contentsofcart']."</h3>";
 		if ($fmt & FMT_FORM) $result .= "<form action='$page_url' name='' method='post'>";
 	}
+	
 	$seatcount = count($data);
 	if (!($fmt & FMT_NOCOUNT)) {
 		if ($seatcount==1)
@@ -346,7 +347,8 @@ function print_booked_seats($data = null,$fmt=FMT_CORRECTLINK) {
 			$result .= print_line(sprintf($lang["selected_n"],$seatcount),$fmt);
 		// $seatcount=0 "should" not happen as session_check has already
 		// dealt with it.
-	}	
+	}
+	
 	if ($fmt & FMT_SHOWINFO) {
 		reset($data);$bk = current($data); // get first item
 		$bksh = array("date" => $bk["date"],
@@ -376,9 +378,9 @@ function print_booked_seats($data = null,$fmt=FMT_CORRECTLINK) {
 			$total += $itemprice;
 		}
 		if ($fmt & FMT_FORM) {
-			$c = "rxs".$s['showid']."s".$s['id'];
+			$c = "carts".$s['showid']."s".$s['id'];
 			$s["remove"] = "<input type='checkbox' name='$c' title='Remove'>";
-		}	
+		}
 		if ($fmt & FMT_SHOWINFO) {
 			if ($bksh["showid"] != $s["showid"]) {
 				$bksh["date"] = $s["date"];
