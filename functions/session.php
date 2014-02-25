@@ -135,6 +135,13 @@ function check_session( $n, $quiet=false ) {
 	$page = $pagelist[ $url ]; 
 	$newpage_url = replace_fsp( $page_url, $url );
 	printf( $lang["backto"], "[<a href='$newpage_url'>".$lang["link_$page"]."</a>]" );
+?>
+<script type='text/javascript'>
+/* <![CDATA[ */
+var freeseatPopupUrl = "<?php echo $newpage_url; ?>";
+/* ]]> */
+</script>
+<?php
 	echo "</p>\n";
 	show_foot();  
 	exit();  
