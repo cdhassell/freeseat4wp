@@ -40,8 +40,8 @@ function make_legend($numberedseats) {
 	  echo '<br />';   // echo '</p><p class="main">';
 	  echo '<table class="seatmap"><tr>';
 	  if ($show_price && $show_cat) {
-	    echo "<td align='center'>" . $lang["cat_normal"];
-	    echo "<br>".$lang["cat_reduced"];	// don't display reduced prices if there aren't any
+	    echo "<td class='stdisabled'><p>" . $lang["cat_normal"];
+	    echo "<br>".$lang["cat_reduced"]."</p></td>";	// don't display reduced prices if there aren't any
 	  }
 
 	  $class='default';

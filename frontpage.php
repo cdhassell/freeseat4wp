@@ -66,7 +66,7 @@ function freeseat_frontpage( $page_url ) {
 				$d = f_date($show['date']);
 				$t = f_time($show['time']);
 				$target = replace_fsp( $page_url, PAGE_SEATS ) . '&showid=' . $showid;
-				echo "<li><p><a style='color: #303030;' href='$target'>$d, $t</a></p></li>";
+				echo "<li><a href='$target'>$d, $t</a></li>";
 			}
 			echo '</ul>';
 		}

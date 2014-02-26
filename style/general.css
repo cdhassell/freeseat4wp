@@ -96,7 +96,7 @@ display a seat of the given class on a seatmap */
 	padding: 2px;
 	line-height: 0.9; 
  }
-.stdisabled { 
+.stdisabled, #freeseat-wide .stdisabled, #freeseat-wide td.stdisabled p { 
 	background-color: white;
 	color: black;
 	text-align: center;
@@ -133,6 +133,8 @@ img {
 	line-height: 0.9; 
 	width: auto;
 	border: 1px solid #AAAAAA;
+	margin-left: 2em;
+	margin-right: 3em;
 }
 
 /*** PARAGRAPHS ***/
@@ -374,7 +376,7 @@ div.ticket {
   color: black;
 }
 
-#freeseat-narrow td.stage { 
+#freeseat-wide td.stage { 
   text-align: center; 
   font-weight: bold;
   background-color: #ffe49d;  /* beige */
@@ -396,8 +398,10 @@ img.ticketsponsors {
 */
 
 /* if we put a p into each li then only the bullet will be coloured */
-ul li {
+#freeseat-wide ul li, #freeseat-narrow ul li {
      color:#577482; /*99cce5;*/
+     margin-left: 2em;
+     margin-right: 3em;
 }
 
 #download-image img {
@@ -417,8 +421,8 @@ h4 {
 }
 
 div.ad {
-  /* float: right;
-  margin: 0 5em; */
+  float: right;
+  margin: 0 5em;
   margin-left: auto;
   margin-right: auto;
 }
@@ -490,3 +494,14 @@ div.highlight {
 .indent {
 	padding-left: 2em;
 }
+
+a {
+    color : #e02000;
+    text-decoration : none;
+}
+
+a:hover {
+    color : darkviolet;
+    text-decoration : underline;
+}
+

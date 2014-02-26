@@ -218,8 +218,7 @@ $lang["intro_remail_paid"] = <<<EOD
 EOD;
 $lang["intro_seats"] = '<b>Instructions</b><ul>
 <li><p>You may select reserved seats by clicking on one or more locations in the Reserved Seat Tickets map below. 
-<li><p>Click on "Continue" at the bottom of this page once you have made your choices. 
-<li><p>Tickets may be purchased for one show date at a time.  If you wish to purchase tickets for a second show date, please click the Make Another Reservation link after your first purchase is complete.
+<li><p>Click on the "Add to cart" button at the bottom of this page once you have made your choices. 
 </ul>';
 
 $lang["is_default"] = 'This is the active show.';
