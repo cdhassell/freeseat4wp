@@ -166,8 +166,9 @@ function freeseat_params() {
 						<?php
 							foreach( $freeseat_plugin_groups as $group => $list ) {
 								echo "<h4>Plugin Category: ".ucwords($group)."</h4>";
+								echo "<div class='indent'>";
 								foreach( $list as $name => $details ) {
-									echo "<p class='main'><label><input name='freeseat_options[chk_$name]' type='checkbox' value='1' ";
+									echo " <p class='main'> <label> <input name='freeseat_options[chk_$name]' type='checkbox' value='1' ";
 									if (isset( $details['details'] ) ) {
 										echo "title='".$details['details']."' ";
 									}
@@ -177,6 +178,7 @@ function freeseat_params() {
 									echo "/>".$details['english_name']."</label>";
 									echo " - <i>".$details['summary']."</i></p>";
 								}
+								echo "</div>";
 							}
 						?>
 					</td>

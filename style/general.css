@@ -141,12 +141,13 @@ p {
   }
 
 /* important pagewide (or almost) paragraph text, but in black and white */
-p.bwemph {
+/*p.bwemph {
     margin-left : 5em;
     margin-right : 5em;
     text-align : justify;
     font-weight : 900;
-  }
+}
+*/
 
 p.disabled { 
    color : #888888;
@@ -161,7 +162,7 @@ p.emph {
 }
 
 /* very important paragraph text */
-p.emph-a-lot {
+/* p.emph-a-lot {
     color : #ff4608;
     margin-left : 2em;
     margin-right : 5em;
@@ -169,6 +170,7 @@ p.emph-a-lot {
     font-size : larger;
     font-weight : 900;
 }
+*/
 
 p.fine-print {
   font-size : 7pt;
@@ -217,7 +219,7 @@ p.warning {
 	border-left: 3px solid red;
   }
 
-div.bookid { 
+#freeseat-narrow div.bookid { 
   float: left;
   padding-right: 2em;
   padding-bottom: 3em;
@@ -285,7 +287,7 @@ div.ticket {
 	overflow: hidden;
 }
 
-span.subpage {
+#freeseat-narrow span.subpage {
   font-size:x-small;
   vertical-align:sub;
 
@@ -305,7 +307,7 @@ span.subpage {
     border-top-width : 1px;
   }
 
-table.bookinglist td { 
+#freeseat-narrow table.bookinglist td { 
 	font-size: medium;
 }
 
@@ -316,36 +318,36 @@ table.bookinglist td {
   width: auto;
 }
 
-tr.seatmap {
+#freeseat-narrow tr.seatmap {
   min-height: 1em;
 }
 
-td.form {
+#freeseat-narrow td.form {
     padding-top : 1em;
     padding-bottom: 1em;
   }
 
-td.bookid {
+#freeseat-narrow td.bookid {
   padding: 0 2em;
 }
 
-td.col, td.row {
+#freeseat-narrow td.col, #freeseat-narrow td.row {
   font-size: big;
   font-weight: bold;
   padding: 0 1em;
 }
 
-td.zoneextra {
+#freeseat-narrow td.zoneextra {
   font-size: small;
   padding: 0 1em;
 }
 
-td.cat, td.class, td.price {
+#freeseat-narrow td.cat, #freeseat-narrow td.class, #freeseat-narrow td.price {
   padding: 0 1em; 
   text-align: right;
 }
 
-td.remove {
+#freeseat-narrow td.remove {
 	text-align: center;
 }
 
@@ -354,32 +356,32 @@ td.remove {
 	font-weight: bold;
 }
 
-.showlist {
+#freeseat-narrow .showlist {
   padding: 1em;
   height: 300px;
   color: black;
 }
 
-td.showlist p, td.showlist ul {
+#freeseat-narrow td.showlist p, #freeseat-narrow td.showlist ul {
   font-size: 95%;
 }
 
-td.showlist a img {
+#freeseat-narrow td.showlist a img {
   /* height: 250px; */
 }
 
-tr.seatmap td p a {
+#freeseat-narrow tr.seatmap td p a {
   color: black;
 }
 
-td.stage { 
+#freeseat-narrow td.stage { 
   text-align: center; 
   font-weight: bold;
   background-color: #ffe49d;  /* beige */
   color: black;	
 }
 
-th.ticket { 
+#freeseat-narrow th.ticket { 
   font-weight: normal;
   background-color: black; 
   color: white; 
@@ -387,9 +389,11 @@ th.ticket {
   padding-left: 1em;
  }
 
+/*
 img.ticketsponsors { 
     float:right;
  }
+*/
 
 /* if we put a p into each li then only the bullet will be coloured */
 ul li {
@@ -427,6 +431,7 @@ div.ad {
   text-align: center;
 }
 
+/*
 #sttable {
   border:0;
   font-size: small;
@@ -436,6 +441,7 @@ div.ad {
 #sttable tr td {
   padding: 0.5em;
 }
+*/
 
 div.highlight {  
   font-size : 12pt; 
@@ -481,6 +487,6 @@ div.highlight {
 	white-space: nowrap;
 }
 
-.inline {
-	display: inline-block;
+.indent {
+	padding-left: 2em;
 }

@@ -1,7 +1,9 @@
-<html>
-<head>
-</head>
-<body>
+<?php namespace freeseat;
+// import wordpress stuff
+require_once( $_SERVER['DOCUMENT_ROOT'] . '/wp-load.php' );
+?>
+
+<div class="wrap">
 <h1>How to Use the FreeSeat Seatmap Plugin</h1>
 <p>The Seatmap tab of the FreeSeat plugin implements a process to upload a new theatre seatmap in the form of a CSV file, such as from a spreadsheet program.  Cells in the spreadsheet represent theatre seats, arranged in rows. Once it is uploaded to FreeSeat, the seatmap can be used in FreeSeat shows.</p>
 <p><h3>Spreadsheet Format:</h3></p>
@@ -23,5 +25,4 @@
 <p>Save this file as a Comma Separated Values or CSV file.</p>
 <p>CAUTION: Care should be taken when changing an existing seatmap. A new seat that matches an existing seat will be used to update the existing seat record.  If a match is not found, a new seat will be added.  Check for duplicates after updating a seatmap!</p>
 <p>Existing seats in a map cannot be deleted by this process.  If you need to delete seat records from a map, you will have to do it by hand, very carefully.  If tickets exist in any show for those seats, the program will report an error.  The recommended method is to create a new map without those seats.  Alternatively, use the disableseats plugin to temporarily hide those seats. </p>
-</body>
-</html>
+</div>

@@ -1,38 +1,8 @@
 <?php namespace freeseat;
 
 /* 	Implements a process to upload a new theatre seatmap to FreeSeat in the form of a CSV file, such as from 
-a spreadsheet program.  Cells in the spreadsheet represent theatre seats, arranged in rows. 
-	
-Spreadsheet Format:
-The first column should contain a command name as follows.
-"Row" entries should contain a row of seats with a class number in each cell, or a blank cell for empty spots 
-	like aisles. For example, this creates a simple row of ten class one seats:
-		Row,1,1,1,1,1,1,1,1,1,1
-	The same row with a blank space for an aisle between seats 5 and 6 looks like:
-		Row,1,1,1,1,1,,1,1,1,1,1
-	By default, the Row and Seat labels will be numeric, starting from the top left of the seatmap.
-	To specify the row and column labels, row entries can optionally be entered with seat codes in the form C-R-L, 
-	where C=class, R=row, and L=column.  Row and Column entries can be alpha or numeric.
-	For example, this creates row A with ten class two seats with an aisle between the seats 5 and 6.
-		Row,2-A-1,2-A-2,2-A-3,2-A-4,2-A-5,,2-A-6,2-A-7,2-A-8,2-A-9,2-A-10
-"General" entries are followed by a number of general admission seats, and then a class number in the next cell.
-	No layout is required for general admission seats. Here is an example creating 50 class 2 general admission seats:
-		General,50,2
-"Theatre" entries specify a theatre ID number, if you are adding seats to an existing theatre (optional). See the
-	Caution information below.
-"Zone" entries specify a name for the zone you are entering (optional, the default is "Main"). All Rows following a 
-	Zone command will be placed in that zone, until a new Zone command is found.
-"Extra" entries specify a label to place in the Extra column (optional, the default is blank).  All Rows following 
-	the Extra command will use that Extra label, until a new Extra command is found.
-"Note" entries are for documentation, and will be ignored.
-Blank rows will also be ignored.
-Save this file as a Comma Separated Values or CSV file.
-	
-CAUTION: Care should be taken when changing an existing seatmap. A new seat that matches an existing seat will be used to update the existing seat record.  If a match is not found, a new seat will be added.  Check for duplicates after updating a seatmap!  
-	
-Existing seats in a map cannot be deleted by this process.  If you need to delete seat records from a map, you will have to do it by hand, very carefully.  If tickets exist in any show for those seats, the program will report an error.  The recommended method is to create a new map without those seats.  Alternatively, use the disableseats plugin to temporarily hide those seats. 
-
-*/
+a spreadsheet program.  Cells in the spreadsheet represent theatre seats, arranged in rows.  See doc/upload-help.html 
+for details.  */
 function freeseat_upload() {
 	global $lang, $name, $staggered;
 
