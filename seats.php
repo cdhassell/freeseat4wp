@@ -54,7 +54,7 @@ function freeseat_seats( $page_url )
 	$show_price = price_depends_on_cat($sh["spectacleid"]);
 	
 	show_head(true);
-	echo '<h2>'.$lang["err_checkseats"].'</h2>'; // not an error - lang item is a bit misnamed
+	echo '<h2>'.ucwords($lang["link_seats"]).'</h2>';
 	echo '<p class="main">';
 	show_show_info($sh);
 	echo '</p><p class="main">'.$lang["intro_seats"].'</p>';
