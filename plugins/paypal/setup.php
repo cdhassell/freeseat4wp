@@ -157,10 +157,11 @@ function get_memo() {
 
 /* print the submit (or image) button to be displayed in confirm.php */
 function paypal_confirm_button() {
-  echo '<div align="center"><input type="image" ' . 
+  /* echo '<div align="center"><input type="image" ' . 
     'src="https://www.paypal.com/en_US/i/btn/x-click-but03.gif" border="0" ' . 
     'name="submit" alt="Make payments with PayPal - it\'s fast, free and secure!">' .
-    '</div>';
+    '</div>'; */
+    echo '<div align="center"><input type="image" src="'.plugins_url("express-checkout-hero.png", __FILE__).'" border="0" name="submit" alt="Make payments with PayPal - it\'s fast, free and secure!"></div>';
 }
 
 /** Displays a button/link (a form with hidden fields from _SESSION)
