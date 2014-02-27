@@ -51,9 +51,9 @@ function choose_seatmap( $perf, $theatre=null )
 
 function choose_local_file($spec)
 /* opens a file dialog to upload a file to the server
-- Maximum allowable file size is curently 100K */
+- Maximum allowable file size is curently 1MB */
 {
-	echo '<input type="hidden" name="MAX_FILE_SIZE" value="100000">';
+	echo '<input type="hidden" name="MAX_FILE_SIZE" value="1000000">';
 	echo '<input name="uploadedfile" type="file" accept="image/*"><br>';
 }
 

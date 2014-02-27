@@ -26,7 +26,7 @@ This is a development release for public comment and testing purposes.  It is no
 
 <li>Prices are entered by class of seat, which are set in the seatmap.  For example, if your seatmap contains seats organized into classes 1, 2, and 3, you will need to enter prices for those 3 classes on this page.  A column is provided for reduced price tickets, for example, a special price for children.
 
-<li>If you are uploading an image for the show, be careful of the size.  Files larger than 100kb will be refused.  The image will not be resized, so consider how large you want it to be on the screen without crowding out the text.  A JPEG image of about 300 pixels wide is recommended.
+<li>If you are uploading an image for the show, be careful of the size.  Files larger than 1MB will be refused.  The image will be resized to 300 pixels wide. 
 
 <li>Save the show setup, and confirm it on the next screen if everything is accurate.  Now go to the Current Shows page, and your show should be visible.  
 

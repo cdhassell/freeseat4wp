@@ -186,7 +186,7 @@ input.fine-print {
 #freeseat-narrow p.main, #freeseat-wide p.main {
 	margin-left : 2em;
 	margin-right : 3em;
-	/* text-align : justify; */
+	text-align : justify;
 	width: auto;
 }
 
@@ -364,15 +364,15 @@ div.ticket {
   color: black;
 }
 
-#freeseat-narrow td.showlist p, #freeseat-narrow td.showlist ul {
-  font-size: 95%;
+#front-container td.showlist p, #front-container td.showlist ul {
+  /* font-size: 95%; */
 }
 
-#freeseat-narrow td.showlist a img {
-  /* height: 250px; */
+#front-container td.showlist a img {
+	width: 300px;
 }
 
-#freeseat-narrow tr.seatmap td p a {
+#freeseat-wide tr.seatmap td p a {
   color: black;
 }
 
