@@ -9,100 +9,100 @@
 
 /* These replace the format.php/cls2colour function, and tell how to
 display a seat of the given class on a seatmap */
-.cls1, td.cls1 p, td.cls1 p a {
+#freeseat-wide .cls1, #freeseat-wide td.cls1 p, #freeseat-wide td.cls1 p a {
         background-color: #ff5959;  /* red */
         color: black;
         text-align: center;
         margin: 0;
-        padding: 1px;
-        line-height: 0.9;
+        padding: 2px;
+        line-height: 1;
  }
-.cls2, td.cls2 p, td.cls2 p a { 
+#freeseat-wide .cls2, #freeseat-wide td.cls2 p, #freeseat-wide td.cls2 p a { 
         background-color: #aaaaaa;  /* grey */
         color: black;
         text-align: center;     
         margin: 0;
-        padding: 1px;   
-        line-height: 0.9;
+        padding: 2px;   
+        line-height: 1;
  }
-.cls3, td.cls3 p, td.cls3 p a { 
+#freeseat-wide .cls3, #freeseat-wide td.cls3 p, #freeseat-wide td.cls3 p a { 
         background-color: green;
         color: black;
         text-align: center;
         margin: 0;
-        padding: 1px;
-        line-height: 0.9; 
+        padding: 2px;
+        line-height: 1; 
 }
-.cls4, td.cls4 p, td.cls4 p a { 
+#freeseat-wide .cls4, #freeseat-wide td.cls4 p, #freeseat-wide td.cls4 p a { 
         background-color: magenta;
         color: black;
         text-align: center;
         margin: 0;
-        padding: 1px;
-        line-height: 0.9;
+        padding: 2px;
+        line-height: 1;
 }
 /* Used in the colour key when there's more than one seat category */
-.clsdefault {
+#freeseat-wide .clsdefault {
         background-color: orange;
 }
 
-.clsdisabled, .clsdisabled p, td.clsdisabled p a {
+#freeseat-wide .clsdisabled, #freeseat-wide .clsdisabled p, #freeseat-wide td.clsdisabled p a {
 	background-color: transparent;
 	color: transparent;
 	margin: 0;
-	padding: 1px;
-	line-height: 0.9;
+	padding: 2px;
+	line-height: 1;
 	border-style: none;
 }
 
 /* These css classes represent a booking in a given state */
-.stfree {
+#freeseat-wide .stfree {
 	background-color: lightgreen;
 	color: black;
 	text-align: center;
 	margin: 0;
 	padding: 2px;
-	line-height: 0.9; 
+	line-height: 1; 
  }
-.stlocked { 
+#freeseat-wide .stlocked { 
 	background-color: lightgrey;
 	color: black;
 	text-align: center;
 	margin: 0;
 	padding: 2px;
-	line-height: 0.9; 
+	line-height: 1; 
  }
-.stbooked { 
+#freeseat-wide .stbooked { 
 	background-color: yellow;
 	color: black;
 	text-align: center;
 	margin: 0;
 	padding: 2px;
-	line-height: 0.9; 
+	line-height: 1; 
  }
-.stshaken { 
+#freeseat-wide .stshaken { 
 	background-color: orange;
 	color: black;
 	text-align: center;
 	margin: 0;
 	padding: 2px;
-	line-height: 0.9; 
+	line-height: 1; 
  }
-.stpaid { 
+#freeseat-wide .stpaid { 
 	background-color: red;
 	color: black;
 	text-align: center;
 	margin: 0;
 	padding: 2px;
-	line-height: 0.9; 
+	line-height: 1; 
  }
-.stdisabled, #freeseat-wide .stdisabled, #freeseat-wide td.stdisabled p { 
+#freeseat-wide .stdisabled, #freeseat-wide .stdisabled, #freeseat-wide td.stdisabled p { 
 	background-color: white;
 	color: black;
 	text-align: center;
 	margin: 0;
 	padding: 2px;
-	line-height: 0.9;
+	line-height: 1;
  }
 
 ul {
@@ -157,7 +157,7 @@ p.disabled {
 
 /* important pagewide (or almost) paragraph text */
 p.emph {
-    color : #974608;
+    color : darkred;
     margin-left : 2em;
     margin-right : 5em;
     text-align : justify;
@@ -228,9 +228,7 @@ p.warning {
 }
 
 @media print { 
-  div.dontprint {
-                  display : none;
-                  }
+	div.dontprint { display : none; }
 }
 
 /* a table that contains a form */

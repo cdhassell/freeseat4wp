@@ -29,7 +29,7 @@
 function render_seatmap($theatre, 		$zone,
 						$keycallback,   $seatcallback,
 						$unkeycallback, $unseatcallback) {
-	global $lang;
+	global $lang, $sh;
 	/*  this function has been modified to prepend the namespace to
 		the $keycallback etc. function names - not sure why this is needed. */
 		$seatcallback = __NAMESPACE__ . '\\' . $seatcallback;
@@ -59,16 +59,24 @@ function render_seatmap($theatre, 		$zone,
 		true-false-true-false-, otherwise it is false-false-false-. */
 	$even=false;
 	$staggered_seating = is_staggered($theatre);
- 	
+ 	$showid = $sh['id'];
 	if ($zone===null) {
-		$zonetest = 'zone is null';
+		$zonetest = 'zone is NULL';
 	} else {
 		$zonetest = 'zone='.quoter($zone);
 		echo "<h3>".htmlspecialchars($zone)."</h3>";
 	}
 	
-	$allseats = fetch_all( "select id,row,col,x,y,class,extra,zone from seats where theatre=$theatre and $zonetest order by y,x,id");
-	
+	// $allseats = fetch_all( "select * from seats where theatre=$theatre and $zonetest order by y,x,id");
+	// one query to fetch them all :-)
+	$allseats = fetch_all("
+SELECT seats.*, booking.state, seat_locks.until
+FROM seats
+LEFT JOIN booking ON seats.id=booking.seat and booking.showid=$showid
+LEFT JOIN seat_locks ON seats.id=seat_locks.seatid AND seat_locks.showid=booking.showid
+WHERE seats.theatre=$theatre and $zonetest
+ORDER BY seats.y,seats.x,seats.id
+    ");
 	/* No seats or problem obtaining them... */
 	if (!$allseats) return false;
 	// otherwise start to build the seatmap

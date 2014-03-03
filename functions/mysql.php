@@ -54,11 +54,12 @@ function freeseat_query( $s, $v = NULL ) {
 
 	$s = fs2wp( $s );
 	if ( empty( $v ) ) {
-		return ( false !== $wpdb->query( $s ) );
+		$sql = $s;
 	} else {
-		// print "<pre>query = " . $wpdb->prepare( $s, $v ) . "</pre>";
-		return ( false !== $wpdb->query( $wpdb->prepare( $s, $v ) ) );
+		$sql = $wpdb->prepare( $s, $v );
 	}
+	// sys_log( "freeseat_query call with $sql" );
+	return ( false !== $wpdb->query( $sql ) );
 }
 
 // wrapper around WP insert_id function
