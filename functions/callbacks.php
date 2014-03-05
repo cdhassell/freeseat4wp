@@ -109,56 +109,39 @@ function keycallback() {
 
 /**  
  *   Renders one seat. Depends on all of the data being passed
- *   in the $currseat parameter.  If $currseat contains 'html'
- *   then it outputs that field with some variable substitution
- *   for color and checkbox.  If not, it constructs the html for
- *   the seat, saves it to the html field and then outputs it.
+ *   in the $seat parameter, including the seat state from the 
+ *   booking table and any seat locks that may exist. This avoids
+ *   two DB queries per seat each time the seatmap is output.
  */
-function seatcallback($currseat) {
-	global $sh, $now;
-	// in-session selected seats have already been checked and are
-	// locked - so no need to check their state
-	if (is_seat_checked('carts'.$sh['id'].'s'.$currseat['id'])) {
+function seatcallback($seat) {
+	global $now;
+	// This code assumes that $seat contains booking.state and seat_locks.until
+	if (is_seat_checked($seat['id'])) {	
+		// in-session selected seats have already been checked and are
+		// locked - so no need to check their state
 		$chkd = 'checked="checked"' ;
 		$st = ST_FREE;
 	} else {
 		$chkd = '';
-		// $st = get_seat_state($currseat['id'],$sh['id']);
-		$st = ($currseat['state']!==NULL ? $currseat['state'] : 
-		      ($currseat['until']!==NULL && $currseat['until']>=$now ? ST_LOCKED : ST_FREE ));
+		$st = (!empty($seat['state']) ? $seat['state'] : 
+		      (!empty($seat['until']) && $seat['until']>=$now ? ST_LOCKED : ST_FREE ));
 	}
-	if ($st==ST_DISABLED)
-		$colour = "clsdisabled";
-	else
-		$colour = "cls".$currseat['class'];
-	
-	if (isset($currseat['html']) && !empty($currseat['html'])) {
-		$out = stripslashes($currseat['html']);
-	} else {
-		// construct html string with argument placeholders for sprintf()
-		// uses title attributes to display summary
-		// if extra column = 'Table' then row is treated as a table #
-		if (strpos($currseat['extra'], 'Table')===false) {
-			$tbl = false;
-			$text = "Row {$currseat['row']} Seat {$currseat['col']}";
-		} else {
-			$tbl = true;
-			$text = "Table {$currseat["row"]}-{$currseat["col"]}";
-		}
-		$out = "<td colspan='2' class='%s' title='$text'><p>";
-		if (($st==ST_FREE) || ($st==ST_DELETED)) {
-			// if extra column = 'Blank' then hide details
-			if ( strpos( $currseat[ 'extra' ], 'Blank' ) === false ) {
-				$out .= "<input type='checkbox' name='{$currseat["id"]}' %s >";
-			} else {
-				$out .= "&nbsp;";
-			}
-		}
-		$out .= "</p></td>";
-		$html = addslashes($out);
-		freeseat_query("UPDATE seats SET html='{$html}' WHERE id='{$currseat['id']}' ");
-	}
-	echo sprintf($out, $colour, $chkd);
+	// include the input checkbox if this seat is available
+	if (($st==ST_FREE) || ($st==ST_DELETED)) {
+		// if extra column == 'Blank' then hide details
+		$chbox = (strpos($seat['extra'],'Blank')===false 
+			? "<input type='checkbox' name='{$seat["id"]}' $chkd >" 
+			: "&nbsp;");
+	} else $chbox = "";
+	// set the background colour 
+	$colour = ($st==ST_DISABLED ? "clsdisabled" : "cls".$seat['class'] );
+	// display a summary in the title attribute
+	// if extra column = 'Table' then row is treated as a table #
+	$text = ((strpos($seat['extra'], 'Table')===false) 
+		? "Row {$seat['row']} Seat {$seat['col']}" 
+		: "Table {$seat['row']}-{$seat['col']}" );
+	// output the seat
+	echo "<td colspan='2' class='$colour' title='$text'><p>$chbox</p></td>";
 }
 
 /* make_legend for unnumbered seats. */

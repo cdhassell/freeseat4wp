@@ -69,14 +69,12 @@ function render_seatmap($theatre, 		$zone,
 	
 	// $allseats = fetch_all( "select * from seats where theatre=$theatre and $zonetest order by y,x,id");
 	// one query to fetch them all :-)
-	$allseats = fetch_all("
-SELECT seats.*, booking.state, seat_locks.until
-FROM seats
-LEFT JOIN booking ON seats.id=booking.seat and booking.showid=$showid
-LEFT JOIN seat_locks ON seats.id=seat_locks.seatid AND seat_locks.showid=booking.showid
-WHERE seats.theatre=$theatre and $zonetest
-ORDER BY seats.y,seats.x,seats.id
-    ");
+	$allseats = fetch_all("SELECT seats.*, booking.state, seat_locks.until 
+		FROM seats 
+		LEFT JOIN booking ON seats.id=booking.seat and booking.showid=$showid and booking.state!=".ST_DELETED." 
+		LEFT JOIN seat_locks ON seats.id=seat_locks.seatid AND seat_locks.showid=booking.showid 
+		WHERE seats.theatre=$theatre and $zonetest 
+		ORDER BY seats.y,seats.x,seats.id");
 	/* No seats or problem obtaining them... */
 	if (!$allseats) return false;
 	// otherwise start to build the seatmap
