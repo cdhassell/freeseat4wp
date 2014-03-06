@@ -117,8 +117,6 @@ function render_seatmap($theatre, 		$zone,
 			
 			/* 4. Actually output the seat */
 			$seatcallback($currseat);
-			
-			echo "</p></td>";
 			$x=$currseat['x']+1;
     	}
 	}
