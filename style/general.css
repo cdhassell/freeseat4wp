@@ -16,7 +16,7 @@ display a seat of the given class on a seatmap */
         margin: 0;
         padding: 2px;
         line-height: 1;
- }
+}
 #freeseat-wide .cls2, #freeseat-wide td.cls2 p, #freeseat-wide td.cls2 p a { 
         background-color: #aaaaaa;  /* grey */
         color: black;
@@ -24,7 +24,7 @@ display a seat of the given class on a seatmap */
         margin: 0;
         padding: 2px;   
         line-height: 1;
- }
+}
 #freeseat-wide .cls3, #freeseat-wide td.cls3 p, #freeseat-wide td.cls3 p a { 
         background-color: green;
         color: black;
@@ -117,10 +117,14 @@ img {
   border-style: none;
 }
 
-/* changed class=wide and class=narrow to ids to better control markup within wordpress */
+/*  Changed class=wide and class=narrow to ids to better control markup within wordpress 
+ *  #freeseat-narrow will wrap and flow with responsive themes
+ *  #freeseat-wide will create scroll bars to display a seatmap
+ */
 #freeseat-wide {
 	background-color: transparent;
 	width: 100%;
+	overflow: scroll;
 }
 
 #freeseat-narrow {
@@ -358,16 +362,9 @@ div.ticket {
 
 #freeseat-narrow .showlist {
   padding: 1em;
-  height: 300px;
   color: black;
-}
-
-#front-container td.showlist p, #front-container td.showlist ul {
-  /* font-size: 95%; */
-}
-
-#front-container td.showlist a img {
-	width: 300px;
+  float: left;
+  max-width: 500px;
 }
 
 #freeseat-wide tr.seatmap td p a {
@@ -424,26 +421,6 @@ div.ad {
   margin-left: auto;
   margin-right: auto;
 }
-
-#front-container {
-  width: 800px;
-  margin-left: auto; 
-  margin-right: auto;
-  border-collapse: collapse;
-  text-align: center;
-}
-
-/*
-#sttable {
-  border:0;
-  font-size: small;
-  text-align: center;
-} 
-
-#sttable tr td {
-  padding: 0.5em;
-}
-*/
 
 div.highlight {  
   font-size : 12pt; 
@@ -503,3 +480,15 @@ a:hover {
     text-decoration : underline;
 }
 
+#freeseat-narrow .leftblock {
+	float:left;
+	padding:10px;	
+}
+
+#freeseat-narrow .leftblock a img {
+	width: 300px;
+}
+
+#freeseat-narrow .container { 
+	overflow: hidden; 
+}

@@ -33,26 +33,27 @@ function freeseat_frontpage( $page_url ) {
 	/* displays an image and text description of spectacles on opening page */
 	
 	show_head();
-	echo '</div><div id="front-container">';
+	// echo '</div><div id="front-container">';
 	if ( !empty($lang['index_head'] ) ) 
 		echo '<h2>'. $lang[ "index_head" ] . '</h2>';
 	
 	// output a table showing all currently available shows with dates and times
 	// with links to the show pages
-	echo '<table>';
+	// echo '<table>';
 	foreach ( $ss as $s ) {
+		echo "<div class='container'>";
 		$url = replace_fsp( $page_url, PAGE_REPR ). '&spectacleid=' . $s[ "id" ];
 		$linkl = "<a href='$url'>";
 		$linkr = '</a>';
 				  
-		echo '<tr>';
+		// echo '<tr>';
 		if ( $s[ 'imagesrc' ] ) {
 			$img = freeseat_url( $upload_path . $s[ 'imagesrc' ] );
-			echo '<td class="showlist">' . $linkl . '<img src="' . $img . '">' . $linkr . '</td>';
+			echo '<div class="leftblock">' . $linkl . '<img src="' . $img . '">' . $linkr . '</div>';
 		} else {
-			echo '<td class="showlist"></td>';
+			echo '<div class="leftblock"></div>';
 		}
-		echo '<td class="showlist">' . $linkl . '<h3>' . $s[ 'name' ] . '</h3>' . $linkr;
+		echo '<div class="showlist">' . $linkl . '<h3>' . $s[ 'name' ] . '</h3>' . $linkr;
 		/** WARN - we assume whoever filled the description field to be
 		  trustworthy enough not to write malicious or malformed html */
 		if ( $s[ "description" ] ) {
@@ -70,9 +71,10 @@ function freeseat_frontpage( $page_url ) {
 			}
 			echo '</ul>';
 		}
-		echo '</td></tr>';
+		echo '</div>';  // end of showlist
+		echo '</div>';  // end of container
 	}
-	echo '</table>';
+	
 	do_hook( 'front_page_end' );
 	show_foot();
 }	// end of freeseat_frontpage
