@@ -7,43 +7,67 @@
    Id: style.css 239 2007-06-30 21:31:52Z tendays $
 */
 
+/*  Changed class=wide and class=narrow to ids to better control markup within wordpress 
+ *  #freeseat-narrow will wrap and flow with responsive themes
+ *  #freeseat-wide will create scroll bars to display a seatmap
+ */
+#freeseat-wide {
+	background-color: transparent;
+	width: 100%;
+	overflow-x: scroll;
+}
+
+#freeseat-narrow {
+	background-color: transparent;
+	width: 100%;
+}
+
+/* ... allowing specific controls like the following  */
+#freeseat-wide table.seatmap, #freeseat-narrow table.seatmap {
+	line-height: 0.9; 
+	width: auto;
+	border: 1px solid #AAAAAA;
+	margin-left: 2em;
+	margin-right: 3em;
+}
+
 /* These replace the format.php/cls2colour function, and tell how to
 display a seat of the given class on a seatmap */
 #freeseat-wide .cls1, #freeseat-wide td.cls1 p, #freeseat-wide td.cls1 p a {
-        background-color: #ff5959;  /* red */
-        color: black;
-        text-align: center;
-        margin: 0;
-        padding: 2px;
-        line-height: 1;
+	background-color: #ff5959;  /* red */
+	color: black;
+	text-align: center;
+	margin: 0;
+	padding: 2px;
+	line-height: 1;
 }
 #freeseat-wide .cls2, #freeseat-wide td.cls2 p, #freeseat-wide td.cls2 p a { 
-        background-color: #aaaaaa;  /* grey */
-        color: black;
-        text-align: center;     
-        margin: 0;
-        padding: 2px;   
-        line-height: 1;
+	background-color: #aaaaaa;  /* grey */
+	color: black;
+	text-align: center;     
+	margin: 0;
+	padding: 2px;   
+	line-height: 1;
 }
 #freeseat-wide .cls3, #freeseat-wide td.cls3 p, #freeseat-wide td.cls3 p a { 
-        background-color: green;
-        color: black;
-        text-align: center;
-        margin: 0;
-        padding: 2px;
-        line-height: 1; 
+	background-color: green;
+	color: black;
+	text-align: center;
+	margin: 0;
+	padding: 2px;
+	line-height: 1; 
 }
 #freeseat-wide .cls4, #freeseat-wide td.cls4 p, #freeseat-wide td.cls4 p a { 
-        background-color: magenta;
-        color: black;
-        text-align: center;
-        margin: 0;
-        padding: 2px;
-        line-height: 1;
+	background-color: magenta;
+	color: black;
+	text-align: center;
+	margin: 0;
+	padding: 2px;
+	line-height: 1;
 }
 /* Used in the colour key when there's more than one seat category */
 #freeseat-wide .clsdefault {
-        background-color: orange;
+	background-color: orange;
 }
 
 #freeseat-wide .clsdisabled, #freeseat-wide .clsdisabled p, #freeseat-wide td.clsdisabled p a {
@@ -106,7 +130,7 @@ display a seat of the given class on a seatmap */
  }
 
 ul {
-  margin: 0 0 0.5em 0;
+	margin: 0 0 0.5em 0;
 }
 
 li p {
@@ -114,50 +138,17 @@ li p {
 }
 
 img {
-  border-style: none;
-}
-
-/*  Changed class=wide and class=narrow to ids to better control markup within wordpress 
- *  #freeseat-narrow will wrap and flow with responsive themes
- *  #freeseat-wide will create scroll bars to display a seatmap
- */
-#freeseat-wide {
-	background-color: transparent;
-	width: 100%;
-	overflow: scroll;
-}
-
-#freeseat-narrow {
-	background-color: transparent;
-	width: 100%;
-}
-
-/* ... allowing specific controls like the following  */
-#freeseat-wide table.seatmap, #freeseat-narrow table.seatmap {
-	line-height: 0.9; 
-	width: auto;
-	border: 1px solid #AAAAAA;
-	margin-left: 2em;
-	margin-right: 3em;
+	border-style: none;
 }
 
 /*** PARAGRAPHS ***/
 p {
     color: black;
-  }
-
-/* important pagewide (or almost) paragraph text, but in black and white */
-/*p.bwemph {
-    margin-left : 5em;
-    margin-right : 5em;
-    text-align : justify;
-    font-weight : 900;
 }
-*/
 
 p.disabled { 
-   color : #888888;
- }
+	color : #888888;
+}
 
 /* important pagewide (or almost) paragraph text */
 p.emph {
@@ -179,7 +170,7 @@ p.emph {
 */
 
 p.fine-print {
-  font-size : 7pt;
+	font-size : 7pt;
 }
 
 input.fine-print {
@@ -226,9 +217,9 @@ p.warning {
   }
 
 #freeseat-narrow div.bookid { 
-  float: left;
-  padding-right: 2em;
-  padding-bottom: 3em;
+	float: left;
+	padding-right: 2em;
+	padding-bottom: 3em;
 }
 
 @media print { 
@@ -386,12 +377,6 @@ div.ticket {
   padding-left: 1em;
  }
 
-/*
-img.ticketsponsors { 
-    float:right;
- }
-*/
-
 /* if we put a p into each li then only the bullet will be coloured */
 #freeseat-wide ul li, #freeseat-narrow ul li {
      color:#577482; /*99cce5;*/
@@ -491,4 +476,8 @@ a:hover {
 
 #freeseat-narrow .container { 
 	overflow: hidden; 
+}
+
+#freeseat-narrow input.password {
+	width: 20em;
 }

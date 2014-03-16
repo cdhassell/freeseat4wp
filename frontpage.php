@@ -33,20 +33,17 @@ function freeseat_frontpage( $page_url ) {
 	/* displays an image and text description of spectacles on opening page */
 	
 	show_head();
-	// echo '</div><div id="front-container">';
 	if ( !empty($lang['index_head'] ) ) 
 		echo '<h2>'. $lang[ "index_head" ] . '</h2>';
 	
-	// output a table showing all currently available shows with dates and times
+	// display all currently available shows with dates and times
 	// with links to the show pages
-	// echo '<table>';
 	foreach ( $ss as $s ) {
 		echo "<div class='container'>";
 		$url = replace_fsp( $page_url, PAGE_REPR ). '&spectacleid=' . $s[ "id" ];
 		$linkl = "<a href='$url'>";
 		$linkr = '</a>';
-				  
-		// echo '<tr>';
+	    
 		if ( $s[ 'imagesrc' ] ) {
 			$img = freeseat_url( $upload_path . $s[ 'imagesrc' ] );
 			echo '<div class="leftblock">' . $linkl . '<img src="' . $img . '">' . $linkr . '</div>';
@@ -74,7 +71,6 @@ function freeseat_frontpage( $page_url ) {
 		echo '</div>';  // end of showlist
 		echo '</div>';  // end of container
 	}
-	
 	do_hook( 'front_page_end' );
 	show_foot();
 }	// end of freeseat_frontpage

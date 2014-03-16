@@ -81,7 +81,7 @@ function castpw_display( $page_url ) {
     // for the admin user, there is already a form open
     // if ($castpw_countdisabled > 0) { 
       echo '<br /><br />';
-      echo $lang['castpw_prompt'] . "<input type='text' name='castpw' value='$castpw_saved' title='".$lang['castpw_help']."'>";
+      echo $lang['castpw_prompt'] . "<input class='password' type='text' name='castpw' value='$castpw_saved' title='".$lang['castpw_help']."'>";
     // } 
   } elseif ($castpw_countdisabled > 0 && $castpw_saved) {
     // for the regular user, create a form to accept the password
@@ -89,7 +89,7 @@ function castpw_display( $page_url ) {
     echo "<form action='$page_url&spectacleid=$spectacleid' method='post'>";
     if (function_exists('wp_nonce_field')) wp_nonce_field('freeseat-castpw-password');
     echo "<p class='main fine-print'>&nbsp;&nbsp;";
-    echo $lang['castpw_input'] . "<input class='fine-print' type='password' name='castpw'>&nbsp;";
+    echo $lang['castpw_input'] . "<input class='password fine-print' type='password' name='castpw'>&nbsp;";
     echo "<input class='fine-print' type='submit' value='Ok'></p></form>";
   }
 }

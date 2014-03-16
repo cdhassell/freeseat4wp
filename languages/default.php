@@ -445,7 +445,7 @@ $lang["nreduced"] = 'For children?';
 $lang["orderby"] = 'Order by %1$s';
 
 $lang["panic"] = <<<EOD
-<h2>WE HAVE BEEN UNABLE TO PROCESS YOUR RESERVATION</h2>
+<h3>WE HAVE BEEN UNABLE TO PROCESS YOUR RESERVATION</h3>
 <p class='main'>The system administrator has been notified and it will 
 be fixed as quickly as possible.</p>
 

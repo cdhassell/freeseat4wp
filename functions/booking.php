@@ -93,56 +93,53 @@ function get_booking($id) {
 returned true)
 */
 function book($glob,$seat) {
-  global $lang;
-  /*  echo "booking seat ".$seat["id"]."<br>"; */
+	global $lang;
+	
+	if (get_seat_state($seat["id"],$seat['showid'],true)!=ST_FREE) {
+		/* This may happen only in case the software has a bug ... I leave
+		this check here because check_session may not have checked it
+		in case our seat locks where still valid. Again, it should
+		never be required but let's play safe. */
+		kaboom($lang["err_occupied"]);
+		return false;
+	}
 
-  if (get_seat_state($seat["id"],$glob["showid"],true)!=ST_FREE) {
-    /* This may happen only in case the software has a bug ... I leave
-       this check here because check_session may not have checked it
-       in case our seat locks where still valid. Again, it should
-       never be required but let's play safe. */
-    kaboom($lang["err_occupied"]);
-    return false;
-  }
+	/* fill in optional fields */
+	if (!isset($glob["country"])) $glob["country"]="";
+	if (!isset($glob["us_state"])) $glob["us_state"]="";
+	if (isset($glob["groupid"]) && $glob["groupid"]!=0)
+		$query = "insert into booking (groupid,showid,seat,state,cat,firstname,lastname,email,phone,timestamp, payment,address,postalcode,city,us_state,country) values (".$glob["groupid"].",";
+	else 
+		$query = "insert into booking (showid,seat,state,cat,firstname,lastname,email,phone,timestamp, payment,address,postalcode,city,us_state,country) values (";
 
-  /* fill in optional fields */
-  if (!isset($glob["country"])) $glob["country"]="";
-  if (!isset($glob["us_state"])) $glob["us_state"]="";
-
-  if (isset($glob["groupid"]) && $glob["groupid"]!=0)
-    $query = "insert into booking (groupid,showid,seat,state,cat,firstname,lastname,email,phone,timestamp,payment,address,postalcode,city,us_state,country) values (".$glob["groupid"].",";
-  else 
-    $query = "insert into booking (showid,seat,state,cat,firstname,lastname,email,phone,timestamp,payment,address,postalcode,city,us_state,country) values (";
-
-  $state = isset($seat["state"])? $seat["state"]:
-    ($seat["cat"]==CAT_FREE?ST_PAID:ST_BOOKED);
-
-  if (freeseat_query($query.
-		  $glob["showid"].','.$seat["id"].','.$state.','.$seat["cat"].',"'.
-		  mysql_real_escape_string($glob["firstname"]).'","'.
-		  mysql_real_escape_string($glob["lastname"]).'","'.
-		  mysql_real_escape_string($glob["email"]).'","'.
-		  mysql_real_escape_string($glob["phone"]).'",NOW(),'.
-		  $glob["payment"].',"'.
-		  mysql_real_escape_string($glob["address"]).'","'.
-		  mysql_real_escape_string($glob["postalcode"]).'","'.
-		  mysql_real_escape_string($glob["city"]).'","'.
-		  mysql_real_escape_string($glob["us_state"]).'","'.
-		  mysql_real_escape_string($glob["country"]).
-		  '")')) {
-    $bookid = freeseat_insert_id();
-    sys_log("creating $bookid as $state (".f_state($state).")");
-    do_hook_function('book',$bookid);
-    return $bookid;
-  } else {
-    kaboom( mysql_error() ); // TODO - don't display mysql errors to client
-    return false;
-  }
-  /* WARN - do NOT remove the lock in seat_locks here - leave it until
-     it expires normally, as protection agains some race conditions
-     (cf. lock_seats()) depend on it staying for a while. (The removal
-     found in e.g. logoff.php is safe, though - the entry in booking
-     would then be old enough) */
+	$state = isset($seat["state"])? $seat["state"]:
+		($seat["cat"]==CAT_FREE?ST_PAID:ST_BOOKED);
+	if (freeseat_query($query.
+		$seat["showid"].','.$seat["id"].','.$state.','.$seat["cat"].',"'.
+		mysql_real_escape_string($glob["firstname"]).'","'.
+		mysql_real_escape_string($glob["lastname"]).'","'.
+		mysql_real_escape_string($glob["email"]).'","'.
+		mysql_real_escape_string($glob["phone"]).'",NOW(),'.
+		$glob["payment"].',"'.
+		mysql_real_escape_string($glob["address"]).'","'.
+		mysql_real_escape_string($glob["postalcode"]).'","'.
+		mysql_real_escape_string($glob["city"]).'","'.
+		mysql_real_escape_string($glob["us_state"]).'","'.
+		mysql_real_escape_string($glob["country"]).
+		'")')) {
+		$bookid = freeseat_insert_id();
+		sys_log("creating $bookid as $state (".f_state($state).")");
+		do_hook_function('book',$bookid);
+		return $bookid;
+	} else {
+		kaboom( mysql_error() ); // TODO - don't display mysql errors to client
+		return false;
+	}
+	/* WARN - do NOT remove the lock in seat_locks here - leave it until
+	it expires normally, as protection agains some race conditions
+	(cf. lock_seats()) depend on it staying for a while. (The removal
+	found in e.g. logoff.php is safe, though - the entry in booking
+	would then be old enough) */
 }
 
 /**
