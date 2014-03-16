@@ -1,14 +1,9 @@
 <?php namespace freeseat;
 
-// Dompdf will throw errors on PHP 4.x. 
-if (version_compare(PHP_VERSION, '5.0.0', '>')) {
-	if (!class_exists('DOMPDF')) {
-		require_once( "dompdf/dompdf_config.inc.php" );
-	}
-	$dompdf = new \DOMPDF();
-} else {
-	fatal_error("PHP version 5 is required for the Freeseat-pdfticket plugin");
+if (!class_exists('DOMPDF')) {
+	require_once( "dompdf/dompdf_config.inc.php" );
 }
+$dompdf = new \DOMPDF();
 
 /** pdftickets/setup.php
   *
@@ -27,7 +22,7 @@ if (version_compare(PHP_VERSION, '5.0.0', '>')) {
  *  call for the download.  That is done with ob_start() hooked on 
  *  the add_action('init') call.
  *  
- *  This plugin stores series of tickets into SESSION["pdftickets"], 
+ *  This plugin stores a series of tickets into SESSION["pdftickets"], 
  *  and on a second pass returns here to generate the pdf file or
  *  email the tickets to the user if an email address is present. 
  */
@@ -42,43 +37,29 @@ function freeseat_plugin_init_pdftickets() {
     init_language('pdftickets');
 }
 
-function pdftickets_prepare() {
-	global $pdftickets_id;
-	
-	if (!isset($_SESSION["pdftickets"])) {
-		$_SESSION["pdftickets"]["next"] = 1; // identifier of the next batch for this session.
-	}
-	
-	$pdftickets_id = $_SESSION["pdftickets"]["next"];
-	$_SESSION["pdftickets"][$pdftickets_id] = array(); // identifiers of the tickets to generate.
-	$_SESSION["pdftickets"]["next"] = $pdftickets_id + 1;
-}
+function pdftickets_prepare() {}
 
-function pdftickets_render($booking) {
-	global $pdftickets_id;
-	
-	$_SESSION["pdftickets"][$pdftickets_id][] = $booking;
-}
+function pdftickets_render($booking) {}
 
 function pdftickets_finalise() {
-	global $lang, $pdftickets_id, $page_url, $dompdf;
+	global $lang, $page_url, $dompdf;
 	
-	if (isset($_GET['mode'])) {
+	if (isset($_GET['freeseat-ticket-mode'])) {
 		// create the html for the ticket output
-		if ( !isset($_SESSION['pdftickets'][$pdftickets_id]['html'] )) {
-			$_SESSION['pdftickets'][$pdftickets_id]['html'] = pdftickets_maketickets($pdftickets_id);
+		if ( !isset($_SESSION['pdftickets'] )) {
+			$_SESSION['pdftickets'] = pdftickets_maketickets();
 		}
-		$html = $_SESSION['pdftickets'][$pdftickets_id]['html']; 
+		$html = $_SESSION['pdftickets']; 
 
 		/* Now convert $html to $pdf */
 		$dompdf = new \DOMPDF();  
 		$dompdf->load_html($html);
 		$dompdf->render();
-		if ( $_GET["mode"] == 'pdf-mail' && !isset($_SESSION['pdftickets_emailsent'])) {
+		if ( $_GET["freeseat-ticket-mode"] == 'pdf-mail' && !isset($_SESSION['pdftickets_emailsent'])) {
 			// ready to send by email
 			$pdf = $dompdf->output();
 			pdftickets_sendtickets($pdf);
-		} elseif ($_GET["mode"] == 'pdf-file' ) {
+		} elseif ($_GET["freeseat-ticket-mode"] == 'pdf-file' ) {
 			// ready to download
 			ob_end_clean();;
 			$dompdf->stream( 'mytickets.pdf' );
@@ -91,20 +72,21 @@ function pdftickets_finalise() {
 	echo "<p class='main'><table><tr><td>";
 	echo "<div id='download-image'>";
 	echo "<img src='".plugins_url( "down.png", __FILE__ )."'></div></td><td><p>";
-	printf($lang["pdftickets_download_link"],'[<a href="'.replace_fsp($page_url,PAGE_FINISH).'&key='.$pdftickets_id.'&mode=pdf-file">','</a>]');
+	printf($lang["pdftickets_download_link"],'[<a href="'.replace_fsp($page_url,PAGE_FINISH).'&freeseat-ticket-mode=pdf-file">','</a>]');
 	echo '</p>';
 	if (isset($_SESSION['email']) && is_email_ok($_SESSION['email'])) {
 		echo '<p>';
-		printf($lang["pdftickets_email_link"],'[<a href="'.replace_fsp($page_url,PAGE_FINISH).'&key='.$pdftickets_id.'&mode=pdf-mail">','</a>]',$_SESSION['email'])."<div id='mailsent'></div>";
+		printf($lang["pdftickets_email_link"],'[<a href="'.replace_fsp($page_url,PAGE_FINISH).'&freeseat-ticket-mode=pdf-mail">','</a>]',$_SESSION['email'])."<div id='mailsent'></div>";
 		if (isset($_SESSION['pdftickets_emailsent'])) echo "&nbsp;&nbsp;&nbsp;<b> Sent!</b>";
 		echo '</p>';
 	}
 	echo "</td></tr></table></p></div>";
 }
 
-function pdftickets_maketickets($key) {
+function pdftickets_maketickets() {
 	global $upload_url, $ticket_logo, $lang, $legal_info;
-	$allbookings = $_SESSION["pdftickets"][$key];	 
+	// $allbookings = $_SESSION["pdftickets"][$key];
+	$allbookings = $_SESSION['seats'];	 
 	// how many shows are there?
 	$showids = array();
 	foreach ($allbookings as $n => $s) {
@@ -140,7 +122,7 @@ function pdftickets_maketickets($key) {
 		$html .= "<td>";
 		$html .= do_hook_concat('booking_return',$showbookings[0]);
 		$html .= "</td></tr></table>";
-		$html .= "<p class='main'><b>".$lang["name"].": </b>".$showbookings[0]["firstname"]." ".$showbookings[0]["lastname"]."</p>";
+		$html .= "<p class='main'><b>".$lang["name"].": </b>".$_SESSION["firstname"]." ".$_SESSION["lastname"]."</p>";
 		if (get_total() > 0) {
 			$html .= "<p class='main'><b>".$lang["payment"].": </b>".f_payment($_SESSION["payment"])."</p>";
 		}
@@ -169,15 +151,10 @@ function pdftickets_sendtickets($pdf) {
 		$_SESSION['pdftickets_emailsent'] = true;
 	else
 		unset($_SESSION['pdftickets_emailsent']);
-	// make sure we have a showid
-	if (!isset($_SESSION["showid"])) {
-		$_SESSION["showid"] = array_shift(array_keys($showids));
-		// or $_SESSION["showid"] = $allbookings[0]["showid"];
-	}
 }
 
 function freeseat_pdftickets_redirect() {
-	if( isset( $_REQUEST['mode'] ) && $_REQUEST['mode'] == 'pdf-file' ) {
+	if( isset( $_REQUEST['freeseat-ticket-mode'] ) && $_REQUEST['freeseat-ticket-mode'] == 'pdf-file' ) {
 		// In order to download a file to the user, we have to hook to wordpress
 		// prior to any output being issued.  This call will suppress any such 
 		// output until we are ready.
