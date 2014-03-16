@@ -83,22 +83,21 @@ function freeseat_repr( $page_url )
 	do_hook_function( 'repr_process', $ss );
 	
 	show_head();
-	
-	echo '<table><tr>';
-	echo '<td class="showlist">';
+	echo "<div class='container'>";
+	echo "<div class='leftblock'>";
 	if ( ( $spec[ 'imagesrc' ] ) ) {
 		$img = freeseat_url( $upload_path . $spec[ 'imagesrc' ] );
-		echo "<img src='$img'>";
+		echo "<img width='100' src='$img'>";
 	}
-	echo '</td>';
-	echo '<td><h2>';
+	echo '</div>';
+	echo '<div class="showlist"><h2>';
 	printf( $lang[ "showlist" ], htmlspecialchars( stripslashes( $spec[ "name" ] ) ) );
 	echo '</h2>';
 	echo "<p class='main'><i>";
 	echo stripslashes( $spec['description'] );
 	echo "</i></p>";
-	echo '</td>';
-	echo '</tr></table>';
+	echo '</div>';
+	echo '</div>';
 	if ( admin_mode() ) {
 		echo '<form action="' . replace_fsp( $page_url, PAGE_REPR ) . '" method="post">';
 		if (function_exists('wp_nonce_field')) wp_nonce_field('freeseat-repr-disable-shows');
@@ -156,7 +155,7 @@ function freeseat_repr( $page_url )
 		if ( $remaining <= 0 && admin_mode() )
 			echo " (" . $lang[ "book_adminonly" ] . ")";
 		
-		echo "</p>\n";
+		echo "</p>";
 	}
 	
 	echo '</ul>';
@@ -168,7 +167,7 @@ function freeseat_repr( $page_url )
 	}
 	echo '</p>';
 	echo '<p class="main">';
-	printf( $lang[ "backto" ], '[<a href="' . $page_url . '">' . $lang[ "link_index" ] . '</a>]' );
+	printf( $lang[ "backto" ], '[<a href="' . replace_fsp( $page_url, PAGE_INDEX ) . '">' . $lang[ "link_index" ] . '</a>]' );
 	echo '</p>';
 	
 	show_foot();

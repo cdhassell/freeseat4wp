@@ -480,4 +480,5 @@ a:hover {
 
 #freeseat-narrow input.password {
 	width: 20em;
+	display: inline;
 }
