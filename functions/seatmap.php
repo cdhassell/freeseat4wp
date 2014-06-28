@@ -88,7 +88,7 @@ function render_seatmap($theatre, 		$zone,
 			if (!$table) {
 				/* this is the first (numbered) seat of the zone */
 				$keycallback();
-				echo "<p class='main'><table class='seatmap'>";
+				echo "<p class='main'><div id='multiCheck'><table class='seatmap'>";
 				echo $stage;  // place the stage at the top
 				$table = true;
 			}
@@ -120,7 +120,7 @@ function render_seatmap($theatre, 		$zone,
 			$x=$currseat['x']+1;
     	}
 	}
-	if ($table) echo "</table>";
+	if ($table) echo "</table></div>";
 	
 	/* Now show unnumbered seats. */
 	$noheaderyet=true;

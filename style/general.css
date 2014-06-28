@@ -14,7 +14,7 @@
 #freeseat-wide {
 	background-color: transparent;
 	width: 100%;
-	overflow-x: scroll;
+	overflow-x: auto;
 }
 
 #freeseat-narrow {
