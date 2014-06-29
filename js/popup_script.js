@@ -1,13 +1,18 @@
 jQuery(document).ready(function($) {
-	$( "p.warning" ).removeClass( "warning" );
-	$( "#freeseat-dialog" )
-	.dialog({
-		modal: true,
-		buttons: {
-			Ok: function() {
-				$( this ).dialog( "close" );
-				$(location).attr('href',freeseatPopupUrl);
-			}
-		}	
-	});
+	var l = $( "#freeseat-dialog" ).text().length;
+	if( l > 0 ) {
+		$( "p.warning" ).removeClass( "warning" );
+		$( "#freeseat-dialog" )
+		.dialog({
+			modal: true,
+			buttons: {
+				Ok: function() {
+					$( this ).dialog( "close" );
+					if (typeof freeseatPopupUrl != "undefined") { 
+						$(location).attr('href',freeseatPopupUrl); 
+					}
+				}
+			}	
+		});
+	}
 });

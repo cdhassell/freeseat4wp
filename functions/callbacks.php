@@ -126,22 +126,22 @@ function seatcallback($seat) {
 		$st = (!empty($seat['state']) ? $seat['state'] : 
 		      (!empty($seat['until']) && $seat['until']>=$now ? ST_LOCKED : ST_FREE ));
 	}
-	// include the input checkbox if this seat is available
-	if (($st==ST_FREE) || ($st==ST_DELETED)) {
-		// if extra column == 'Blank' then hide details
-		$chbox = (strpos($seat['extra'],'Blank')===false 
-			? "<input type='checkbox' name='{$seat["id"]}' $chkd >" 
-			: "&nbsp;");
-	} else $chbox = "";
-	// set the background colour 
-	$colour = ($st==ST_DISABLED ? "clsdisabled" : "cls".$seat['class'] );
 	// display a summary in the title attribute
 	// if extra column = 'Table' then row is treated as a table #
 	$text = ((strpos($seat['extra'], 'Table')===false) 
 		? "Row {$seat['row']} Seat {$seat['col']}" 
 		: "Table {$seat['row']}-{$seat['col']}" );
+	// include the input checkbox if this seat is available
+	if (($st==ST_FREE) || ($st==ST_DELETED)) {
+		// if extra column == 'Blank' then hide details
+		$chbox = (strpos($seat['extra'],'Blank')===false 
+			? "<input type='checkbox' title='$text' name='{$seat["id"]}' $chkd >" 
+			: "&nbsp;");
+	} else $chbox = "";
+	// set the background colour 
+	$colour = ($st==ST_DISABLED ? "clsdisabled" : "cls".$seat['class'] );
 	// output the seat
-	echo "<td colspan='2' class='$colour' title='$text'><p>$chbox</p></td>";
+	echo "<td colspan='2' class='$colour' title='$text'>$chbox</td>";
 }
 
 /* make_legend for unnumbered seats. */
