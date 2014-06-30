@@ -71,7 +71,7 @@ function disableseats_seat($currseat) {
 	}
 	echo "<td colspan='2' align='center' class='$colour' title='$text'>";
 	if (($st==ST_FREE) || ($st==ST_DELETED) || ($st==ST_DISABLED)) {
-		echo '<input type="checkbox" name="'.$currseat['id'].'"';
+		echo '<input type="checkbox" name="'.$currseat['id'].'" title="'.$text.'" ';
 		echo ( ($st==ST_DISABLED) ? ' checked="checked">' : '>' );
 	}
 	echo "</td>";

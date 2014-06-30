@@ -31,6 +31,10 @@
 	margin-right: 3em;
 }
 
+#freeseat-wide table.seatmap img.imageCheck, #freeseat-narrow table.seatmap img.imageCheck {
+	margin: 0;
+}
+
 /* These replace the format.php/cls2colour function, and tell how to
 display a seat of the given class on a seatmap */
 #freeseat-wide .cls1, #freeseat-wide td.cls1 p, #freeseat-wide td.cls1 p a {

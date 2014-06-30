@@ -75,6 +75,7 @@ function is_email_ok($m) {
 
 function kaboom($s) {
   global $messages;
+  if (( $s = trim($s)) == false ) return true;
   $messages[] = "$s";
   return false; // to allow doing nice things like..
   // ..return kaboom("scary error message") or $success = kaboom("sorry dude");

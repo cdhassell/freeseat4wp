@@ -25,8 +25,8 @@ function freeseat_jquery_dialog() {
  
     // tell WordPress to load a theme from Google CDN
     $protocol = is_ssl() ? 'https' : 'http';
-    $url = "$protocol://ajax.googleapis.com/ajax/libs/jqueryui/{$ui->ver}/themes/sunny/jquery-ui.min.css";
-    wp_enqueue_style('jquery-ui-sunny', $url, false, null);
+    $url = "$protocol://ajax.googleapis.com/ajax/libs/jqueryui/{$ui->ver}/themes/smoothness/jquery-ui.min.css";
+    wp_enqueue_style('jquery-ui-smoothness', $url, false, null);
     
     // load popup_script.js which makes the jquery call
 	wp_enqueue_script( 'popup-script', plugins_url( 'js/popup_script.js', dirname(__FILE__) ),
