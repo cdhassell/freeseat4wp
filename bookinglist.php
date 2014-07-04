@@ -20,8 +20,6 @@ function freeseat_bookinglist()
 	if ( !admin_mode() ) { 
 		wp_die( 'You do not have sufficient permissions to access this page.' );
 	}
-	echo '<h2>View Reservations</h2>';
-		
 	prepare_log( "booking administration" );
 	
 	/* READ FILTER PARAMETERS
@@ -106,7 +104,7 @@ function freeseat_bookinglist()
 	do_hook( 'bookinglist_process' );
 	
 	show_head( true );
-	
+	echo '<h2>View Reservations</h2>';
 	$bookinglist_url = admin_url( 'admin.php?page=freeseat-reservations' );
 	
 	if ( $setstate && ( count( $ab ) > 0 ) ) { // state 2

@@ -133,7 +133,7 @@ function freeseat_params() {
 		<!-- Display Plugin Icon, Header, and Description -->
 		<div class="icon32" id="icon-options-general"><br></div>
 		<h2>FreeSeat System Settings</h2>
-		
+		<div id="multiCheck">
 		<!-- Beginning of the Plugin Options Form -->
 		<form method="post" action="options.php" enctype="multipart/form-data">
 			<?php settings_fields('freeseat_plugin_options'); ?>
@@ -369,6 +369,7 @@ function freeseat_params() {
 			<input type="submit" class="button-primary" value="<?php _e('Save Changes') ?>" />
 			</p>
 		</form>
+		</div><!-- end of id multiCheck -->
 	</div><!-- end of class wrap -->
 	<?php	
 }
