@@ -185,7 +185,7 @@ input.fine-print {
 #freeseat-narrow p.main, #freeseat-wide p.main {
 	margin-left : 2em;
 	margin-right : 3em;
-	text-align : justify;
+	/* text-align : justify; */
 	width: auto;
 }
 
@@ -315,6 +315,7 @@ div.ticket {
   border: 1px solid black; 
   border-collapse: collapse; 
   width: auto;
+  overflow-x: auto;
 }
 
 #freeseat-narrow tr.seatmap {
@@ -438,7 +439,7 @@ div.highlight {
 }
 
 #freeseat-narrow div.partner-block, #freeseat-narrow div.partner-block table {
-	/* float: right; */
+	float: left;
 	width: auto;
 }
 
@@ -448,7 +449,7 @@ div.highlight {
 	-moz-border-radius: 15px;
 	border-radius: 15px;
 	border: 1px solid #AAAAAA;
-	width: 600px;  /* why doesn't auto work here?? */
+	max-width: 600px;
 } 
 
 .nowrap {

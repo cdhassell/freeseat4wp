@@ -27,12 +27,17 @@ function freeseat_sample_data_link( $links ) {
  *  If so it calls freeseat_install_data()
  */
 function freeseat_check_data() {
+	global $wpdb;
 	if ( 
 		!get_option('freeseat_data_installed') &&
 		isset($_GET['install']) && $_GET['install']=='data' &&
 		isset($_GET['plugin'] ) && $_GET['plugin' ]=='freeseat' 
 	) {		
 		freeseat_install_data();
+	}
+	if ( $wpdb->get_var( 'SELECT count( id ) FROM freeseat_seats' ) > 0 ) {
+		// if there is data in the tables, remove the sample data option
+		update_option('freeseat_data_installed', TRUE);
 	}
 }
 
@@ -46,7 +51,7 @@ function freeseat_install() {
 	
    $table_name = 'freeseat_booking';
       
-   $sql = "CREATE TABLE IF NOT EXISTS $table_name (
+	$sql = "CREATE TABLE IF NOT EXISTS $table_name (
 	id int(10) NOT NULL AUTO_INCREMENT,
 	seat int(10) NOT NULL DEFAULT '0',
 	state int(2) NOT NULL DEFAULT '0',
@@ -67,15 +72,17 @@ function freeseat_install() {
 	notes varchar(255) DEFAULT NULL,
 	expiration datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
 	contact_id int(11) NOT NULL,
-	PRIMARY KEY  (id)
+	PRIMARY KEY  (id),
+	KEY seat_query (seat,state,showid),
+	KEY groupid (groupid)
 	);";
 
-   require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-   dbDelta( $sql );
+	require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+	dbDelta( $sql );
  
-   $table_name = 'freeseat_price';
+	$table_name = 'freeseat_price';
       
-   $sql = "CREATE TABLE IF NOT EXISTS $table_name (
+	$sql = "CREATE TABLE IF NOT EXISTS $table_name (
 	spectacle int(7) DEFAULT NULL,
 	cat int(2) DEFAULT NULL,
 	class int(3) DEFAULT NULL,
@@ -83,11 +90,11 @@ function freeseat_install() {
 	KEY spectacle (spectacle,cat,class)
     );";
 
-   dbDelta( $sql );
+	dbDelta( $sql );
 
-   $table_name = 'freeseat_seats';
+	$table_name = 'freeseat_seats';
       
-   $sql = "CREATE TABLE IF NOT EXISTS $table_name (
+	$sql = "CREATE TABLE IF NOT EXISTS $table_name (
 	id int(10) NOT NULL AUTO_INCREMENT,
 	theatre int(7) NOT NULL DEFAULT '0',
 	row varchar(5) NOT NULL DEFAULT '',
@@ -97,14 +104,17 @@ function freeseat_install() {
 	class int(3) NOT NULL DEFAULT '0',
 	x int(3) NOT NULL DEFAULT '0',
 	y int(3) NOT NULL DEFAULT '0',
-	PRIMARY KEY  (id)
+	PRIMARY KEY  (id),
+	KEY theatre_zone (theatre,zone),
+	KEY row_col (row,col),
+	KEY y_x (y,x)
 	);";
 
 	dbDelta( $sql );
 	
 	$table_name = 'freeseat_shows';
       
-  $sql = "CREATE TABLE IF NOT EXISTS $table_name (
+	$sql = "CREATE TABLE IF NOT EXISTS $table_name (
 	id int(10) NOT NULL AUTO_INCREMENT,
 	spectacle int(7) DEFAULT NULL,
  	theatre int(7) DEFAULT NULL,
@@ -112,62 +122,74 @@ function freeseat_install() {
 	time time DEFAULT NULL,
 	disabled int(1) NOT NULL DEFAULT '0',
 	civicrm_id int(10) unsigned DEFAULT NULL,
-	PRIMARY KEY  (id)
-  );";
+	PRIMARY KEY  (id),
+	KEY spectacle (spectacle)
+	);";
 	
 	dbDelta( $sql );
 	
 	$table_name = 'freeseat_spectacles';
       
-  $sql = "CREATE TABLE IF NOT EXISTS $table_name (
+	$sql = "CREATE TABLE IF NOT EXISTS $table_name (
 	id int(7) NOT NULL AUTO_INCREMENT,
 	name varchar(64) DEFAULT NULL,
 	imagesrc varchar(64) DEFAULT NULL,
 	description text,
 	castpw varchar(64) DEFAULT NULL,
 	PRIMARY KEY  (id)
-  );";
+	);";
 
 	dbDelta( $sql );
 	
 	$table_name = 'freeseat_theatres';
       
-  $sql = "CREATE TABLE IF NOT EXISTS $table_name (
+	$sql = "CREATE TABLE IF NOT EXISTS $table_name (
 	id int(7) NOT NULL AUTO_INCREMENT,
 	name varchar(64) DEFAULT NULL,
 	imagesrc varchar(64) DEFAULT NULL,
 	staggered_seating int(1) DEFAULT '0',
 	PRIMARY KEY  (id)
-  );";
-  
+	);";
+	
 	dbDelta( $sql );
 	
 	$table_name = 'freeseat_class_comment';
       
-  $sql = "CREATE TABLE IF NOT EXISTS $table_name ( 
+	$sql = "CREATE TABLE IF NOT EXISTS $table_name ( 
 	spectacle int(7) NOT NULL DEFAULT '0',
  	class int(2) NOT NULL DEFAULT '0',
 	comment varchar(64) DEFAULT NULL,
 	description varchar(64) DEFAULT NULL,
 	UNIQUE KEY spectacle (spectacle,class)
-  );";
+	);";
   
 	dbDelta( $sql );  
 	
 	$table_name = 'freeseat_seat_locks';
 	
-  $sql = "CREATE TABLE IF NOT EXISTS $table_name (
+	$sql = "CREATE TABLE IF NOT EXISTS $table_name (
 	seatid int(10) NOT NULL DEFAULT '0',
 	showid int(10) NOT NULL DEFAULT '0',
 	sid varchar(50) NOT NULL DEFAULT '0',
 	until int(10) DEFAULT NULL,
 	PRIMARY KEY  (seatid, showid)
-  );";
+	);";
 	
 	dbDelta( $sql );
 	
-	add_option( "freeseat_db_version", $freeseat_db_version );
+	$table_name = 'freeseat_ccard_transactions';
 	
+	$sql = "CREATE TABLE IF NOT EXISTS $table_name (
+	numxkp varchar(18) NOT NULL DEFAULT '',
+	groupid int(9) NOT NULL DEFAULT '0',
+	amount int(6) DEFAULT NULL,
+	PRIMARY KEY  (numxkp),
+	KEY groupid (groupid)
+	);";
+	
+	dbDelta( $sql );
+  
+	add_option( "freeseat_db_version", $freeseat_db_version );	
 }
 
 /**
@@ -176,10 +198,11 @@ function freeseat_install() {
 function freeseat_install_data() {
 	global $wpdb;
 	
-	update_option('freeseat_data_installed', TRUE);
 	// if there is data in the tables, don't do this
-	if ( $wpdb->get_var( 'SELECT count( id ) FROM freeseat_seats' ) > 0 ) return;	
+	if ( $wpdb->get_var( 'SELECT count( id ) FROM freeseat_seats' ) > 0 
+		|| get_option('freeseat_data_installed')) return;	
 	
+	update_option('freeseat_data_installed', TRUE);
 	// set sample show dates at two months in the future
 	$showdate1 = strftime( "%F", time()+(60*60*24*60) );
 	$showdate2 = strftime( "%F", time()+(60*60*24*61) );
@@ -518,7 +541,7 @@ function freeseat_install_data() {
 (1, 1, 1, '$showdate1', '19:30:00', 0, NULL),
 (2, 1, 1, '$showdate2', '19:30:00', 0, NULL);");
 	$wpdb->query("INSERT INTO freeseat_spectacles (id, name, imagesrc, description, castpw) VALUES
-(1, 'The Tempest', 'thetempest2.jpg', 'This classic Shakespearean play is set on a remote island, where Prospero, the rightful Duke of Milan, plots to restore his daughter Miranda to her rightful place using illusion and skillful manipulation. He conjures up a storm, to lure his usurping brother Antonio and the complicit King Alonso of Naples to the island. There, his machinations bring about the revelation of Antonio\'s lowly nature, the redemption of the King, and the marriage of Miranda to Alonso\'s son, Ferdinand.', '');");
+(1, 'The Tempest', 'thetempest2.jpg', 'This classic Shakespearean play is set on a remote island, where Prospero, the rightful Duke of Milan, plots to restore his daughter Miranda to her rightful place using illusion and skillful manipulation. He conjures up a storm to lure his usurping brother Antonio and the complicit King Alonso of Naples to the island. There, his machinations bring about the revelation of Antonio\'s lowly nature, the redemption of the King, and the marriage of Miranda to Alonso\'s son, Ferdinand.', '');");
 	$wpdb->query("INSERT INTO freeseat_theatres (id, name, imagesrc, staggered_seating) VALUES
 	(1, 'Two reserved classes 4x30&6x32, lettered rows', NULL, 0);");
 }

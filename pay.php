@@ -148,7 +148,7 @@ function freeseat_pay( $page_url )
 	echo ' ';
 	input_field("email",""," size=15");
 	echo '</p><p class="main">';
-	input_field("address",""," size=40");
+	input_field("address",""," size=30");
 	echo '</p><p class="main">';
 	input_field("postalcode",""," size=8");
 	echo ' ';
