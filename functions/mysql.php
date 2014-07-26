@@ -80,7 +80,7 @@ function freeseat_mysql_error() {
  */
 function fs2wp( $sql ) {
 	$newtables = array(); 
-	$oldtables = array( 'booking', 'price', 'seats', 'seat_locks', 'shows', 'spectacles', 'theatres', 'class_comment' );
+	$oldtables = array( 'booking', 'price', 'seats', 'seat_locks', 'shows', 'spectacles', 'theatres', 'class_comment', 'ccard_transactions' );
 	foreach ( $oldtables as $table ) {
 		$newtables[] = 'freeseat_' . $table;			
 	} 

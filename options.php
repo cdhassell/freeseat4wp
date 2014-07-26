@@ -253,6 +253,7 @@ function freeseat_params() {
 					</td>
 					<td>
 						<?php _e( 'Default US state' ); ?><br />
+						<?php _e( 'Select "None" to hide this option' ); ?><br />
 						<select name='freeseat_options[pref_state_code]' size='1'>
 						<option value="" ><?php _e( 'None' ); ?></option>
 						<?php
@@ -264,6 +265,7 @@ function freeseat_params() {
 					</td>
 					<td>
 						<?php _e( 'Default country' ); ?><br />
+						<?php _e( 'Select "None" to hide this option' ); ?><br />
 						<select name='freeseat_options[pref_country_code]' size='1'>
 						<option value="" ><?php _e( 'None' ); ?></option>
 						<?php

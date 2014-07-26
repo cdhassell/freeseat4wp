@@ -12,9 +12,9 @@
  *  
  */
 
-add_action( 'init', __NAMESPACE__ . '\\freeseat_jquery_dialog' ); 
+add_action( 'init', __NAMESPACE__ . '\\freeseat_jquery' ); 
  
-function freeseat_jquery_dialog() {
+function freeseat_jquery() {
 	global $wp_scripts;
 	
 	// tell WordPress to load jQuery UI dialog
@@ -28,8 +28,14 @@ function freeseat_jquery_dialog() {
     $url = "$protocol://ajax.googleapis.com/ajax/libs/jqueryui/{$ui->ver}/themes/smoothness/jquery-ui.min.css";
     wp_enqueue_style('jquery-ui-smoothness', $url, false, null);
     
-    // load popup_script.js which makes the jquery call
-	wp_enqueue_script( 'popup-script', plugins_url( 'js/popup_script.js', dirname(__FILE__) ),
-		array( 'jquery', 'jquery-ui-core', 'jquery-ui-dialog' ) );
+    // load modal dialog_script
+	wp_enqueue_script( 'popup-script', plugins_url( 'js/popup_script.js', dirname(__FILE__) ), array( 'jquery', 'jquery-ui-core', 'jquery-ui-dialog' ) );
+	
+	// load the tooltip script for the seatmaps
+	wp_enqueue_script( 'seatmap-script', plugins_url( 'js/seatmap_script.js', dirname(__FILE__) ), array( 'jquery', 'jquery-ui-tooltip' ) );
+	
+	// load the autocomplete script for the name search
+	wp_enqueue_script('namesearch-script', plugins_url( 'js/namesearch_script.js', dirname(__FILE__) ), array( 'jquery', 'jquery-ui-autocomplete' ) );
+	wp_localize_script( 'namesearch-script', 'namesearchObject', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ) ) );
 }
 

@@ -42,7 +42,7 @@ display a seat of the given class on a seatmap */
 	color: black;
 	text-align: center;
 	margin: 0;
-	padding: 4px;
+	padding: 3px;
 	line-height: 1;
 }
 #freeseat-wide .cls2, #freeseat-wide td.cls2 p, #freeseat-wide td.cls2 p a { 
@@ -50,7 +50,7 @@ display a seat of the given class on a seatmap */
 	color: black;
 	text-align: center;     
 	margin: 0;
-	padding: 4px;   
+	padding: 3px;   
 	line-height: 1;
 }
 #freeseat-wide .cls3, #freeseat-wide td.cls3 p, #freeseat-wide td.cls3 p a { 
@@ -58,7 +58,7 @@ display a seat of the given class on a seatmap */
 	color: black;
 	text-align: center;
 	margin: 0;
-	padding: 4px;
+	padding: 3px;
 	line-height: 1; 
 }
 #freeseat-wide .cls4, #freeseat-wide td.cls4 p, #freeseat-wide td.cls4 p a { 
@@ -66,7 +66,7 @@ display a seat of the given class on a seatmap */
 	color: black;
 	text-align: center;
 	margin: 0;
-	padding: 4px;
+	padding: 3px;
 	line-height: 1;
 }
 /* Used in the colour key when there's more than one seat category */
@@ -78,7 +78,7 @@ display a seat of the given class on a seatmap */
 	background-color: transparent;
 	color: transparent;
 	margin: 0;
-	padding: 4px;
+	padding: 3px;
 	line-height: 1;
 	border-style: none;
 }
@@ -89,7 +89,7 @@ display a seat of the given class on a seatmap */
 	color: black;
 	text-align: center;
 	margin: 0;
-	padding: 4px;
+	padding: 3px;
 	line-height: 1; 
  }
 #freeseat-wide .stlocked { 
@@ -97,7 +97,7 @@ display a seat of the given class on a seatmap */
 	color: black;
 	text-align: center;
 	margin: 0;
-	padding: 4px;
+	padding: 3px;
 	line-height: 1; 
  }
 #freeseat-wide .stbooked { 
@@ -105,7 +105,7 @@ display a seat of the given class on a seatmap */
 	color: black;
 	text-align: center;
 	margin: 0;
-	padding: 4px;
+	padding: 3px;
 	line-height: 1; 
  }
 #freeseat-wide .stshaken { 
@@ -113,7 +113,7 @@ display a seat of the given class on a seatmap */
 	color: black;
 	text-align: center;
 	margin: 0;
-	padding: 4px;
+	padding: 3px;
 	line-height: 1; 
  }
 #freeseat-wide .stpaid { 
@@ -121,7 +121,7 @@ display a seat of the given class on a seatmap */
 	color: black;
 	text-align: center;
 	margin: 0;
-	padding: 4px;
+	padding: 3px;
 	line-height: 1; 
  }
 #freeseat-wide .stdisabled, #freeseat-wide .stdisabled, #freeseat-wide td.stdisabled p { 
@@ -129,7 +129,7 @@ display a seat of the given class on a seatmap */
 	color: black;
 	text-align: center;
 	margin: 0;
-	padding: 4px;
+	padding: 3px;
 	line-height: 1;
  }
 

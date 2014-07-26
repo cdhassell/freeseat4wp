@@ -528,7 +528,7 @@ $lang["show_stored"] = 'Your changes have been saved.';
 $lang["showallspec"] = '';  // 'Show %1$sall spectacles%2$s.';  §NEW IN 1.2.2b (that's "%1$s show all %2$s" without the spaces)
 $lang["showlist"] = 'Shows of %1$s';
 $lang["spectacle_name"] = 'Select a Show';
-$lang["state"] = 'State'; // in the sense of status, not in the sense
+$lang["state"] = 'Status'; // in the sense of status, not in the sense
 			  // of a country's part
 $lang["st_any"] = 'Any state';
 $lang["st_booked"] = 'Reserved';
