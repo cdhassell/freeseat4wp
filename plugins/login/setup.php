@@ -11,12 +11,14 @@ function freeseat_plugin_init_login() {
 	$freeseat_plugin_hooks['seatmap_hide_button']['login'] = 'login_stop';
 	$freeseat_plugin_hooks['pay_page_top']['login'] = 'login_getdata';
 	$freeseat_plugin_hooks['finish_end']['login'] = 'login_setdata';
+	$freeseat_plugin_hooks['book']['login'] = 'login_setuserid';
 	// init_language('login');    
 }
 
 function login_stop() {
 	// detects whether the current user is logged in 
 	// and prevents the user from continuing 
+	global $lang;
 	if ( !is_user_logged_in() ) {
 		// FIXME move text to a language file
 		echo '<div id="freeseat-dialog" title="Login Required"><p>Please log in before making a ticket purchase.</p></div>';
@@ -74,6 +76,12 @@ function login_setdata() {
 	}
 }
 
+function login_setuserid( $bookid ) {
+	// inserts the wordpress user id into the booking record
+	$userid = get_current_user_id();
+	freeseat_query( "UPDATE booking SET user_id=$userid WHERE id=$bookid" );
+}
+
 add_action( 'admin_menu', __NAMESPACE__ . '\\freeseat_users_menu' );
 
 /**
@@ -81,7 +89,7 @@ add_action( 'admin_menu', __NAMESPACE__ . '\\freeseat_users_menu' );
  */
 function freeseat_users_menu() {
 	// add_submenu_page( $parent_slug, $page_title, $menu_title, $capability, $menu_slug, $function );
-	add_submenu_page( 'freeseat-admin', 'Users', 'Users', 'administer_freeseat', 'freeseat-users', __NAMESPACE__ . '\\freeseat_users' );
+	add_submenu_page( 'freeseat-admin', 'Users', 'Users', 'user_freeseat', 'freeseat-users', __NAMESPACE__ . '\\freeseat_users' );
 }
 
 /**
@@ -89,8 +97,24 @@ function freeseat_users_menu() {
  *   Generalized for either user or admin use
  */
 function freeseat_users() {
-	global $lang, $bookings_on_a_page, $now, $pref_state_code, $pref_country_code, $currency, $post;
-
+	global $lang, $now, $pref_state_code, $pref_country_code, $currency, $post, $page_url;
+	
+	if (isset($_REQUEST['action'])) {
+		// validate this request
+		if (!admin_mode()) {
+			if ( 
+				$_REQUEST['user'] != get_current_user_id()  ||
+				$_REQUEST['action'] == 'delete' ||
+				$_REQUEST['action'] == 'print' && !is_paid($_REQUEST['item']) ||
+				$_REQUEST['action'] == 'pay' && is_paid($_REQUEST['item']) ) {
+				kaboom("Invalid action request");
+				unset($_REQUEST['action']);
+				unset($_REQUEST['item']);
+			}
+		}
+		// take the action
+		login_user_action( $_REQUEST['action'], $_REQUEST['item'] );
+	}
 	show_head();
 	if (!admin_mode()) {
 		$user = get_current_user_id();
@@ -153,30 +177,43 @@ function freeseat_users() {
 		// limit this list to recent shows
 		$ss = get_shows( "date >= CURDATE() - INTERVAL 1 week" );
 		$fulllist = $comma = '';
+		$spnames = array();
 		if ( $ss ) {
 			foreach ( $ss as $sh ) {
 				$fulllist .= $comma . $sh[ 'id' ];
 				$comma = ', ';
+				$sp = get_spectacle( $sh['spectacleid'] );
+				$spnames[ $sh['id'] ] = $sp[ 'name' ];
 			}
 		} 
 		$cond = $and = "";
 		if ( isset($fulllist) && !empty($fulllist) )
 			$cond = "showid IN ($fulllist) and ";
 		// get recent bookings and display in a list
-		$ab = get_bookings( "$cond user_id=$user", "bookid desc", 0, $bookings_on_a_page );
+		$ab = get_bookings( "$cond user_id=$user and groupid is NULL and state in (2,3,4)", "bookid desc" );
 		if ( $ab ) {
 			$total = 0; // total price of displayed elements
 			$html  = ""; 
 			foreach ( $ab as $b ) {
 				$id = $b[ 'bookid' ];
 				$st = $b[ 'state' ];
+				$showid = $b['showid'];
+				$spname = $spnames[ $showid ];
 				$html .= '<tr><td>';
 				$itemprice = get_seat_price( $b );
-				if ( $st != ST_PAID )
+				$total = $itemprice;
+				$count = 1;
+				$group = get_bookings( "groupid=$id", "bookid desc" );
+				foreach ($group as $g) {
+					$itemprice = get_seat_price( $g );
 					$total += $itemprice;
-				$url = admin_url( 'admin.php?page=freeseat-admin&fsp='.PAGE_SEATS.'&showid=' . $b[ 'showid' ] . '&amp;bookinglist');
-				// TODO get URL for non-admin user
-				$html .= $id . "<td bgcolor='#ffffb0'><a href='$url'>" . $b[ 'date' ] . ' ' . f_time( $b[ 'time' ] ) . '</a><td>' . ( $b[ 'row' ] == -1 ? '' : htmlspecialchars( $b[ 'col' ] ) . ', ' . $lang[ "row" ] . ' ' . htmlspecialchars( $b[ 'row' ] ) . ' ' ) . '(' . htmlspecialchars( $b[ 'zone' ] ) . ')' . '<td bgcolor="#ffffb0">' . f_cat( $b[ 'cat' ] ) . " (" . $currency . price_to_string( $itemprice ) . ")" . '<td> ' . f_state( $st ) . ' <td bgcolor="#ffffb0">';
+					$count++;
+				}	
+				$html .= $id . "<td bgcolor='#ffffb0'>" . f_date($b['timestamp']).' '.f_time($b['timestamp']);
+				$html .= '<td>' . htmlspecialchars( $spname );
+				$html .= '<td bgcolor="#ffffb0">' . $currency . price_to_string( $total );
+				$html .= '<td>' . $count . ' '.$lang['tickets'] ;
+				$html .= '<td> ' . f_state( $st ) . ' <td bgcolor="#ffffb0">';
 				if ( ( $st == ST_BOOKED ) || ( $st == ST_SHAKEN ) ) {
 					if ( $b[ 'payment' ] == PAY_CCARD )
 						$exp = strtotime( $b[ 'timestamp' ] ) + 86400 * $c[ "paydelay_ccard" ];
@@ -200,13 +237,12 @@ function freeseat_users() {
 				} else 
 					$html .= '<i>' . $lang[ "none" ] . '</i>';
 				if (admin_mode()) {
-					$html .= do_hook_concat( 'bookinglist_tablerow', $b );
-				} else {
-					// TODO add print/pay/delete buttons
+					// $html .= do_hook_concat( 'bookinglist_tablerow', $b );
 				}
+				$html .= login_page_buttons( $id, $st, $user );				
 			}
-			$headers = '<tr><th>' . $lang[ "bookid" ] . '<th>' . $lang[ "date" ] . '<th>' . $lang[ "col" ] . '<th>' . $lang[ "cat" ] . '<th>' . $lang['state'] . '<th>' . $lang[ "expiration" ];
-			if (admin_mode()) $headers .= do_hook_concat('bookinglist_tableheader');
+			$headers = '<tr><th>' . $lang[ "bookid" ] . '<th>' . $lang[ "date" ] . '<th>' . $lang[ "show_name" ] . '<th>' . $lang["price"] . '<th>' . $lang['tickets'] . '<th>' . $lang['state'] . '<th>' . $lang[ "expiration" ];
+			// if (admin_mode()) $headers .= do_hook_concat('bookinglist_tableheader');
 			?>
 			<table cellspacing=0 cellpadding=4 border=0 class="bookinglist">
 			<?php echo $headers . $html; ?>
@@ -220,8 +256,148 @@ function freeseat_users() {
 	</div>
 	</div>
 	<?php
-	show_foot(); 
+	show_foot();
 }
+
+/**
+ *  Helper function to display action buttons on the user account page
+ */
+function login_page_buttons( $id, $st, $user ) {
+	global $lang, $post;
+	// ordinary user can print or pay
+	// admin user can print or delete
+	$url = (( isset( $post ) ) ? get_permalink() : $_SERVER['PHP_SELF'].'?page=freeseat-users' );
+	$params = array( 
+		'user' => $user,
+		'action' => 'print',
+		'item' => $id 
+	);
+	$qp = add_query_arg( $params, $url );
+	$qd = add_query_arg( 'action', 'delete', $qp );
+	$qy = add_query_arg( 'action', 'pay', $qp );
+	$qc = add_query_arg( 'action', 'acknowledge', $qp );
+	if (admin_mode()) {
+		$html = "<td><span class='textbuttons'>";
+		if ( $st == ST_PAID ) {
+			$html .= "<a class='textbutton' href='$qp'>Print</a>";
+		} else if ( $st == ST_BOOKED || $st == ST_SHAKEN ) {
+			$html .= "&nbsp;<a class='textbutton' href='$qc'>".$lang['acknowledge']."</a>";
+		}
+		$html .= "&nbsp;<a class='textbutton' href='$qd'>".$lang['DELETE']."</a>";
+		$html .= "</span></td>";
+	} else {
+		$html = "<td><span class='textbuttons'>";
+		if ( $st == ST_PAID ) {
+			$html .= "<a class='textbutton' href='$qp'>Print</a>";
+		} else if ( $st == ST_BOOKED || $st == ST_SHAKEN ) {
+			$html .= "<a class='textbutton' href='$qy'>Pay</a>";
+			$html .= "&nbsp;<a class='textbutton' href='$qd'>".$lang['DELETE']."</a>";
+		}	
+		$html .= "</span></td>";
+	}
+	return $html;
+}
+
+/**
+ *   Takes the action specified in $action for the ticket order $gid
+ */
+function login_user_action( $action, $gid ) {
+	global $lang, $lockingtime, $page_url, $dompdf;
+	$bookings = get_bookings("booking.id=$gid or booking.groupid=$gid","shows.date,shows.time,booking.id");
+	if (!count($bookings)) return;
+	 
+	switch ($action) {
+		case 'print':
+			$page_url = ( (!admin_mode()) ? get_permalink() : $_SERVER['PHP_SELF'] );
+			$page_url = add_query_arg( array( 'page' => 'freeseat-users', 'action' => 'print', 'item' => $gid ), $page_url ); 
+			login_setup_session( $bookings, $gid );
+			$hide_tickets = do_hook_exists('ticket_prepare_override');
+	  		foreach ($bookings as $n => $s) {
+	    		do_hook_function('ticket_render_override', array_union($_SESSION,$s));
+	  		}
+	  		do_hook('ticket_finalise_override');
+			if (!$hide_tickets) {
+				do_hook('ticket_prepare');
+				foreach ($bookings as $n => $s) {
+	 				do_hook_function('ticket_render', array_union($_SESSION,$s));
+				}
+				do_hook('ticket_finalise');
+			}
+			// FIXME this is clumsy
+			if (function_exists('pdf_tickets_cleanup')) pdf_tickets_cleanup();
+			break;
+		case 'pay':
+			$page_url = ( (!admin_mode()) ? get_permalink() : $_SERVER['PHP_SELF'] );
+			$page_url = replace_fsp( $page_url, PAGE_PAY );
+			foreach ($bookings as $i => $data ) {
+				login_relock( $data );
+			}
+			login_setup_session( $bookings, $gid );
+			freeseat_finish($page_url);	// then go back to get the payment
+			exit;
+			break;
+		case 'delete':
+			// FIXME are you sure?
+			foreach ( $bookings as $b ) {
+				set_book_status( $b, ST_DELETED );
+			}
+			break;
+		case 'acknowledge':
+			foreach ( $bookings as $b ) {
+				set_book_status( $b, ST_PAID );
+			}
+			break;
+	}
+}
+
+/** 
+ *  Set up SESSION vars based on an array of bookings from the database
+ */
+function login_setup_session( $bookings, $gid ) {
+	global $lockingtime;
+	$showid = $bookings[0]["showid"];	
+	$seats = array();
+	$ninvite = 0; 
+	$nreduced = 0;
+	$_SESSION["until"] = time()+$lockingtime;
+	foreach (array("firstname","lastname","phone","email", "payment", "address", "city", "us_state", "postalcode") as $n => $a) {
+		if (isset($bookings[0][$a])) $_SESSION[$a] = make_reasonable($bookings[0][$a]);
+	}
+	foreach ($bookings as $i => $data ) {
+		$seat = $data["seat"];
+		$seats[$seat] = array( "id" => $seat, "theatre" => $data["theatreid"], "cnt" => 1 );
+		foreach ( array("bookid", "row", "col", "extra", "zone", "class", "cat", "date", "time", "theatrename", "spectacleid", "showid", "x", "y" ) as $n => $a) {
+			if (isset($data[$a]))  $seats[$seat][$a] = $data[$a];
+		}
+		if ($data['cat']==CAT_REDUCED) $nreduced++;
+		if ($data['cat']==CAT_FREE) $ninvite++; 
+	}
+	$_SESSION["seats"] = $seats;
+	$_SESSION["showid"] = $showid;
+	$_SESSION["groupid"] = $gid;
+	$_SESSION["ninvite"] = $ninvite;
+	$_SESSION["nreduced"] = $nreduced;
+}
+
+/** 
+ *   Resets the entries in the seat_locks table with a new time
+ *   This allows the post-reservation payment to proceed without errors
+ */
+function login_relock($seat) {
+	// this function updates the lock time on previously booked but unpaid seats
+	$showid = $seat["showid"];
+	$seatid = $seat["seat"];
+	$sid = mysql_real_escape_string( session_id() );
+	$oldlock = fetch_all( "select * from seat_locks where seatid=$seatid and showid=$showid" );
+    if (count($oldlock)) 
+		freeseat_query("update seat_locks set until=".$_SESSION["until"].
+			" where seatid=$seatid and showid=$showid");
+	else 
+		freeseat_query("insert into seat_locks (seatid,showid,until) values ($seatid, $showid,".
+			$_SESSION["until"].")");
+	return true;
+}
+
 
 /**
  *  AJAX callback function for user name lookup
@@ -239,7 +415,6 @@ function freeseat_namesearch() {
 			'link' => $userlist_url . '&user=' . $item['user_id'],
 		);
 	}
-	sys_log( print_r($data2,1) );
 	$response = $_GET["callback"] . "(" . json_encode($data2) . ")";
     echo $response;
 	exit();

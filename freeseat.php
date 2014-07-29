@@ -259,6 +259,8 @@ function freeseat_add_caps() {
 	$role->add_cap( 'administer_freeseat' );
 	$role = get_role( 'administrator' );
 	$role->add_cap( 'administer_freeseat' );
+	$role = get_role( 'subscriber' );
+	$role->add_cap( 'user_freeseat' );
 }
 
 // these can be uncommented to quickly create the default options in the database

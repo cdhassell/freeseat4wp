@@ -545,6 +545,7 @@ $lang["summary"] = 'Summary';
 
 $lang["theatre_name"] = 'Theatre Seatmap Name';
 $lang["ticket_details"] = 'Ticket Details';
+$lang["tickets"] = 'Tickets';
 $lang["time"] = 'Time';
 $lang["time_title"] = 'Time<br>(hh:mm)';
 $lang["timestamp"] = 'Reserved on';

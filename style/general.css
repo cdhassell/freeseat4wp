@@ -488,3 +488,13 @@ a:hover {
 	width: 20em;
 	display: inline;
 }
+
+#freeseat-narrow td span.textbuttons {
+	font-size: small;
+}
+
+#freeseat-narrow td span a.textbutton {
+	background-color: black; 
+	color: white;
+}
+

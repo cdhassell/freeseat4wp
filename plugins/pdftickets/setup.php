@@ -85,7 +85,7 @@ function pdftickets_finalise() {
 
 function pdftickets_maketickets() {
 	global $upload_url, $ticket_logo, $lang, $legal_info;
-	// $allbookings = $_SESSION["pdftickets"][$key];
+	
 	$allbookings = $_SESSION['seats'];	 
 	// how many shows are there?
 	$showids = array();
