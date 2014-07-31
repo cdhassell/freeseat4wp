@@ -149,103 +149,90 @@ function load_seats($k,$check_limit = TRUE) {
     guarantees exclusive access to this session for $lockingtime seconds.
 **/
 function lock_seats($seat,$showid) {
-  global $now,$lockingtime;
-
-  $res = array(); // result seats will be put here  
-  
-  /*   echo "<pre>"; */
-  /*   echo "locking ".$seat["id"]." * ".$seat["cnt"]; */
-  /*   print_r($seat); */
-  /*   echo '</pre>'; */
-
-  $cnt = $seat["cnt"];
-
-  if ($cnt==0) return $res; // just in case :-)
-
-  /* 1. Try to lock $seat itself */
-
-  // TODO We used not to have to check the state if a lock is known to
-  // be there (SESSION["until"]...) We should put that back in at some
-  // point...
-
-  /* First check the seat state - we don't try locking it if it's taken */
-  $st = get_seat_state($seat["id"],$seat["showid"],true);
-  if (($st==ST_FREE) || ($st==ST_DELETED)) { // seat still available
-    /* We first remove any stale lock, or our own if there's any. We
-       don't use update because if our lock is too old, this might
-       create a race condition */
-
-    /* Note that at this point the seat might no longer be available
-    (i.e. the expression in the if-condition might no longer hold, if
-    another thread booked the seat precisely now). However in that
-    case the other thread would still have its lock in place, the
-    delete below would not apply, and so the insert after it would
-    fail */
-
-    /* WARN - do not replace the below delete-insert pair by an update! It
-       would create a race condition! As explained above, two
-       concurrent updates would both succeed, but two concurrent
-       delete+insert would have one fail and one succeed. (Actually,
-       in some cases update is safe ... Oh well) */
-    if (!freeseat_query("delete from seat_locks where seatid=".$seat['id']." and showid=".$seat['showid']." and (until<".$now." or sid='".mysql_real_escape_string(session_id())."')")) {
-      myboom("Failed deleting seat lock");
-    }
-    $rows = freeseat_query("insert into seat_locks (seatid,showid,sid,until) values (".$seat['id']." , ".$seat['showid'].",'".mysql_real_escape_string(session_id())."',".($now+$lockingtime).")");
-    
-    if ($rows==1) {
-		// echo "<pre> set lock success ".$seat['id']."</pre>"; 
-        $s = $seat;
-        $s["cnt"]=1;
-        $res[$s["id"]] = $s;
-        $cnt--;
-        if ($cnt==0) return $res;
-    }
-  }
-
-  /* 2. Fetch into $pot(ential) all seats equivalent to the requested
-     one. */
-
-  if ($seat["row"]!=-1) return $res; // (there are no equivalent
-				     // seats if $seat isn't
-  else {			     // unnumbered)
-    $pot = fetch_all( $q = "select *,1 as cnt,".((int)$seat["cat"]).
-		   " as cat,seats.id as id from seats left join booking on booking.seat=seats.id and booking.showid =".
-			   $seat['showid']." and booking.state!=".ST_DELETED.
-		   " where booking.id is null and seats.row=-1 and seats.class=".$seat["class"].
-		   " and seats.theatre=".$seat["theatre"].         // Lets put all the seats in the same theatre  :-)
-		   " and seats.zone='".mysql_real_escape_string($seat["zone"])."'");
-    if ($pot===false) {
-      myboom($q.": couldn't get set of equivalent seats");
-      return $res;
-    }
-  }
-
-  /* 3. Now loop through the set of potential seats until the $cnt
-     request is satisfied */
-  /*     echo "<pre>"; */
-  foreach ($pot as $s) {
-    $potid = $s["id"];
-    /* We've already dealt with that one so it wouldn't give more
-       result than we got at step one */
-    if ($potid==$seat["id"]) continue;
-    
-    $st = get_seat_state($potid,$showid,true);
-    if (($st!=ST_FREE) && ($st!=ST_DELETED)) continue; // seat is
-						       // booked. Try next
+	global $now,$lockingtime;
 	
-    freeseat_query("delete from seat_locks where seatid=$potid and showid=$showid and (until<$now or sid='".mysql_real_escape_string(session_id())."')");
-    
-    $rows = freeseat_query("insert into seat_locks (seatid,showid,sid,until) values ($potid , $showid,'".mysql_real_escape_string(session_id())."',".($now+$lockingtime).")");
-    
-    if ($rows!=1) continue; // seat was locked. Try next
-    /*     echo "..success"; */
-    /* if this point is reached then lock was successful */
-    $res['carts'.$showid.'s'.$s["id"]] = $s;
-    $cnt--;
-    if ($cnt==0) return $res;
-  }
-  /*   echo "</pre>"; */
-  return $res;
+	$res = array(); // result seats will be put here  
+	$cnt = $seat["cnt"];
+	
+	if ($cnt==0) return $res; // just in case :-)
+	
+	/* 1. Try to lock $seat itself */
+	
+	// TODO We used not to have to check the state if a lock is known to
+	// be there (SESSION["until"]...) We should put that back in at some
+	// point...
+
+	/* First check the seat state - we don't try locking it if it's taken */
+	$st = get_seat_state($seat["id"],$seat["showid"],true);
+	if (($st==ST_FREE) || ($st==ST_DELETED)) { // seat still available
+		/* We first remove any stale lock, or our own if there's any. We
+			don't use update because if our lock is too old, this might
+			create a race condition */
+	
+		/* Note that at this point the seat might no longer be available
+			(i.e. the expression in the if-condition might no longer hold, if
+			another thread booked the seat precisely now). However in that
+			case the other thread would still have its lock in place, the
+			delete below would not apply, and so the insert after it would
+			fail */
+	
+		/* WARN - do not replace the below delete-insert pair by an update! It
+			would create a race condition! As explained above, two
+			concurrent updates would both succeed, but two concurrent
+			delete+insert would have one fail and one succeed. (Actually,
+			in some cases update is safe ... Oh well) */
+		
+		if (!freeseat_query("delete from seat_locks where seatid=".$seat['id']." and showid=".$seat['showid']." and (until<".$now." or sid='".session_id()."')")) {
+			myboom("Failed deleting seat lock");
+		}
+		$rows = freeseat_query("insert into seat_locks (seatid,showid,sid,until) values (".$seat['id']." , ".$seat['showid'].",'".session_id()."',".($now+$lockingtime).")");
+	    
+		if ($rows==1) {
+			// echo "<pre> set lock success ".$seat['id']."</pre>"; 
+			$s = $seat;
+			$s["cnt"]=1;
+			$res[$s["id"]] = $s;
+			$cnt--;
+			if ($cnt==0) return $res;
+		}
+	}
+
+	/* 2. Fetch into $pot(ential) all seats equivalent to the requested one. */
+
+	if ($seat["row"]!=-1) return $res; // (there are no equivalent
+				     // seats if $seat isn't
+	else {			     // unnumbered)
+		$pot = fetch_all( $q = "select *,1 as cnt,".((int)$seat["cat"]).
+			" as cat,seats.id as id from seats left join booking on booking.seat=seats.id and booking.showid =".
+			$seat['showid']." and booking.state!=".ST_DELETED.
+			" where booking.id is null and seats.row=-1 and seats.class=".$seat["class"].
+			" and seats.theatre=".$seat["theatre"].       // Lets put all the seats in the same theatre  :-)
+			" and seats.zone='".mysql_real_escape_string($seat["zone"])."'");
+		if ($pot===false) {
+			myboom($q.": couldn't get set of equivalent seats");
+			return $res;
+		}
+	}
+
+	/* 3. Now loop through the set of potential seats until the $cnt request is satisfied */
+	/*     echo "<pre>"; */
+	foreach ($pot as $s) {
+		$potid = $s["id"];
+		/* We've already dealt with that one so it wouldn't give more result than we got at step one */
+		if ($potid==$seat["id"]) continue;
+		$st = get_seat_state($potid,$showid,true);
+		if (($st!=ST_FREE) && ($st!=ST_DELETED)) continue; // seat is booked. Try next
+		freeseat_query("delete from seat_locks where seatid=$potid and showid=$showid and (until<$now or sid='".session_id()."')");
+		$rows = freeseat_query("insert into seat_locks (seatid,showid,sid,until) values ($potid , $showid,'".session_id()."',".($now+$lockingtime).")");
+		if ($rows!=1) continue; // seat was locked. Try next
+		/*     echo "..success"; */
+		/* if this point is reached then lock was successful */
+		$res['carts'.$showid.'s'.$s["id"]] = $s;
+		$cnt--;
+		if ($cnt==0) return $res;
+	}
+	/*   echo "</pre>"; */
+	return $res;
 }
 
 /** Call this function to discard a seat selection - use this
@@ -269,7 +256,7 @@ function unlock_seats($freesession = true) {
  */
 function check_seats() {
 	global $lang;
-	
+	return true;
 	$success = true;
 	$seats = array();
 	$sh = get_show($_SESSION["showid"]);

@@ -128,7 +128,8 @@ function freeseat_switch( $shortcode_fsp = 0 ) {
 		kill_booking_done();
 	}
 	// build a page URL
-	$page_url = (( isset( $post ) ) ? get_permalink() : $_SERVER['PHP_SELF'].'?page=freeseat-admin' );
+	if ( !isset( $page_url ) ) 
+		$page_url = (( isset( $post ) ) ? get_permalink() : $_SERVER['PHP_SELF'].'?page=freeseat-admin' );
 	$page_url = replace_fsp( $page_url, $fsp );
 	// now call the right function and pass this url to it
 	switch( $fsp ) {
@@ -259,8 +260,6 @@ function freeseat_add_caps() {
 	$role->add_cap( 'administer_freeseat' );
 	$role = get_role( 'administrator' );
 	$role->add_cap( 'administer_freeseat' );
-	$role = get_role( 'subscriber' );
-	$role->add_cap( 'user_freeseat' );
 }
 
 // these can be uncommented to quickly create the default options in the database

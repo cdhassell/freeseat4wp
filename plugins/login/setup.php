@@ -89,7 +89,7 @@ add_action( 'admin_menu', __NAMESPACE__ . '\\freeseat_users_menu' );
  */
 function freeseat_users_menu() {
 	// add_submenu_page( $parent_slug, $page_title, $menu_title, $capability, $menu_slug, $function );
-	add_submenu_page( 'freeseat-admin', 'Users', 'Users', 'user_freeseat', 'freeseat-users', __NAMESPACE__ . '\\freeseat_users' );
+	add_submenu_page( 'freeseat-admin', 'Users', 'Users', 'administer_freeseat', 'freeseat-users', __NAMESPACE__ . '\\freeseat_users' );
 }
 
 /**
@@ -105,8 +105,8 @@ function freeseat_users() {
 			if ( 
 				$_REQUEST['user'] != get_current_user_id()  ||
 				$_REQUEST['action'] == 'delete' ||
-				$_REQUEST['action'] == 'print' && !is_paid($_REQUEST['item']) ||
-				$_REQUEST['action'] == 'pay' && is_paid($_REQUEST['item']) ) {
+				$_REQUEST['action'] == 'print' && !login_is_paid($_REQUEST['item']) ||
+				$_REQUEST['action'] == 'pay' && login_is_paid($_REQUEST['item']) ) {
 				kaboom("Invalid action request");
 				unset($_REQUEST['action']);
 				unset($_REQUEST['item']);
@@ -116,6 +116,7 @@ function freeseat_users() {
 		login_user_action( $_REQUEST['action'], $_REQUEST['item'] );
 	}
 	show_head();
+	db_connect();
 	if (!admin_mode()) {
 		$user = get_current_user_id();
 		$userlist_url = (( isset( $post ) ) ? get_permalink() : $_SERVER['PHP_SELF'].'?page=freeseat-users' );
@@ -216,9 +217,9 @@ function freeseat_users() {
 				$html .= '<td> ' . f_state( $st ) . ' <td bgcolor="#ffffb0">';
 				if ( ( $st == ST_BOOKED ) || ( $st == ST_SHAKEN ) ) {
 					if ( $b[ 'payment' ] == PAY_CCARD )
-						$exp = strtotime( $b[ 'timestamp' ] ) + 86400 * $c[ "paydelay_ccard" ];
+						$exp = strtotime( $b[ 'timestamp' ] ) + 86400 * get_config( "paydelay_ccard" );
 					else if ( $b[ 'payment' ] == PAY_POSTAL )
-						$exp = sub_open_time( strtotime( $b[ 'timestamp' ] ), -86400 * $c[ "paydelay_post" ] );
+						$exp = sub_open_time( strtotime( $b[ 'timestamp' ] ), -86400 * get_config( "paydelay_post" ));
 					else {
 						$exp = FALSE;
 						$html .= '<i>' . $lang[ "none" ] . '</i>';
@@ -266,7 +267,7 @@ function login_page_buttons( $id, $st, $user ) {
 	global $lang, $post;
 	// ordinary user can print or pay
 	// admin user can print or delete
-	$url = (( isset( $post ) ) ? get_permalink() : $_SERVER['PHP_SELF'].'?page=freeseat-users' );
+	$url = (( isset( $post ) ) ? get_permalink() : $_SERVER['PHP_SELF'].'?page=freeseat-user-menu' );
 	$params = array( 
 		'user' => $user,
 		'action' => 'print',
@@ -275,13 +276,13 @@ function login_page_buttons( $id, $st, $user ) {
 	$qp = add_query_arg( $params, $url );
 	$qd = add_query_arg( 'action', 'delete', $qp );
 	$qy = add_query_arg( 'action', 'pay', $qp );
-	$qc = add_query_arg( 'action', 'acknowledge', $qp );
+	$qa = add_query_arg( 'action', 'acknowledge', $qp );
 	if (admin_mode()) {
 		$html = "<td><span class='textbuttons'>";
 		if ( $st == ST_PAID ) {
 			$html .= "<a class='textbutton' href='$qp'>Print</a>";
 		} else if ( $st == ST_BOOKED || $st == ST_SHAKEN ) {
-			$html .= "&nbsp;<a class='textbutton' href='$qc'>".$lang['acknowledge']."</a>";
+			$html .= "&nbsp;<a class='textbutton' href='$qa'>".$lang['acknowledge']."</a>";
 		}
 		$html .= "&nbsp;<a class='textbutton' href='$qd'>".$lang['DELETE']."</a>";
 		$html .= "</span></td>";
@@ -309,7 +310,7 @@ function login_user_action( $action, $gid ) {
 	switch ($action) {
 		case 'print':
 			$page_url = ( (!admin_mode()) ? get_permalink() : $_SERVER['PHP_SELF'] );
-			$page_url = add_query_arg( array( 'page' => 'freeseat-users', 'action' => 'print', 'item' => $gid ), $page_url ); 
+			$page_url = add_query_arg( array( 'page' => 'freeseat-user-menu', 'action' => 'print', 'item' => $gid ), $page_url ); 
 			login_setup_session( $bookings, $gid );
 			$hide_tickets = do_hook_exists('ticket_prepare_override');
 	  		foreach ($bookings as $n => $s) {
@@ -327,13 +328,21 @@ function login_user_action( $action, $gid ) {
 			if (function_exists('pdf_tickets_cleanup')) pdf_tickets_cleanup();
 			break;
 		case 'pay':
-			$page_url = ( (!admin_mode()) ? get_permalink() : $_SERVER['PHP_SELF'] );
-			$page_url = replace_fsp( $page_url, PAGE_PAY );
-			foreach ($bookings as $i => $data ) {
-				login_relock( $data );
+			if ( isset($_SESSION["lastname"]) && !empty($_SESSION["lastname"]) && 
+			isset($_SESSION["firstname"]) && !empty($_SESSION["firstname"]) && 
+			isset($_SESSION["email"]) && !empty($_SESSION["email"]) && is_email_ok($_SESSION["email"])) {
+				// we are ready to confirm and go
+				$default_fsp = 4;
+			} else {
+				// need user details, go back 
+				$default_fsp =3;
 			}
+			$fsp = ( isset( $_REQUEST['fsp'] ) ? $_REQUEST['fsp'] : $default_fsp );
+			$page_url = ( (!admin_mode()) ? get_permalink() : $_SERVER['PHP_SELF'] );
+			$page_url = add_query_arg( array( 'page' => 'freeseat-user-menu' ), $page_url ); 
+			$page_url = replace_fsp( $page_url, $fsp );
 			login_setup_session( $bookings, $gid );
-			freeseat_finish($page_url);	// then go back to get the payment
+			freeseat_switch( $fsp );
 			exit;
 			break;
 		case 'delete':
@@ -369,6 +378,7 @@ function login_setup_session( $bookings, $gid ) {
 		foreach ( array("bookid", "row", "col", "extra", "zone", "class", "cat", "date", "time", "theatrename", "spectacleid", "showid", "x", "y" ) as $n => $a) {
 			if (isset($data[$a]))  $seats[$seat][$a] = $data[$a];
 		}
+		$seats[$seat]['cnt'] = 1;
 		if ($data['cat']==CAT_REDUCED) $nreduced++;
 		if ($data['cat']==CAT_FREE) $ninvite++; 
 	}
@@ -377,6 +387,7 @@ function login_setup_session( $bookings, $gid ) {
 	$_SESSION["groupid"] = $gid;
 	$_SESSION["ninvite"] = $ninvite;
 	$_SESSION["nreduced"] = $nreduced;
+	if (!isset($_SESSION["payment"])) $_SESSION["payment"]= PAY_CCARD;
 }
 
 /** 
@@ -396,6 +407,10 @@ function login_relock($seat) {
 		freeseat_query("insert into seat_locks (seatid,showid,until) values ($seatid, $showid,".
 			$_SESSION["until"].")");
 	return true;
+}
+
+function login_is_paid( $gid ) {
+	return ( m_eval( "SELECT state from booking where id=$gid" ) == ST_PAID );
 }
 
 
