@@ -12,7 +12,7 @@ function freeseat_plugin_init_login() {
 	$freeseat_plugin_hooks['pay_page_top']['login'] = 'login_getdata';
 	$freeseat_plugin_hooks['finish_end']['login'] = 'login_setdata';
 	$freeseat_plugin_hooks['book']['login'] = 'login_setuserid';
-	// init_language('login');    
+	init_language('login');    
 }
 
 function login_stop() {
@@ -20,8 +20,7 @@ function login_stop() {
 	// and prevents the user from continuing 
 	global $lang;
 	if ( !is_user_logged_in() ) {
-		// FIXME move text to a language file
-		echo '<div id="freeseat-dialog" title="Login Required"><p>Please log in before making a ticket purchase.</p></div>';
+		echo '<div id="freeseat-dialog" title="'.$lang['login_required'].'"><p></p>'.$lang['login_reminder'].'</div>';
 		return true;
 	} else {
 		echo "<!-- popup dialog div goes here -->";
@@ -104,7 +103,7 @@ function freeseat_users() {
 		if (!admin_mode()) {
 			if ( 
 				$_REQUEST['user'] != get_current_user_id()  ||
-				$_REQUEST['action'] == 'delete' ||
+				$_REQUEST['action'] == 'delete' && login_is_paid($_REQUEST['item']) ||
 				$_REQUEST['action'] == 'print' && !login_is_paid($_REQUEST['item']) ||
 				$_REQUEST['action'] == 'pay' && login_is_paid($_REQUEST['item']) ) {
 				kaboom("Invalid action request");
@@ -112,6 +111,8 @@ function freeseat_users() {
 				unset($_REQUEST['item']);
 			}
 		}
+	}
+	if (isset($_REQUEST['action'])) {
 		// take the action
 		login_user_action( $_REQUEST['action'], $_REQUEST['item'] );
 	}
@@ -135,7 +136,7 @@ function freeseat_users() {
 		<?php	
 	}
 	?>
-	<div id='response_area' >
+	<div id='multiCheck' >
 	<?php
 	if ( isset($user) ) {
 		$u = array();
@@ -201,20 +202,23 @@ function freeseat_users() {
 				$showid = $b['showid'];
 				$spname = $spnames[ $showid ];
 				$html .= '<tr><td>';
-				$itemprice = get_seat_price( $b );
-				$total = $itemprice;
-				$count = 1;
-				$group = get_bookings( "groupid=$id", "bookid desc" );
+				$total = 0;
+				$count = 0;
+				$group = get_bookings( "booking.groupid=$id or booking.id=$id", "bookid desc" );
+				$description = '';
+				$sep = '';
 				foreach ($group as $g) {
 					$itemprice = get_seat_price( $g );
 					$total += $itemprice;
 					$count++;
+					$description .= $sep . ((strpos($g['extra'], 'Table')===false) ? "Row {$g['row']} Seat {$g['col']}" : "Table {$g['row']}-{$g['col']}" );
+					$sep = ', ';
 				}	
 				$html .= $id . "<td bgcolor='#ffffb0'>" . f_date($b['timestamp']).' '.f_time($b['timestamp']);
 				$html .= '<td>' . htmlspecialchars( $spname );
 				$html .= '<td bgcolor="#ffffb0">' . $currency . price_to_string( $total );
-				$html .= '<td>' . $count . ' '.$lang['tickets'] ;
-				$html .= '<td> ' . f_state( $st ) . ' <td bgcolor="#ffffb0">';
+				$html .= '<td title="'.$description.'">' . $count . ' '.$lang['tickets'] ;
+				$html .= '<td bgcolor="#ffffb0"> ' . f_state( $st ) . ' <td>';
 				if ( ( $st == ST_BOOKED ) || ( $st == ST_SHAKEN ) ) {
 					if ( $b[ 'payment' ] == PAY_CCARD )
 						$exp = strtotime( $b[ 'timestamp' ] ) + 86400 * get_config( "paydelay_ccard" );
@@ -284,7 +288,9 @@ function login_page_buttons( $id, $st, $user ) {
 		} else if ( $st == ST_BOOKED || $st == ST_SHAKEN ) {
 			$html .= "&nbsp;<a class='textbutton' href='$qa'>".$lang['acknowledge']."</a>";
 		}
-		$html .= "&nbsp;<a class='textbutton' href='$qd'>".$lang['DELETE']."</a>";
+		$html .= "<div id='confirmDialog' title='".$lang['confirmation']."'>".$lang['login_delete_confirm']."</div>";
+		$html .= "&nbsp;<a class='textbutton confirmLink' href='$qd'>".$lang['DELETE']."</a>";
+		
 		$html .= "</span></td>";
 	} else {
 		$html = "<td><span class='textbuttons'>";
@@ -292,7 +298,8 @@ function login_page_buttons( $id, $st, $user ) {
 			$html .= "<a class='textbutton' href='$qp'>Print</a>";
 		} else if ( $st == ST_BOOKED || $st == ST_SHAKEN ) {
 			$html .= "<a class='textbutton' href='$qy'>Pay</a>";
-			$html .= "&nbsp;<a class='textbutton' href='$qd'>".$lang['DELETE']."</a>";
+			$html .= "<div id='confirmDialog' title='".$lang['confirmation']."'>".$lang['login_delete_confirm']."</div>";
+			$html .= "&nbsp;<a class='textbutton confirmLink' href='$qd'>".$lang['DELETE']."</a>";
 		}	
 		$html .= "</span></td>";
 	}
@@ -346,7 +353,6 @@ function login_user_action( $action, $gid ) {
 			exit;
 			break;
 		case 'delete':
-			// FIXME are you sure?
 			foreach ( $bookings as $b ) {
 				set_book_status( $b, ST_DELETED );
 			}
@@ -388,25 +394,6 @@ function login_setup_session( $bookings, $gid ) {
 	$_SESSION["ninvite"] = $ninvite;
 	$_SESSION["nreduced"] = $nreduced;
 	if (!isset($_SESSION["payment"])) $_SESSION["payment"]= PAY_CCARD;
-}
-
-/** 
- *   Resets the entries in the seat_locks table with a new time
- *   This allows the post-reservation payment to proceed without errors
- */
-function login_relock($seat) {
-	// this function updates the lock time on previously booked but unpaid seats
-	$showid = $seat["showid"];
-	$seatid = $seat["seat"];
-	$sid = mysql_real_escape_string( session_id() );
-	$oldlock = fetch_all( "select * from seat_locks where seatid=$seatid and showid=$showid" );
-    if (count($oldlock)) 
-		freeseat_query("update seat_locks set until=".$_SESSION["until"].
-			" where seatid=$seatid and showid=$showid");
-	else 
-		freeseat_query("insert into seat_locks (seatid,showid,until) values ($seatid, $showid,".
-			$_SESSION["until"].")");
-	return true;
 }
 
 function login_is_paid( $gid ) {
@@ -465,3 +452,8 @@ function freeseat_customize_toolbar($wp_toolbar){
 
 add_action('admin_bar_menu', __NAMESPACE__ . '\\freeseat_customize_toolbar', 999); 
 
+function freeseat_confirm_js() {
+	wp_enqueue_script( 'confirm-script', plugins_url( 'confirm.js', __FILE__ ), array( 'jquery', 'jquery-ui-core', 'jquery-ui-dialog' ) );
+}
+
+add_action( 'init', __NAMESPACE__ . '\\freeseat_confirm_js' );

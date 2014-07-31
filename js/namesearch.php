@@ -41,35 +41,3 @@ function freeseat_namesearch() {
 add_action( 'wp_ajax_freeseat_search', 'freeseat_namesearch' );
 add_action( 'wp_ajax_nopriv_freeseat_search', 'freeseat_namesearch' );
 
-/*
-
-function myprefix_autocomplete_suggestions(){
-    // Query for suggestions
-    $posts = get_posts( array(
-        's' =>$_REQUEST['term'],
-    ) );
- 
-    // Initialise suggestions array
-    $suggestions=array();
- 
-    global $post;
-    foreach ($posts as $post): setup_postdata($post);
-        // Initialise suggestion array
-        $suggestion = array();
-        $suggestion['label'] = esc_html($post->post_title);
-        $suggestion['link'] = get_permalink();
- 
-        // Add suggestion to suggestions array
-        $suggestions[]= $suggestion;
-    endforeach;
- 
-    // JSON encode and echo
-    $response = $_GET["callback"] . "(" . json_encode($suggestions) . ")";
-    echo $response;
- 
-    // Don't forget to exit!
-    exit;
-}
-
-
-*/
