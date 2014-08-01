@@ -127,9 +127,9 @@ function freeseat_users() {
 		// allow admin user to search for user names and see bookings for anyone
 		// this uses jquery autocomplete and the ajax callback below
 		?>		
-		<h2>User Search</h2>
+		<h2><?php echo $lang['login_user_search']; ?></h2>
 		<form action="<?php echo $userlist_url; ?>" method="POST" name="namesearchform" id="namesearchform">
-		<p>Start typing the first few letters of the name until your selection appears</p>
+		<p><?php echo $lang['login_start_typing']; ?></p>
 		<input id="namesearchInput" name="namesearchInput" placeholder = "Name" type="text" />
 		<input id="submit_button" value = "Submit" type="button" />
 		</form>	
@@ -140,41 +140,19 @@ function freeseat_users() {
 	<?php
 	if ( isset($user) ) {
 		$u = array();
-		foreach( array( 
-				'firstname', 
-				'lastname', 
-				'email',
-				'phone',
-				'address', 
-				'postalcode', 
-				'city', 
-				'us_state', 
-				'country' 
+		foreach( array( 'firstname', 'lastname', 'email', 'phone', 'address', 
+				'postalcode', 'city', 'us_state', 'country' 
 				) as $metakey ) {
 			$u[$metakey] = get_user_meta( $user, "freeseat_$metakey", TRUE );
 		}
 		// display user account details
 		?>
 		<div>
-		<h3>Account Details</h3>
-		<p class="main"><?php echo '<b>'.$lang['name'].': </b>'.$u['firstname'] .' '. $u['lastname']; ?></p> 
-		<p class="main"><?php echo '<b>'.$lang['phone'].': </b>'.$u['phone']; ?>&nbsp;&nbsp;
-		<?php echo '<b>'.$lang['email'].': </b>'.$u['email']; ?></p>
-		<p class="main">
-		<?php echo ' <b>'.$lang['address'].': </b>'.$u['address']; ?>
-		<?php if (!empty($u['address'])) echo ','; ?>
-		<?php echo ' '.$u['city']; ?>
-			<?php if ($pref_state_code != "")  {  ?>
-				<?php echo ' '.$u['us_state']; ?>
-			<?php } ?>		
-		<?php echo ' '.$u['postalcode']; ?>
-		<?php if ($pref_country_code != "")  {  
-			echo $lang["country"].' '.$u['country']; 
-		} ?>
-		</p>
+		<h3><?php echo $lang['login_account']; ?></h3>
+		<?php show_user_info(true, $u);  ?>
 		</div>
 		<div>
-		<h3>Recent Ticket Purchases</h3>
+		<h3><?php echo $lang['login_recent_purchases']; ?></h3>
 		<?php
 		// limit this list to recent shows
 		$ss = get_shows( "date >= CURDATE() - INTERVAL 1 week" );
@@ -194,7 +172,6 @@ function freeseat_users() {
 		// get recent bookings and display in a list
 		$ab = get_bookings( "$cond user_id=$user and groupid is NULL and state in (2,3,4)", "bookid desc" );
 		if ( $ab ) {
-			$total = 0; // total price of displayed elements
 			$html  = ""; 
 			foreach ( $ab as $b ) {
 				$id = $b[ 'bookid' ];
@@ -205,19 +182,19 @@ function freeseat_users() {
 				$total = 0;
 				$count = 0;
 				$group = get_bookings( "booking.groupid=$id or booking.id=$id", "bookid desc" );
-				$description = '';
+				$description = $lang['ticket_details'] . ': ';
 				$sep = '';
 				foreach ($group as $g) {
 					$itemprice = get_seat_price( $g );
 					$total += $itemprice;
 					$count++;
-					$description .= $sep . ((strpos($g['extra'], 'Table')===false) ? "Row {$g['row']} Seat {$g['col']}" : "Table {$g['row']}-{$g['col']}" );
+					$description .= $sep . f_date($g['date']).' '.f_time($g['time']).' '.((strpos($g['extra'], 'Table')===false) ? "Row {$g['row']} Seat {$g['col']}" : "Table {$g['row']}-{$g['col']}" );
 					$sep = ', ';
 				}	
 				$html .= $id . "<td bgcolor='#ffffb0'>" . f_date($b['timestamp']).' '.f_time($b['timestamp']);
-				$html .= '<td>' . htmlspecialchars( $spname );
+				$html .= '<td>' . wordwrap( htmlspecialchars( $spname ), 16, "<br />");
 				$html .= '<td bgcolor="#ffffb0">' . $currency . price_to_string( $total );
-				$html .= '<td title="'.$description.'">' . $count . ' '.$lang['tickets'] ;
+				$html .= '<td>' . $count . ' '.$lang['tickets'] ;
 				$html .= '<td bgcolor="#ffffb0"> ' . f_state( $st ) . ' <td>';
 				if ( ( $st == ST_BOOKED ) || ( $st == ST_SHAKEN ) ) {
 					if ( $b[ 'payment' ] == PAY_CCARD )
@@ -244,6 +221,8 @@ function freeseat_users() {
 				if (admin_mode()) {
 					// $html .= do_hook_concat( 'bookinglist_tablerow', $b );
 				}
+				$imgsrc = plugins_url( 'i2020.png' , __FILE__ );
+				$html .= "<td><img src='$imgsrc' title='$description'>";
 				$html .= login_page_buttons( $id, $st, $user );				
 			}
 			$headers = '<tr><th>' . $lang[ "bookid" ] . '<th>' . $lang[ "date" ] . '<th>' . $lang[ "show_name" ] . '<th>' . $lang["price"] . '<th>' . $lang['tickets'] . '<th>' . $lang['state'] . '<th>' . $lang[ "expiration" ];

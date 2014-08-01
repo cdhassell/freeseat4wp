@@ -290,10 +290,6 @@ function print_tablefooter($fmt) {
 	}
 }
 
-function sort_seats($seats) {
-	
-}
-
 /** RETURNS a formatted list of selected seats. (i.e. doesn't echo anything)
 
 $fmt: OR-mask of FMT_ constants to control list display.
