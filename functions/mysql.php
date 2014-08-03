@@ -58,8 +58,8 @@ function freeseat_query( $s, $v = NULL ) {
 	} else {
 		$sql = $wpdb->prepare( $s, $v );
 	}
-	// sys_log( "freeseat_query call with $sql" );
-	return ( false !== $wpdb->query( $sql ) );
+	sys_log( "freeseat_query call with $sql" );
+	return $wpdb->query( $sql );
 }
 
 // wrapper around WP insert_id function

@@ -74,24 +74,27 @@ function castpw_process( $ss ) {
 }
 
 function castpw_display( $page_url ) {
-  global $lang, $castpw_countdisabled,$castpw_saved, $spectacleid;
-  // print a form to accept a cast password
-  // only show this form if we have shows disabled
-  if (admin_mode()) {
-    // for the admin user, there is already a form open
-    // if ($castpw_countdisabled > 0) { 
-      echo '<br /><br />';
-      echo $lang['castpw_prompt'] . "<input class='password' type='text' name='castpw' value='$castpw_saved' title='".$lang['castpw_help']."'>";
-    // } 
-  } elseif ($castpw_countdisabled > 0 && $castpw_saved) {
-    // for the regular user, create a form to accept the password
-    echo "<br /><br />";
-    echo "<form action='$page_url&spectacleid=$spectacleid' method='post'>";
-    if (function_exists('wp_nonce_field')) wp_nonce_field('freeseat-castpw-password');
-    echo "<p class='main fine-print'>&nbsp;&nbsp;";
-    echo $lang['castpw_input'] . "<input class='password fine-print' type='password' name='castpw'>&nbsp;";
-    echo "<input class='fine-print' type='submit' value='Ok'></p></form>";
-  }
+	global $lang, $castpw_countdisabled,$castpw_saved, $spectacleid;
+	// print a form to accept a cast password
+	// only show this form if we have shows disabled
+	echo '<div id="accordion" style="max-width: 400px; padding: 25px;">';
+	echo '<h4>'.$lang['castpw_header'].'</h4>';
+	if (admin_mode()) {
+		// for the admin user, there is already a form open
+		echo '<div>';
+		echo $lang['castpw_prompt'] . "<input class='password' type='text' name='castpw' value='$castpw_saved' title='".$lang['castpw_help']."'>";
+		echo '</div>';      
+	} elseif ($castpw_countdisabled > 0 && $castpw_saved) {
+		// for the regular user, create a form to accept the password
+		echo "<div>";
+		echo "<form action='$page_url&spectacleid=$spectacleid' method='post'>";
+		if (function_exists('wp_nonce_field')) wp_nonce_field('freeseat-castpw-password');
+		echo "<p class='main fine-print'>&nbsp;&nbsp;";
+		echo $lang['castpw_input'] . "<input class='password fine-print' type='password' name='castpw'>&nbsp;";
+		echo "<input class='fine-print' type='submit' value='Ok'></p></form>";
+		echo '</div>';
+	}
+	echo '</div>';
 }
 
 function castpw_unlocked() {
@@ -101,4 +104,10 @@ function castpw_unlocked() {
 function castpw_config_db($user) {
   return config_checksql_for('plugins/castpw/setup.sql', $user);
 }
+
+function freeseat_accordion_js() {
+	wp_enqueue_script( 'accordion-script', plugins_url( 'accordion.js', __FILE__ ), array( 'jquery', 'jquery-ui-core', 'jquery-ui-accordion' ) );
+}
+
+add_action( 'init', __NAMESPACE__ . '\\freeseat_accordion_js' );
 

@@ -114,9 +114,9 @@ function keycallback() {
  *   two DB queries per seat each time the seatmap is output.
  */
 function seatcallback($seat) {
-	global $now;
+	global $now, $sh;
 	// This code assumes that $seat contains booking.state and seat_locks.until
-	if (is_seat_checked($seat['id'])) {	
+	if (is_seat_checked('carts'.$sh['id'].'s'.$seat['id'])) {	
 		// in-session selected seats have already been checked and are
 		// locked - so no need to check their state
 		$chkd = 'checked="checked"' ;

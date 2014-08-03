@@ -71,26 +71,30 @@ function freeseat_upload() {
 	print '<br>';
 	
 	// Form for uploading a new seat map CSV file
-	echo '<h3>Upload a new seat map</h3>';
-	echo '<h3><p style="font-weight:bold;" >Use with caution! Please see the <a href="'.plugins_url('doc/upload-help.html',__FILE__).'">HELP</a> file for instructions.</p></h3>';
-	echo "<form action='$url' enctype='multipart/form-data' name='upload_map' method='POST'>";
-	if (function_exists('wp_nonce_field')) wp_nonce_field('freeseat-seatmaps-choose-file');
-	echo '<p class="main">';
-	echo '<input type="hidden" name="MAX_FILE_SIZE" value="100000">';
-	echo '<input name="uploadedfile" type="file">';  //name in FILES array
-	echo '&nbsp;<input type="submit" value="'.$lang["book"].'">';
-	echo '</p></form>';
+	?>
+	<h3>Upload a new seat map</h3>
+	<h3><p style="font-weight:bold;" >Use with caution! Please see the <a href="<?php echo plugins_url('doc/upload-help.html',__FILE__); ?>">HELP</a> file for instructions.</p></h3>
+	<form action="<?php echo $url; ?>" enctype="multipart/form-data" name="upload_map" method="POST">
+	<?php if (function_exists('wp_nonce_field')) wp_nonce_field('freeseat-seatmaps-choose-file'); ?>
+	<p class="main">
+	<input type="hidden" name="MAX_FILE_SIZE" value="100000">
+	<input name="uploadedfile" type="file"><?php  //name in FILES array ?>
+	&nbsp; <input type="submit" value="<?php echo $lang['book']; ?>">
+	</p></form>
+	<?php 
 	if ( !empty($upload_map) && isset($list)) {
 		display_theatre($list, TRUE);
 		// Form for entering name and confirmation
-		echo "<form action='$url' name='save_map' method='POST'>";
-		if (function_exists('wp_nonce_field')) wp_nonce_field('freeseat-seatmaps-save-name');
-		echo '<p class="main">Enter a short name for this seat map: <input name="name" width=15></p>';
-		echo '<p class="main">Should the rows be staggered? <input type="checkbox" name="staggered"></p>';
-		echo '<p class="emph">Save this seat map to the database?<br>';
-		echo 'Warning: This action cannot be undone!</p>';
-		echo '<p class="main"><input type="submit" value="'.$lang["save"].'"></p>';
-		echo '</form>';
+		?>
+		<form action="<?php echo $url; ?>" name="save_map" method="POST">
+		<?php if (function_exists('wp_nonce_field')) wp_nonce_field('freeseat-seatmaps-save-name'); ?>
+		<p class="main">Enter a short name for this seat map: <input name="name" width=15></p>
+		<p class="main">Should the rows be staggered? <input type="checkbox" name="staggered"></p>
+		<p class="emph">Save this seat map to the database?<br>
+		Warning: This action cannot be undone!</p>
+		<p class="main"><input type="submit" value="<?php echo $lang['save']; ?>"></p>
+		</form>
+		<?php
 	}
 	show_foot(); 
 }

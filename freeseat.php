@@ -1,7 +1,7 @@
 <?php namespace freeseat;
 /*
 Plugin Name: FreeSeat
-Plugin URI: http://lostinspace.com
+Plugin URI: http://github.com/cdhassell/freeseat4wp
 Description: FreeSeat for Wordpress implements a theatre ticketing system with optional links to CiviCRM.
 Version: 0.1
 Author: twowheeler
@@ -28,16 +28,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-/*  Reminder about using namespaces:
-<?php namespace NS;
-    define(__NAMESPACE__ .'\foo','111');
-    define('foo','222');
-    echo foo;  		// 111.
-    echo \foo;  	// 222.
-    echo \NS\foo  	// 111.
-    echo NS\foo  	// fatal error. assumes \NS\NS\foo.
-?>
-*/
 
 // All paths in FreeSeat are relative to FS_PATH
 define( 'FS_PATH', plugin_dir_path( __FILE__ ) );

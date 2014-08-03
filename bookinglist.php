@@ -12,7 +12,7 @@ Modifications for Wordpress are Copyright (C) 2013 twowheeler.
  *  Creates a page for editing and printing ticket reservations
  *  Replaces the former bookinglist.php
  */
-// http://localhost/wp2/wp-admin/admin.php?page=freeseat-reservations?offset=25&st=-5&showid=&sort=id 
+ 
 
 function freeseat_bookinglist()
 {

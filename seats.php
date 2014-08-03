@@ -57,8 +57,11 @@ function freeseat_seats( $page_url )
 	echo '<h2>'.ucwords($lang["link_seats"]).'</h2>';
 	echo '<p class="main">';
 	show_show_info($sh);
-	echo '</p><p class="main">'.$lang["intro_seats"].'</p>';
-	
+	echo '</p>';
+	echo '<div id="accordion" style="max-width: 500px; padding: 1em 1em 1em 2em;">';  //
+	echo '<h4>'.$lang['help'].'</h4>';
+	echo $lang["intro_seats"];
+	echo '</div>';
 	do_hook("seatmap_top");
 	
 	echo '<form action="' . replace_fsp( $page_url, PAGE_PAY ) . '" method="post">';

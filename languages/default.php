@@ -123,6 +123,7 @@ $lang["firstname"] = 'First name';
 $lang["from"] = 'From'; // in a temporal sense : from a to b
 
 $lang["hello"] = 'Hello %1$s,';
+$lang["help"] = 'Help';
 $lang["hideold"] = '';  // '%1$sHide%2$s old spectacles.'; §NEW IN 1.2.2b that's "%1$s hide %2$s" without the spaces
 $lang["hour"] = 'hr'; // abbreviated
 /* (note : this is only used for at least two seats) */
@@ -181,43 +182,7 @@ and the reservation cancelled?</p>
 <h2>Other parameters</h2>
 
 EOD;
-$lang["intro_remail"] = <<<EOD
-
-<h2>Reservation retrieval</h2>
-
-<p class='main'>Please type in the following field the email address
-you used when making your reservation, then click Submit.<br>
-You will then receive an email containing all details about your
-reservations</p>
-
-<p class='main'>Email address: %1\$s</p>
-
-<p class='main'>(If you have not provided an email address, or if you no
-longer have access to it, please contact us directly.)</p>
-
-EOD;
-
-$lang["intro_remail2"] = <<<EOD
-<h2>Reservation retrieval</h2>
-
-<p class='main'>Please check your email now, while keeping this
-page open.  If you received an email containing an access code, 
-please copy and paste the code here.  If the email did not
-arrive, check your spam or junk mail folders to see if it is there.
-</p>
-
-<p class='main'>Access code: %1\$s</p>
-
-<p class='main'>Thank you!</p>
-
-EOD;
-$lang["intro_remail_paid"] = <<<EOD
-
-<p class="main">Please note that only paid tickets can be printed.  If your tickets have not been paid for, please use the "Make a Payment" link on the front page, or contact the office.</p>
-
-EOD;
-$lang["intro_seats"] = '<b>Instructions</b><ul>
-<li><p>You may select reserved seats by clicking on one or more locations in the Reserved Seat Tickets map below. 
+$lang["intro_seats"] = '<ul><li><p>You may select reserved seats by clicking on one or more locations in the Reserved Seat Tickets map below. 
 <li><p>Click on the "Add to cart" button at the bottom of this page once you have made your choices. 
 </ul>';
 

@@ -109,9 +109,9 @@ function load_seats($k,$check_limit = TRUE) {
 	array_setall($seats,"showid",$sh["id"]);  
 	// remove existing seat selections from the same showid
 	if (isset($_SESSION['seats'])) {
-		foreach ($_SESSION['seats'] as $id => $seat) {
+		/* foreach ($_SESSION['seats'] as $id => $seat) {
 			if ($seat['showid']==$sh['id']) unset($_SESSION['seats'][$id]);
-		}
+		} */
 		$_SESSION['seats'] = $seats + $_SESSION['seats'];
 	} else $_SESSION["seats"] = $seats;
 	return true;
@@ -148,11 +148,12 @@ function load_seats($k,$check_limit = TRUE) {
     even without LOCK TABLE because check seats calls lock_seat which
     guarantees exclusive access to this session for $lockingtime seconds.
 **/
-function lock_seats($seat,$showid) {
-	global $now,$lockingtime;
+function lock_seats( $seat, $showid ) {
+	global $now, $lockingtime;
 	
 	$res = array(); // result seats will be put here  
 	$cnt = $seat["cnt"];
+	$sid = session_id();
 	
 	if ($cnt==0) return $res; // just in case :-)
 	
@@ -182,10 +183,9 @@ function lock_seats($seat,$showid) {
 			delete+insert would have one fail and one succeed. (Actually,
 			in some cases update is safe ... Oh well) */
 		
-		if (!freeseat_query("delete from seat_locks where seatid=".$seat['id']." and showid=".$seat['showid']." and (until<".$now." or sid='".session_id()."')")) {
-			myboom("Failed deleting seat lock");
-		}
-		$rows = freeseat_query("insert into seat_locks (seatid,showid,sid,until) values (".$seat['id']." , ".$seat['showid'].",'".session_id()."',".($now+$lockingtime).")");
+		$rows = freeseat_query("delete from seat_locks where seatid='".$seat['id']."' and showid='".$seat['showid']."' and (until<'$now' or sid='$sid')");
+		if ($rows === FALSE) sys_log("Failed deleting seat lock");
+		$rows = freeseat_query("insert into seat_locks (seatid,showid,sid,until) values ('".$seat['id']."', '".$seat['showid']."', '$sid', '".($now+$lockingtime)."')");
 	    
 		if ($rows==1) {
 			// echo "<pre> set lock success ".$seat['id']."</pre>"; 
@@ -209,29 +209,29 @@ function lock_seats($seat,$showid) {
 			" and seats.theatre=".$seat["theatre"].       // Lets put all the seats in the same theatre  :-)
 			" and seats.zone='".mysql_real_escape_string($seat["zone"])."'");
 		if ($pot===false) {
-			myboom($q.": couldn't get set of equivalent seats");
+			sys_log($q.": couldn't get set of equivalent seats");
 			return $res;
 		}
 	}
 
 	/* 3. Now loop through the set of potential seats until the $cnt request is satisfied */
-	/*     echo "<pre>"; */
+	// echo "<pre>"; 
 	foreach ($pot as $s) {
 		$potid = $s["id"];
 		/* We've already dealt with that one so it wouldn't give more result than we got at step one */
 		if ($potid==$seat["id"]) continue;
 		$st = get_seat_state($potid,$showid,true);
 		if (($st!=ST_FREE) && ($st!=ST_DELETED)) continue; // seat is booked. Try next
-		freeseat_query("delete from seat_locks where seatid=$potid and showid=$showid and (until<$now or sid='".session_id()."')");
-		$rows = freeseat_query("insert into seat_locks (seatid,showid,sid,until) values ($potid , $showid,'".session_id()."',".($now+$lockingtime).")");
+		freeseat_query("delete from seat_locks where seatid='$potid' and showid='$showid' and (until<'$now' or sid='$sid')");
+		$rows = freeseat_query("insert into seat_locks (seatid,showid,sid,until) values ('$potid', '$showid', '$sid', '".($now+$lockingtime)."')");
 		if ($rows!=1) continue; // seat was locked. Try next
-		/*     echo "..success"; */
+		// echo "..success";
 		/* if this point is reached then lock was successful */
 		$res['carts'.$showid.'s'.$s["id"]] = $s;
 		$cnt--;
 		if ($cnt==0) return $res;
 	}
-	/*   echo "</pre>"; */
+	// echo "</pre>";
 	return $res;
 }
 
@@ -239,16 +239,8 @@ function lock_seats($seat,$showid) {
  * *INSTEAD* of setting $_SESSION["seats"] to the empty array.
  */
 function unlock_seats($freesession = true) {
-  /* Now that locks are unambiguously associated to a session, we
-     don't bother cherry-picking them according to the in-session seat
-     array */
-  //  if (isset($_SESSION["seats"])) {
-    //    foreach ($_SESSION["seats"] as $s) {
-    freeseat_query("delete from seat_locks where sid=".quoter(session_id()));
-    //    }
-    //  }
-  if ($freesession)
-    $_SESSION["seats"] = array();
+	freeseat_query("delete from seat_locks where sid=".quoter(session_id()));
+	if ($freesession) $_SESSION["seats"] = array();
 }
 
 /** see if the _SESSION-selected seats are (still) available.  If not,
@@ -256,13 +248,15 @@ function unlock_seats($freesession = true) {
  */
 function check_seats() {
 	global $lang;
-	return true;
+
 	$success = true;
 	$seats = array();
 	$sh = get_show($_SESSION["showid"]);
 	if ( !isset($_SESSION['seats']) ) return true;
 	foreach ($_SESSION["seats"] as $s) {
+		
 		$expanded = lock_seats($s,$_SESSION["showid"]);
+		
 		array_setall($expanded,"date",$sh["date"]);
 		array_setall($expanded,"time",$sh["time"]);
 		array_setall($expanded,"theatrename",$sh["theatrename"]);

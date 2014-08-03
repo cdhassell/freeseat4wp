@@ -1,6 +1,6 @@
 <?php namespace freeseat;
 
-$plugins = array( 'autopay', 'extendbooking', 'bookingnotes', 'groupdiscount' );
+$plugins = array( 'autopay', 'adminprint', 'extendbooking', 'bookingnotes', 'pdftickets', 'barcode' );
 $unsecure_login = TRUE; 
 $logfile = "logs/freeseat.log"; 
 $lockingtime = 600;  // seat selections are locked for 10 minutes

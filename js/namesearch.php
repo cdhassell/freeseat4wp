@@ -1,5 +1,9 @@
 <?php
 
+/*
+ *   This is for ajax queries for the name search in the login plugin. 
+ */
+
 // import wordpress stuff
 require_once( $_SERVER['DOCUMENT_ROOT'] . '/wp-load.php' );
 

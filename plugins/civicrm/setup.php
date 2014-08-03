@@ -265,7 +265,7 @@ function civicrm_showedit($spec) {
 					'sequential' => 1
 				) 
 			);
-			if ($result['is_error'] == 0) {
+			if ($result['is_error'] == 0 && isset($result['values'][0]) ) {
 				$found = $result['values'][0];
 				$found['version'] = '3';
 				$found['title'] = $name;

@@ -105,11 +105,7 @@ function freeseat_confirm( $page_url )
 	
 	show_head();
 	echo '<h2>' . $lang[ "confirmation" ] . '</h2>';
-	echo '<p class="main">'.$lang[ "intro_confirm" ].'</p>';
-	/* echo '<p class="main">';
-	show_show_info();
-	echo '</p>'; */
-	
+	echo '<p class="main">'.$lang[ "intro_confirm" ].'</p>';	
 	echo print_booked_seats(null,FMT_PRICE|FMT_CORRECTLINK|FMT_SHOWINFO|FMT_FORM);
 	echo '<div class="user-info">';	
 	echo '<h3>'.$lang['youare'].'</h3>';
@@ -120,6 +116,7 @@ function freeseat_confirm( $page_url )
 	printf( $lang[ "change_pay" ], "[<a href='$url'>", "</a>]" );
 	echo '</p>';
 	echo '</div>';
+	echo '<div class="user-info">';
 	echo '<form action="' . replace_fsp( $page_url, PAGE_FINISH ) . '" method="post">';
 	if (function_exists('wp_nonce_field')) wp_nonce_field('freeseat-confirm-purchase');
 	do_hook('confirm_bottom');
@@ -127,15 +124,12 @@ function freeseat_confirm( $page_url )
 	if ( $_SESSION[ "payment" ] == PAY_CCARD && get_total() > 0 ) {
 		echo '<h2>'.$lang["make_payment"].'</h2>';
 		echo '<p class="emph">' . $lang['paypal_lastchance'] . '</p>';
-		
 		do_hook( 'ccard_confirm_button' );
-		
-		echo '</form>';
 	} else {
 		echo '<input class="button button-primary" type="submit" value="'.$lang["book_submit"].'">';
 	}
 	echo '</form>';
-	
+	echo '</div>';
 	show_foot();
 }	// end of freeseat_confirm
 

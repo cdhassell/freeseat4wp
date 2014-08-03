@@ -16,7 +16,7 @@ function freeseat_pay( $page_url )
 {
 	global $lang, $sh, $pref_country_code, $pref_state_code, $lowpriceconditions;
 	load_alerts();
-	
+
 	// MIGHT be enough to put it next to the load_seats below but I won't take chances.
 	if (!do_hook_exists('pay_page_top'))
 		kill_booking_done();
@@ -32,7 +32,7 @@ function freeseat_pay( $page_url )
 	/** if no set of seats is provided then just keep the one in session **/
 	if (isset($_POST["load_seats"])) {
 		/* (if the following fails it will be handled by check_session) */
-		unlock_seats(FALSE);
+		// unlock_seats(FALSE);
 		load_seats($_POST);
 		check_session(3);
 		compute_cats();
@@ -176,5 +176,6 @@ function freeseat_pay( $page_url )
 	echo '</p></form>';
 	
 	show_foot();
+
 }	// end of freeseat_pay
 
