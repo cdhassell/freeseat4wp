@@ -31,8 +31,9 @@
 	margin-right: 3em;
 }
 
-#freeseat-wide table.seatmap img.imageCheck, #freeseat-narrow table.seatmap img.imageCheck {
-	margin: 0;
+#freeseat-wide img.infolink, #freeseat-narrow img.infolink {
+	margin: 0 1em;
+	padding: 0;
 }
 
 /* These replace the format.php/cls2colour function, and tell how to

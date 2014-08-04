@@ -182,10 +182,7 @@ and the reservation cancelled?</p>
 <h2>Other parameters</h2>
 
 EOD;
-$lang["intro_seats"] = '<ul><li><p>You may select reserved seats by clicking on one or more locations in the Reserved Seat Tickets map below. 
-<li><p>Click on the "Add to cart" button at the bottom of this page once you have made your choices. 
-</ul>';
-
+$lang["intro_seats"] = 'You may select reserved seats by clicking on one or more locations in the Reserved Seat Tickets map below. Click on the "Add to cart" button at the bottom of this page once you have made your choices.';
 $lang["is_default"] = 'This is the active show.';
 $lang["is_not_default"] = 'This is not the active show.';
 

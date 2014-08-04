@@ -32,7 +32,7 @@ define("FMT_FORM",64); /* Set up form with checkboxes */
  true. I'm leaving it for legacy reasons.
   **/
 function show_head($wide = false,$half=false) {
-	  echo '<div class="wrap">';
+	echo '<div class="wrap"><div id="multiCheck" >';
 	if (!$half) close_head($wide);
 }
 
@@ -89,7 +89,7 @@ function show_foot() {
  it and therefore motivates me to support it further :) Thanks */
     printf($lang["poweredby"],'<a href="http://freeseat.sf.net" target="_blank">FreeSeat</a>');
 ?>)</p></div></div></div>
-</div><!--end of wrap div from header-->
+</div></div><!--end of wrap div from header-->
 <?php
 }
 
