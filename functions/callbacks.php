@@ -14,7 +14,7 @@ function make_legend($numberedseats) {
 	$class_price = array(); // same, but for cat
 
 	$q = "select distinct price.class, price.cat, amount from price, seats where spectacle='".$sh["spectacleid"];
-	$q .= "' and theatre='".$sh["theatre"]."' and price.class=seats.class and zone='".mysql_real_escape_string($zone)."' and $criterion order by class";
+	$q .= "' and theatre='".$sh["theatre"]."' and price.class=seats.class and zone='$zone' and $criterion order by class";
 	
 	$prices= array();
 

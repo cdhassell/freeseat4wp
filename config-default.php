@@ -16,13 +16,11 @@ $Id: config-dist.php 253 2010-01-24 14:52:23Z tendays $
   /* Commented items are those for which there's no sensible default
    and that MUST be set in config.php */
 
-$plugins = array('bookingmap');
-//$sec_area = 'https://example.com/reservations/';
-//$normal_area = 'http://example.com/reservations/';
+$plugins = array( 'autopay', 'adminprint', 'extendbooking', 'bookingnotes', 'pdftickets', 'barcode' );
 $language = 'english';
 $unsecure_login = false;
 $logfile = null;
-$stylesheet = "style/general.css";
+$stylesheet = "general.css";
 $lockingtime = 240;
 $bookings_on_a_page = 20;
 $format_time_12hr = false;

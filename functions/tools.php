@@ -209,19 +209,13 @@ function array_setall(&$aa,$k,$v) {
 /** I moved the anti-magic quotes functionality into no_gpc, which
    must now be called immediately when reading stuff from gpc */
 function quoter($value) {
-    return "'" . mysql_real_escape_string($value) . "'";
+    return "'" . esc_sql($value) . "'";
 }
 
 /** path being a url relative to the freeseat directory, returns the corresponding absolute url.
  *
- * Set $secure to true or false if you want to for use of respectively
-   $sec_area or $normal_area, for links meant only for the admin or
-   only for non-admins. Leave unset (null) to use the current status.
  */
 function freeseat_url($path, $secure=null) {
-	/*global $normal_area, $sec_area;
-	if ($secure === null) $secure = admin_mode();
-	return ($secure? $sec_area : $normal_area) . '/' . $path; */
 	return plugins_url( $path, dirname( __FILE__ ) );	
 }
 

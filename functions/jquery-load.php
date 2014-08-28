@@ -1,6 +1,9 @@
 <?php namespace freeseat;
 
 /*
+ *  
+ *  Loads all of the javascript needed for freeseat.
+ *  
  *  Wordpress contains the full set of jquery code libraries
  *  but does not provide any CSS themes so a plugin must provide
  *  its own.  Fortunately theme files are available on the web.
@@ -28,14 +31,8 @@ function freeseat_jquery() {
     $url = "$protocol://ajax.googleapis.com/ajax/libs/jqueryui/{$ui->ver}/themes/smoothness/jquery-ui.min.css";
     wp_enqueue_style('jquery-ui-smoothness', $url, false, null);
     
-    // load modal dialog_script
-	wp_enqueue_script( 'popup-script', plugins_url( 'js/popup_script.js', dirname(__FILE__) ), array( 'jquery', 'jquery-ui-core', 'jquery-ui-dialog' ) );
-	
-	// load the tooltip script for the seatmaps
-	wp_enqueue_script( 'seatmap-script', plugins_url( 'js/seatmap_script.js', dirname(__FILE__) ), array( 'jquery', 'jquery-ui-tooltip' ) );
-	
-	// load the autocomplete script for the name search
-	wp_enqueue_script('namesearch-script', plugins_url( 'js/namesearch_script.js', dirname(__FILE__) ), array( 'jquery', 'jquery-ui-autocomplete' ) );
-	wp_localize_script( 'namesearch-script', 'namesearchObject', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ) ) );
+	// load the scripts for freeseat
+	wp_enqueue_script( 'freeseat-script', plugins_url( 'freeseat.js', dirname(__FILE__) ), array( 'jquery', 'jquery-ui-core', 'jquery-ui-dialog', 'jquery-ui-tooltip', 'jquery-ui-autocomplete' ) );
+	wp_localize_script( 'freeseat-script', 'namesearchObject', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ) ) );
 }
 

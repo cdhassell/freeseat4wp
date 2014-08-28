@@ -3,22 +3,11 @@
 /** Configuration file. Rename as config.php and make appropriate
 changes.
 
-The config-dist.php has three types of entries:
 
-1. Uncommented variables (for instance, $sec_area). These MUST be set
-   to something before going live.
-2. Commented values tagged "default" (for instance $stylesheet):
-   If you leave them as is they will take the commented value (for
-   instance if you don't touch the entry for $stylesheet then
-   $stylesheet will be set to "style.css". In other words uncommenting
-   an entry marked "default" has no effects.
-3. Commented values tagged "example" (for instance $titlepage) will be
-   blank unless you set them to something (typically taking
-   inspiration by what's given in the example). For instance if you
-   don't touch $titlepage then FreeSeat will not show any header/title
-   in its pages, but if you uncomment the line $titlepage =
-   "myheader.php // example" then FreeSeat will include "myheader.php"
-   on the top of its pages.
+NOTE:  These configuration options have been moved to the database 
+for the Wordpress version.  Changes to this file will be ignored.
+It remains here mostly to avoid breaking things unnecessarily.
+
 
 Copyright (C) 2010 Maxime Gamboni. See COPYING for copying/warranty
 info.
@@ -35,18 +24,6 @@ $Id: config-dist.php 372 2011-08-28 10:35:23Z tendays $
 // $plugins = array('adminprint', 'bookingmap', 'htmltickets', 'remail', 'seatedit', 'showedit'); // default
 
 /*** 1 - Webserver configuration ***/
-
-// Secure area is used in admin mode, and normal area is used in
-// normal mode. These same php files, including configuration, should
-// be accessible under both. This must start with https://. If you are
-// just testing FreeSeat you can have a plain http-url if you check
-// the "unsecure_box" parameter below. If you want to use insecure
-// connections in production, look for the relevant FAQ entry at
-// http://freeseat.sf.net/support.html.
-// @type string
-$sec_area = 'https://example.com/reservations'; // example
-// @type string
-$normal_area = 'http://example.com/reservations'; // example
 
 /** Allow admin login over unsecure connections (I need that for the
 development version on my laptop that has no HTTPS server - can't
@@ -162,39 +139,6 @@ Default (false) is 24 hours.  Set to true for 12 hours. **/
  // $format_time_12hr = false; // default
 
 /*** 3 - Database Server ***/
-
-// Database server. Both domain name and IP address is okay, as long as the server can resolve them.
-// @type string
- // $dbserv = "localhost"; // default
-// database name (default, as created by tables.sql : "ticketing")
-// @type string
- // $dbdb = "ticketing"; // default
-
-/* there are three users: */
-
-/** 1. One representing anonymous users (only able to place bookings
-and readonly on theatres etc) **/
-// @type string
- // $dbuser = "bookinguser"; // default
-// @type password
-$dbpass = "ticketing"; // example
-
-/** 2. One representing the operator. This one is also allowed to
- * modify bookings. No password is needed, as it is provided by the
- * operator through the HTML form. **/
-// @type string
-// $adminuser = "bookingadmin"; // default
-
-/** 3. One representing automated operations, such as setting tickets as paid
- upon notification from the credit card server or automatic maintenance. */
-// @type string
-// $systemuser = "bookingsystem"; // default
-/* The System password is required for marking ticket as paid
- automatically when getting feedback from the credit card company. If
- you don't use that feature you may (and should) leave this blank. The
- password is in all cases to be provided as a parameter to cron.php. */
-// @type password
-$systempass = "bookingsystempassword"; // example
 
 
 /*** 4 - E-mail Server ***/

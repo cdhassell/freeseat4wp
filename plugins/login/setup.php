@@ -300,17 +300,18 @@ function login_user_action( $action, $gid ) {
 			login_setup_session( $bookings, $gid );
 			$hide_tickets = do_hook_exists('ticket_prepare_override');
 	  		foreach ($bookings as $n => $s) {
-	    		do_hook_function('ticket_render_override', array_union($_SESSION,$s));
+	  			$both = array_union($_SESSION,$s);
+	    		do_hook_function('ticket_render_override', $both );
 	  		}
 	  		do_hook('ticket_finalise_override');
 			if (!$hide_tickets) {
 				do_hook('ticket_prepare');
 				foreach ($bookings as $n => $s) {
-	 				do_hook_function('ticket_render', array_union($_SESSION,$s));
+					$both = array_union($_SESSION,$s);
+	 				do_hook_function('ticket_render', $both );
 				}
 				do_hook('ticket_finalise');
 			}
-			// FIXME this is clumsy
 			if (function_exists('pdf_tickets_cleanup')) pdf_tickets_cleanup();
 			break;
 		case 'pay':

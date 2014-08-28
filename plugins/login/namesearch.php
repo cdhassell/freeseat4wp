@@ -8,7 +8,7 @@
 require_once( $_SERVER['DOCUMENT_ROOT'] . '/wp-load.php' );
 
 // import freeseat stuff
-define( 'FS_PATH', dirname( plugin_dir_path( __FILE__ ) ) );
+define( 'FS_PATH', dirname( dirname( plugin_dir_path( __FILE__ ) ) ) );
 // Load the default values of key global variables
 require_once( FS_PATH . "vars.php" );
 // Include the function files
