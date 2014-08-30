@@ -48,7 +48,8 @@ if (isset($_SERVER["REQUEST_METHOD"]) && !$unsecure_login) {
 } else {
 
 	prepare_log("cronjob");
-
+	$now = time();
+	
 	/* 1 - clean up seat_locks */
 
 	$q = "delete from seat_locks where until < ".$now;
@@ -72,12 +73,11 @@ if (isset($_SERVER["REQUEST_METHOD"]) && !$unsecure_login) {
 	booking is cancelled. The +1 is because cron is meant to be ran
 	shortly *after* midnight. */
 
-	//  $now = time();
 	/** First delete very old bookings (note, $c["Xdelay_Y"] are days
 	 * so we multiply by number of seconds in a day **/
 	foreach (array(PAY_CCARD => date("Y-m-d H:i:s",$now-86400*$c["paydelay_ccard"]),
 		PAY_POSTAL => date("Y-m-d H:i:s",sub_open_time($now,86400*$c["paydelay_post"]))) as $val => $dl) {
-		echo "\ndeleting\n";
+		echo "\ndeleting ";
 		echo ("state=".ST_SHAKEN." and '$dl' > timestamp and payment=$val");
 		$toexpire = get_bookings("state=".ST_SHAKEN." and '$dl' > timestamp and payment=$val", "shows.date, shows.time, booking.id");
 
@@ -92,7 +92,7 @@ if (isset($_SERVER["REQUEST_METHOD"]) && !$unsecure_login) {
 	/** Now for bookings that have not been deleted, shake the ones that are fairly old */
 	foreach (array(PAY_CCARD => date("Y-m-d H:i:s",$now-86400*$c["shakedelay_ccard"]),
 		PAY_POSTAL => date("Y-m-d H:i:s",sub_open_time($now,86400*$c["shakedelay_post"]))) as $val => $dl) {
-		echo "\nshaking\n";
+		echo "\nshaking ";
 		echo ("state=".ST_BOOKED." and '$dl' > timestamp and payment=$val");
 		$toshake = get_bookings("state=".ST_BOOKED." and '$dl' > timestamp and payment=$val", "shows.date, shows.time, booking.id");
 		if ($toshake) {
