@@ -35,7 +35,7 @@ This is a development release for public comment and testing purposes.  It is no
 <li>Finally, you will need to set up a daily call to cron.php on the command line, in order to send email and update statuses.  Consult your hosting service for how to do that.</li></ol>
 
 
-<h3>NOTES ON THIS VERSION</h3>
+<h3>TECHNICAL NOTES ON THIS VERSION</h3>
 
 <ul><li>A "namespace freeseat" has been added to all files to prevent name collisions within WP.  As a result, PHP version 5.3 or newer is required, both in apache and on the command line.
 
@@ -53,7 +53,7 @@ This is a development release for public comment and testing purposes.  It is no
 
 <li>A new plugin has been added to allow administrator upload of seatmap CSV files. A help screen explains how to format a spreadsheet and save it as a CSV file for upload.
 
-<li>A new plugin has been added that requires the user to be logged in to WP, and stores and retrieves the user name and address details in the WP user account.
+<li>A new plugin has been added that requires the user to be logged in to WP, and stores and retrieves the user name and address details in the WP user account.  It also allows the administrator to do an ajaxy autocomlete search for users by name and see a list of their recent purchases, with links to print or delete each item. 
 
 <li>A new plugin has been added to record shows as events and users as event participants in a civicrm database.
 
@@ -66,7 +66,7 @@ This is a development release for public comment and testing purposes.  It is no
 
 <h3>TODO</h3>
 
-<ul><li>Plugins not yet converted: seasontickets, remail, post_pay, klikandpay, and htmltickets. Currently the only payment plugin is paypal.
+<ul><li>Plugins not yet converted: klikandpay and seasontickets. Currently the only payment plugin is paypal.  There are no plans to convert seasontickets at the moment.  Htmltickets is unnecesary and will be dropped.
 
 <li>The setup.sql files in groupdiscount, civicrm, bookingnotes, and castpw are not handled yet.  For the moment, the default install includes all of the extra fields required by those plugins. 
 
