@@ -24,7 +24,7 @@ This is a development release for public comment and testing purposes.  It is no
 
 <li>Once you have your seatmap installed, the next step is to create a show at the Show Setup page.  Fill in the information in that form, including a name, description, image, show dates and prices.  Show dates are added by pressing the "+" button under the date list.
 
-<li>Prices are entered by class of seat, which are set in the seatmap.  For example, if your seatmap contains seats organized into classes 1, 2, and 3, you will need to enter prices for those 3 classes on this page.  A column is provided for reduced price tickets, for example, a special price for children.
+<li>Ticket prices are entered by class of seat, which are set in the seatmap.  For example, if your seatmap contains seats organized into classes 1, 2, and 3, you will need to enter prices for those 3 classes on this page.  A column is provided for reduced price tickets, for example, a special price for children.
 
 <li>If you are uploading an image for the show, be careful of the size.  Files larger than 1MB will be refused.  The image will be resized to 300 pixels wide. 
 
@@ -32,37 +32,8 @@ This is a development release for public comment and testing purposes.  It is no
 
 <li>In order to display your shows on the Wordpress front end, create a page or a post and add the shortcode [freeseat-shows].  This will display information about all of the currently available shows.  Once a show is over, it will disappear from the list.  To jump right to the page for a particular show date, use the shortcode [freeseat-direct showid=xx] where xx is the number for a particular show date.  To find the number for a show date, navigate to the page for it and look in the URL where "showid=" should be visible.
 
-<li>Finally, you will need to set up a daily call to cron.php on the command line, in order to send email and update statuses.  Consult your hosting service for how to do that.</li></ol>
+<li>It is *highly* recommended to use a secure site for ticket purchases, especially when using credit card purchases.  See for example the Wordpress HTTPS plugin (http://wordpress.org/plugins/wordpress-https/) for one way to do that.
 
-
-<h3>TECHNICAL NOTES ON THIS VERSION</h3>
-
-<ul><li>A "namespace freeseat" has been added to all files to prevent name collisions within WP.  As a result, PHP version 5.3 or newer is required, both in apache and on the command line.
-
-<li>A new options page that is managed by WP options functionality has been added for entry of most configuration items, replacing params.php. Config options are stored in the wp_options table. Freeseat plugins can add new configuration parameters using a hook. Activation of freeseat plugins also occurs on this options page. This process also replaces the separate confip-default.php files for each plugin.
-
-<li>Database table names have "freeseat_" prepended. Database queries are managed by WP database functionality. All direct calls to mysql_*() functions have been replaced.
-
-<li>All standalone pages have been converted to functions and linked to WP action hooks.  Administrator pages are linked to menu items on the WP administrator backend.
-
-<li>Entry points from WP pages or posts are now from WP shortcodes. The shortcode "[freeseat-shows]" displays the front page list of all available shows. The shortcode "[freeseat-direct showid=xx]" enters the seatmap display formerly at seats.php.
-
-<li>A new function freeseat_switch() is called on every page of the ticket purchase process. A parameter $fsp determines whether to display repr, seats, pay, confirm or finish pages.
-
-<li>The showedit and showlist plugins have been moved into core.
-
-<li>A new plugin has been added to allow administrator upload of seatmap CSV files. A help screen explains how to format a spreadsheet and save it as a CSV file for upload.
-
-<li>A new plugin has been added that requires the user to be logged in to WP, and stores and retrieves the user name and address details in the WP user account.  It also allows the administrator to do an ajaxy autocomlete search for users by name and see a list of their recent purchases, with links to print or delete each item. 
-
-<li>A new plugin has been added to record shows as events and users as event participants in a civicrm database.
-
-<li>A new plugin has been added to allow the admin user to print theatre tickets on a Boca FGL21 ticket printer.  This incorporates a java applet from the excellent QZ-print project (https://code.google.com/p/jzebra) to permit output to a local printer from the browser.  This requires some additional setup as described in the plugin README file.  Users may also want to try their hand at supporting different brands of ticket printers by copying and modifying this code.  If you do this, please share the result here. 
-
-<li>A new installation routine creates the database tables and loads example data and configuration options.  An uninstall file drops all freeseat tables and deletes the options.
-
-<li>The pdftickets copy of dompdf has been upgraded to version 0.6. The old version of dompdf was not compatible with WP.
-</li></ul>
 
 <h3>TODO</h3>
 
