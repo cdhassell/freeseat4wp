@@ -69,11 +69,14 @@ function freeseat_upload() {
 	
 	if ($view_map && isset($list)) display_theatre($list, FALSE);
 	print '<br>';
-	
+
 	// Form for uploading a new seat map CSV file
 	?>
 	<h3>Upload a new seat map</h3>
-	<h3><p style="font-weight:bold;" >Use with caution! Please see the <a href="<?php echo plugins_url('doc/upload-help.html',__FILE__); ?>">HELP</a> file for instructions.</p></h3>
+	<div id="accordion">
+	<h4><?php echo $lang['help']; ?></h4>
+	<?php echo file_get_contents( plugins_url('doc/upload-help.html', __FILE__) ); ?>
+	</div>
 	<form action="<?php echo $url; ?>" enctype="multipart/form-data" name="upload_map" method="POST">
 	<?php if (function_exists('wp_nonce_field')) wp_nonce_field('freeseat-seatmaps-choose-file'); ?>
 	<p class="main">
@@ -335,5 +338,4 @@ function read_csv( $filename ) {
 	// print_r( $list );
 	return( $list );
 }
-
 

@@ -105,9 +105,3 @@ function castpw_config_db($user) {
   return config_checksql_for('plugins/castpw/setup.sql', $user);
 }
 
-function freeseat_accordion_js() {
-	wp_enqueue_script( 'accordion-script', plugins_url( 'accordion.js', __FILE__ ), array( 'jquery', 'jquery-ui-core', 'jquery-ui-accordion' ) );
-}
-
-add_action( 'init', __NAMESPACE__ . '\\freeseat_accordion_js' );
-

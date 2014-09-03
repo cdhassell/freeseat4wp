@@ -28,5 +28,13 @@ jQuery(document).ready(function ($){
 	
 	/* used for the tooltips on the seatmap */
 	$('#multiCheck').tooltip();
-
+	
+	/* used for the accordion-type dropdowns for help text */	
+	$( "#accordion" ).accordion( { 
+		header: "h4",
+		collapsible: true,
+		active: false,
+		heightStyle: "content",
+		icons: { "header": "ui-icon-plus", "activeHeader": "ui-icon-minus" } 
+	} );
 });

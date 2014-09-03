@@ -32,7 +32,7 @@ function freeseat_jquery() {
     wp_enqueue_style('jquery-ui-smoothness', $url, false, null);
     
 	// load the scripts for freeseat
-	wp_enqueue_script( 'freeseat-script', plugins_url( 'freeseat.js', dirname(__FILE__) ), array( 'jquery', 'jquery-ui-core', 'jquery-ui-dialog', 'jquery-ui-tooltip', 'jquery-ui-autocomplete' ) );
+	wp_enqueue_script( 'freeseat-script', plugins_url( 'freeseat.js', dirname(__FILE__) ), array( 'jquery', 'jquery-ui-core', 'jquery-ui-dialog', 'jquery-ui-tooltip', 'jquery-ui-autocomplete', 'jquery-ui-accordion' ) );
 	wp_localize_script( 'freeseat-script', 'namesearchObject', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ) ) );
 }
 

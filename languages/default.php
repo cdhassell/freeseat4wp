@@ -141,7 +141,6 @@ $lang["intro_ccard"] = <<<EOD
 <p class="main">Please wait ... </p>
 EOD;
 
-
 $lang["intro_confirm"] = 'Please check and make any required changes before confirming your reservation';
 $lang["intro_finish"] = 'ENTRY TICKET<br> Please print this page and bring it to the show.';
 $lang["intro_params"] = <<<EOD
