@@ -99,6 +99,7 @@ require_once( FS_PATH . "seatmaps.php" );
 require_once( FS_PATH . "bookinglist.php" );
 require_once( FS_PATH . "showedit.php" );
 require_once( FS_PATH . "newcron.php" );
+require_once( FS_PATH . "bookinglist2.php" );
 
 db_connect();
 
