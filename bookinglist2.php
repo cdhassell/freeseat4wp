@@ -33,102 +33,109 @@ class freeseat_list_table extends \WP_List_Table {
         ) );
         
     }
+    
+    function column_date($item) {
+ 		return $item['date'].' '.f_time($item['time']);
+    }
+	
+	function column_col($item) {
+		global $lang;
+ 		return ($item['row'] == -1 ? '' : $lang['col'].' '.$item['col'].', '.$lang["row"].' '.$item['row'].' ').'('.$item['zone'].')';
+    }
 
-    /** ************************************************************************
+	function column_cat($item) {
+		$itemprice = get_seat_price( $item );
+		return f_cat( $item[ 'cat' ] ) . " (" . price_to_string( $itemprice ) . ")" ;
+    }
+    
+	function column_email($item) {
+		return f_mail( $item[ 'email' ] );
+	}
+	
+	function column_state($item) {
+		if ( $item['state'] == ST_BOOKED || $item['state'] == ST_SHAKEN ) {
+			$actions = array( 'confirm' => sprintf('<a href="?page=%s&action=%s&booking=%s">Paid</a>',$_REQUEST['page'],'confirm',$item['bookid']));
+			return f_state( $item[ 'state' ] ) .' '. $this->row_actions($actions);
+		} else {
+			return f_state( $item[ 'state' ] );
+		}
+	}
+	
+	function column_phone($item) {
+		return $item['phone'];
+	}	
+	
+	function column_bookid($item) {
+		return $item['bookid'];
+	}
+	
+	function column_expiration($item) {
+		global $lang, $now;
+		$st = $item[ 'state' ];
+		$paydelay_ccard = get_config('paydelay_ccard');
+		$paydelay_post = get_config('paydelay_post');
+		$exp = TRUE;
+		if ( ( $st == ST_BOOKED ) || ( $st == ST_SHAKEN ) ) {
+			if ( $item[ 'payment' ] == PAY_CCARD )
+				$exp = strtotime( $item[ 'timestamp' ] ) + 86400 * $paydelay_ccard;
+			else if ( $item[ 'payment' ] == PAY_POSTAL )
+				$exp = sub_open_time( strtotime( $item[ 'timestamp' ] ), -86400 * $paydelay_post );
+			else {
+				$exp = FALSE;
+				$html = '<i>' . $lang[ "none" ] . '</i>';
+			}
+			if ( $exp !== FALSE ) {
+				$delta = $exp - $now; 
+				if ( $delta < 0 )
+					$html = $lang[ "expired" ];
+				else if ( $delta < 5400 )
+					$html = sprintf( $lang[ "in" ], ( (int) ( $delta / 60 ) ) . ' ' . $lang[ "minute" ] );
+				else if ( $delta < 129600 )
+					$html = sprintf( $lang[ "in" ], ( (int) ( $delta / 3600 ) ) . ' ' . $lang[ "hour" ] );
+				else
+					$html = sprintf( $lang[ "in" ], ( (int) ( $delta / 86400 ) ) . ' ' . $lang[ "day" ] );
+			}
+		} else $html = '<i>' . $lang[ "none" ] . '</i>';			
+		// FIXME $html .= do_hook_concat( 'bookinglist_tablerow', $item );
+		if ( $item['state'] == ST_BOOKED || $item['state'] == ST_SHAKEN ) {
+			$actions = array( 'extend' => sprintf('<a href="?page=%s&action=%s&booking=%s">Extend</a>', $_REQUEST['page'],'extend', $item['bookid']) );
+			$html .= $this->row_actions($actions);
+		}
+    	return $html;
+	}	
+	
+	/** ************************************************************************
      * Recommended. This method is called when the parent class can't find a method
-     * specifically build for a given column. Generally, it's recommended to include
-     * one method for each column you want to render, keeping your package class
-     * neat and organized. For example, if the class needs to process a column
-     * named 'title', it would first see if a method named $this->column_title() 
-     * exists - if it does, that method will be used. If it doesn't, this one will
-     * be used. Generally, you should try to use custom column methods as much as 
-     * possible. 
+     * specifically build for a given column. 
      *
      * @param array $item A singular item (one full row's worth of data)
      * @param array $column_name The name/slug of the column to be processed
      * @return string Text or HTML to be placed inside the column <td>
      **************************************************************************/
     function column_default($item, $column_name){
-    	global $lang, $now;
-    	
-        switch($column_name){
-        	case 'date':
-        		return $item['date'].' '.f_time($item['time']);
-            case 'col':
-            	return ($item['row'] == -1 ? '' : $lang['col'].' '.$item['col'].', '.$lang["row"].' '.$item['row'].' ').'('.$item['zone'].')';
-			case 'cat':
-				$itemprice = get_seat_price( $item );
-				return f_cat( $item[ 'cat' ] ) . " (" . price_to_string( $itemprice ) . ")" ;
-			case 'email':
-				return f_mail( $item[ 'email' ] );
-			case 'phone':
-                return $item[$column_name];
-            case 'expiration':
-				$st = $item[ 'state' ];
-				$paydelay_ccard = get_config('paydelay_ccard');
-				$paydelay_post = get_config('paydelay_post');
-				$exp = TRUE;
-				if ( ( $st == ST_BOOKED ) || ( $st == ST_SHAKEN ) ) {
-					if ( $item[ 'payment' ] == PAY_CCARD )
-						$exp = strtotime( $item[ 'timestamp' ] ) + 86400 * $paydelay_ccard;
-					else if ( $item[ 'payment' ] == PAY_POSTAL )
-						$exp = sub_open_time( strtotime( $item[ 'timestamp' ] ), -86400 * $paydelay_post );
-					else {
-						$exp = FALSE;
-						$html = '<i>' . $lang[ "none" ] . '</i>';
-					}
-					if ( $exp !== FALSE ) {
-						$delta = $exp - $now; // ($now=time() is in tools.php)
-						if ( $delta < 0 )
-							$html = $lang[ "expired" ];
-						else if ( $delta < 5400 )
-							$html = sprintf( $lang[ "in" ], ( (int) ( $delta / 60 ) ) . ' ' . $lang[ "minute" ] );
-						else if ( $delta < 129600 )
-							$html = sprintf( $lang[ "in" ], ( (int) ( $delta / 3600 ) ) . ' ' . $lang[ "hour" ] );
-						else
-							$html = sprintf( $lang[ "in" ], ( (int) ( $delta / 86400 ) ) . ' ' . $lang[ "day" ] );
-					}
-				} else $html = '<i>' . $lang[ "none" ] . '</i>';			
-				// FIXME $html .= do_hook_concat( 'bookinglist_tablerow', $item );    
-            	return $html;
-            case 'bookid':
-            	return $item['bookid'];
-            default:
-                return print_r($item,true); //Show the whole array for troubleshooting purposes
-        }
+        return $item[$column_name];
     }
 
     /** ************************************************************************
      * Recommended. This is a custom column method and is responsible for what
-     * is rendered in any column with a name/slug of 'title'. Every time the class
-     * needs to render a column, it first looks for a method named 
-     * column_{$column_title} - if it exists, that method is run. If it doesn't
-     * exist, column_default() is called instead.
+     * is rendered in any column with a name/slug of 'name'.
      * 
      * @see WP_List_Table::::single_row_columns()
      * @param array $item A singular item (one full row's worth of data)
      * @return string Text to be placed inside the column <td> (movie title only)
      **************************************************************************/
     function column_name($item){
-        
         //Build row actions
         $actions = array(
             'print'  => sprintf('<a href="?page=%s&action=%s&booking=%s">Print</a>',$_REQUEST['page'],'print',$item['bookid']),
             'delete' => sprintf('<a href="?page=%s&action=%s&booking=%s">Delete</a>',$_REQUEST['page'],'delete',$item['bookid'])
         );
-        if ( $item['state'] == ST_BOOKED || $item['state'] == ST_SHAKEN ) {
-			$actions['extend'] = sprintf('<a href="?page=%s&action=%s&booking=%s">Extend</a>',$_REQUEST['page'],'extend',$item['bookid']);
-			$actions['confirm'] = sprintf('<a href="?page=%s&action=%s&booking=%s">Confirm</a>',$_REQUEST['page'],'confirm',$item['bookid']);
-		}
-        
         //Return the title contents
         return sprintf('%1$s %2$s', $item['firstname'] .' '.$item['lastname'], $this->row_actions($actions) );
     }
 
     /** ************************************************************************
-     * REQUIRED if displaying checkboxes or using bulk actions! The 'cb' column
-     * is given special treatment when columns are processed. It ALWAYS needs to
-     * have it's own method.
+     * REQUIRED if displaying checkboxes or using bulk actions! 
      * 
      * @see WP_List_Table::::single_row_columns()
      * @param array $item A singular item (one full row's worth of data)
@@ -145,8 +152,7 @@ class freeseat_list_table extends \WP_List_Table {
     /** ************************************************************************
      * REQUIRED! This method dictates the table's columns and titles. This should
      * return an array where the key is the column slug (and class) and the value 
-     * is the column's title text. If you need a checkbox for bulk actions, refer
-     * to the $columns array below.
+     * is the column's title text. 
      * 
      * @see WP_List_Table::::single_row_columns()
      * @return array An associative array containing column information: 'slugs'=>'Visible Titles'
@@ -161,6 +167,7 @@ class freeseat_list_table extends \WP_List_Table {
             'cat'		=> 'Rate',
             'email'		=> 'Email',
             'phone'		=> 'Phone',
+            'state'		=> 'Status',
             'expiration' => 'Expiration'
         );
         return $columns;
@@ -168,10 +175,7 @@ class freeseat_list_table extends \WP_List_Table {
 
     /** ************************************************************************
      * Optional. If you want one or more columns to be sortable (ASC/DESC toggle), 
-     * you will need to register it here. This should return an array where the 
-     * key is the column that needs to be sortable, and the value is db column to 
-     * sort by. Often, the key and value will be the same, but this is not always
-     * the case (as the value is a column name from the database, not the list table).
+     * you will need to register it here. 
      * 
      * @return array An associative array containing all the columns that should be sortable: 'slugs'=>array('data_values',bool)
      **************************************************************************/
@@ -203,8 +207,6 @@ class freeseat_list_table extends \WP_List_Table {
 
     /** ************************************************************************
      * Optional. You can handle your bulk actions anywhere or anyhow you prefer.
-     * For this example package, we will handle it in the class to keep things
-     * clean and organized.
      * 
      * @see $this->prepare_items()
      **************************************************************************/
@@ -240,7 +242,7 @@ class freeseat_list_table extends \WP_List_Table {
      * @uses $this->get_pagenum()
      * @uses $this->set_pagination_args()
      **************************************************************************/
-    function prepare_items() {
+    function prepare_items($search = NULL) {
         global $wpdb, $bookings_on_a_page; //This is used only if making any database queries
 
         $per_page = $bookings_on_a_page;
@@ -295,10 +297,23 @@ class freeseat_list_table extends \WP_List_Table {
 				$cond .= " $and (state=" . ST_BOOKED . " or state=" . ST_SHAKEN . " or state=" . ST_PAID . ")";
 				$and = "and";
 		}
-        
-        $orderby = (isset($_REQUEST['orderby']) ? $_REQUEST['orderby'] : 'id' ).' '.
-        (isset($_REQUEST['order']) ? $_REQUEST['order'] : 'asc');
-        $data = get_bookings( $cond, ( $orderby == "id" ? "bookid" : "$orderby,bookid" ), 0, $per_page );
+		$orderby = (isset($_REQUEST['orderby']) ? $_REQUEST['orderby'] : 'id' ).' '. (isset($_REQUEST['order']) ? $_REQUEST['order'] : 'asc');
+		
+		// handle the search box
+    	if( $search != NULL ){
+        	$search = trim($search);
+        	$and = ($cond ? " and" : "" );
+        	$cond .= "$and `lastname` LIKE '%%%s%%' OR `firstname` LIKE '%%%s%%'";
+			// get_bookings query is duplicated here so search terms can be sanitized :-p
+			if ($cond) $cond = "( $cond ) and";
+			if ($orderby) $orderby = "ORDER BY " . ($orderby == "id" ? "bookid" : "$orderby,bookid" );
+			$sql = "SELECT booking.id as bookid, booking.*, seat, seats.row, seats.col, seats.extra, seats.zone, seats.class, showid, shows.date, shows.time, shows.spectacle as spectacleid, theatres.name as theatrename, theatres.id as theatreid, seats.x, seats.y FROM booking, shows, seats, theatres WHERE $cond booking.seat = seats.id and booking.showid=shows.id and shows.theatre = theatres.id $orderby LIMIT $per_page OFFSET 0";
+			$sql = fs2wp( $sql );
+			$data = $wpdb->get_results($wpdb->prepare( $sql, $search, $search), ARRAY_A);
+		} else{
+        	$data = get_bookings( $cond, ( $orderby == "id" ? "bookid" : "$orderby,bookid" ), 0, $per_page );
+		}
+
         $current_page = $this->get_pagenum();
         $total_items = count($data);
         $data = array_slice($data,(($current_page-1)*$per_page),$per_page);
@@ -394,10 +409,23 @@ function freeseat_render_list() {
 		
 		// now create the WP_List_Table object
 		$ListTable = new freeseat_list_table();
-		$ListTable->prepare_items();
+		// $ListTable->prepare_items();
+		
+        //Fetch, prepare, sort, and filter our data...
+        if( isset($_POST['s']) ){
+                $ListTable->prepare_items($_POST['s']);
+        } else {
+                $ListTable->prepare_items();
+        }		
+		
     ?>
     <div id="icon-users" class="icon32"><br/></div>
-        <!-- Forms are NOT created automatically, so you need to wrap the table in one to use features like bulk actions -->
+    	<!-- Form to create a search box -->
+        <form method="post">
+        	<?php $ListTable->search_box('Search by name', 'name'); ?>
+        	<input type="hidden" name="page" value="<?php echo $_REQUEST['page'] ?>" />
+    	</form>
+        <!-- Wrap the table in a form to use features like bulk actions -->
         <form id="bookings-filter" method="get">
             <!-- For plugins, we also need to ensure that the form posts back to our current page -->
             <input type="hidden" name="page" value="<?php echo $_REQUEST['page'] ?>" />

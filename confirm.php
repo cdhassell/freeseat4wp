@@ -50,6 +50,11 @@ function freeseat_confirm( $page_url )
 		$hook_catmap[CAT_FREE] = ceil(abs($_POST["ncat".CAT_FREE]));
 	}
 	
+	$_SESSION["autopay"] = isset($_POST["autopay"]) and admin_mode() and ($_SESSION["payment"] == PAY_OTHER);
+	if ($_SESSION["autopay"]) {
+		array_setall($_SESSION["seats"], "state", ST_PAID);
+		/* This is picked up by book() */
+	}
 	do_hook('pay_process'); // this may modify the $hook_catmap variable
 	
 	/* Note: Should not be necessary to check the value is valid because
@@ -120,6 +125,10 @@ function freeseat_confirm( $page_url )
 	echo '<form action="' . replace_fsp( $page_url, PAGE_FINISH ) . '" method="post">';
 	if (function_exists('wp_nonce_field')) wp_nonce_field('freeseat-confirm-purchase');
 	do_hook('confirm_bottom');
+	echo '<!-- autopay -->';
+	if (admin_mode() and ($_SESSION["payment"] == PAY_OTHER)) {
+    	echo '<p class="main"><input type="checkbox" name="autopay" checked="checked"> Mark tickets as paid</p>';
+	}
 	// let's check that the user actually owes us something
 	if ( $_SESSION[ "payment" ] == PAY_CCARD && get_total() > 0 ) {
 		echo '<h2>'.$lang["make_payment"].'</h2>';
