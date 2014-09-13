@@ -43,7 +43,7 @@ function pdftickets_render($booking) {}
 
 function pdftickets_finalise() {
 	global $lang, $page_url, $dompdf;
-	
+
 	if (isset($_GET['freeseat-ticket-mode'])) {
 		// create the html for the ticket output
 		if ( !isset($_SESSION['pdftickets'] )) {
@@ -61,7 +61,7 @@ function pdftickets_finalise() {
 			pdftickets_sendtickets($pdf);
 		} elseif ($_GET["freeseat-ticket-mode"] == 'pdf-file' ) {
 			// ready to download
-			ob_end_clean();;
+			ob_end_clean();
 			$dompdf->stream( 'mytickets.pdf' );
 			exit();
 		}

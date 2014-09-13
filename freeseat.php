@@ -42,6 +42,7 @@ foreach ( glob( plugin_dir_path( __FILE__ )."functions/*.php" ) as $file ) {
  * once in a single script execution, the same value will be returned
  */
 $now = time();
+$messages = array();	
 global $freeseat_db_version;
 $freeseat_db_version = "0.1";
 
@@ -69,6 +70,20 @@ add_shortcode( 'freeseat-shows', __NAMESPACE__ . '\\freeseat_front' );
 add_shortcode( 'freeseat-direct', __NAMESPACE__ . '\\freeseat_direct' );
 add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\\freeseat_user_styles' );
 add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\\freeseat_admin_styles' );
+
+add_action('init', __NAMESPACE__ . '\\freeseat_start_session', 1);
+add_action('wp_logout', __NAMESPACE__ . '\\freeseat_kill_session');
+add_action('wp_login', __NAMESPACE__ . '\\freeseat_kill_session');
+
+function freeseat_start_session() {
+    if(!session_id()) {
+        session_start();
+    }
+}
+
+function freeseat_kill_session() {
+    session_destroy ();
+}
 
 // Set up all of the active freeseat plugins
 $freeseat_plugin_hooks = array();

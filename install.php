@@ -71,7 +71,6 @@ function freeseat_install() {
 	country varchar(2) DEFAULT NULL,
 	notes varchar(255) DEFAULT NULL,
 	expiration datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-	contact_id int(11) NOT NULL,
 	PRIMARY KEY  (id),
 	KEY seat_query (seat,state,showid),
 	KEY groupid (groupid)

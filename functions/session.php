@@ -12,10 +12,10 @@ Session and booking session related functions
 the in-session password is wrong, it is cleared.
 */
 function db_connect($die_on_failure = true) {
-	global /*$dbserv, $dbuser, $dbpass, $dbdb, $adminuser,*/ $lang, $messages;
+	global /*$dbserv, $dbuser, $dbpass, $dbdb, $adminuser, $lang,*/ $messages;
 	// no longer much to do here
-	session_name("freeseat");
-	@session_start();
+	// session_name("freeseat");
+	// @session_start();
 	$messages = array();	
 }
 

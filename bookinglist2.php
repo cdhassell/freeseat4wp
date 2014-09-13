@@ -21,11 +21,7 @@ if(!class_exists('WP_List_Table')){
 }
 
 class freeseat_list_table extends \WP_List_Table {
-
-    /** ************************************************************************
-     * REQUIRED. Set up a constructor that references the parent constructor. We 
-     * use the parent reference to set some default configs.
-     ***************************************************************************/
+	
     function __construct(){
         global $status, $page;
                 
@@ -47,14 +43,7 @@ class freeseat_list_table extends \WP_List_Table {
      * exists - if it does, that method will be used. If it doesn't, this one will
      * be used. Generally, you should try to use custom column methods as much as 
      * possible. 
-     * 
-     * Since we have defined a column_title() method later on, this method doesn't
-     * need to concern itself with any column with a name of 'title'. Instead, it
-     * needs to handle everything else.
-     * 
-     * For more detailed insight into how columns are handled, take a look at 
-     * WP_List_Table::single_row_columns()
-     * 
+     *
      * @param array $item A singular item (one full row's worth of data)
      * @param array $column_name The name/slug of the column to be processed
      * @return string Text or HTML to be placed inside the column <td>
@@ -102,8 +91,8 @@ class freeseat_list_table extends \WP_List_Table {
 				} else $html = '<i>' . $lang[ "none" ] . '</i>';			
 				// FIXME $html .= do_hook_concat( 'bookinglist_tablerow', $item );    
             	return $html;
-            case 'name':
-            	return $item['firstname'].' '.$item['lastname'];
+            case 'bookid':
+            	return $item['bookid'];
             default:
                 return print_r($item,true); //Show the whole array for troubleshooting purposes
         }
@@ -116,16 +105,11 @@ class freeseat_list_table extends \WP_List_Table {
      * column_{$column_title} - if it exists, that method is run. If it doesn't
      * exist, column_default() is called instead.
      * 
-     * This example also illustrates how to implement rollover actions. Actions
-     * should be an associative array formatted as 'slug'=>'link html' - and you
-     * will need to generate the URLs yourself. You could even ensure the links
-     * 
-     * 
      * @see WP_List_Table::::single_row_columns()
      * @param array $item A singular item (one full row's worth of data)
      * @return string Text to be placed inside the column <td> (movie title only)
      **************************************************************************/
-    function column_bookid($item){
+    function column_name($item){
         
         //Build row actions
         $actions = array(
@@ -138,11 +122,7 @@ class freeseat_list_table extends \WP_List_Table {
 		}
         
         //Return the title contents
-        return sprintf('%1$s <span style="color:silver">(id:%2$s)</span>%3$s',
-            /*$1%s*/ $item['firstname'] .' '.$item['lastname'],
-            /*$2%s*/ $item['bookid'],
-            /*$3%s*/ $this->row_actions($actions)
-        );
+        return sprintf('%1$s %2$s', $item['firstname'] .' '.$item['lastname'], $this->row_actions($actions) );
     }
 
     /** ************************************************************************
@@ -168,10 +148,6 @@ class freeseat_list_table extends \WP_List_Table {
      * is the column's title text. If you need a checkbox for bulk actions, refer
      * to the $columns array below.
      * 
-     * The 'cb' column is treated differently than the rest. If including a checkbox
-     * column in your table you must create a column_cb() method. If you don't need
-     * bulk actions or checkboxes, simply leave the 'cb' entry out of your array.
-     * 
      * @see WP_List_Table::::single_row_columns()
      * @return array An associative array containing column information: 'slugs'=>'Visible Titles'
      **************************************************************************/
@@ -179,10 +155,10 @@ class freeseat_list_table extends \WP_List_Table {
         $columns = array(
             'cb'        => '<input type="checkbox" />', //Render a checkbox instead of text
             'bookid'	=> 'ID',
+            'name'		=> 'Name',
             'date'		=> 'Date',
             'col'		=> 'Seat',
             'cat'		=> 'Rate',
-            'name'		=> 'Name',
             'email'		=> 'Email',
             'phone'		=> 'Phone',
             'expiration' => 'Expiration'
@@ -196,11 +172,6 @@ class freeseat_list_table extends \WP_List_Table {
      * key is the column that needs to be sortable, and the value is db column to 
      * sort by. Often, the key and value will be the same, but this is not always
      * the case (as the value is a column name from the database, not the list table).
-     * 
-     * This method merely defines which columns should be sortable and makes them
-     * clickable - it does not handle the actual sorting. You still need to detect
-     * the ORDERBY and ORDER querystring variables within prepare_items() and sort
-     * your data accordingly (usually by modifying your query).
      * 
      * @return array An associative array containing all the columns that should be sortable: 'slugs'=>array('data_values',bool)
      **************************************************************************/
@@ -218,19 +189,12 @@ class freeseat_list_table extends \WP_List_Table {
      * the place to define them. Bulk actions are an associative array in the format
      * 'slug'=>'Visible Title'
      * 
-     * If this method returns an empty value, no bulk action will be rendered. If
-     * you specify any bulk actions, the bulk actions box will be rendered with
-     * the table automatically on display().
-     * 
-     * Also note that list tables are not automatically wrapped in <form> elements,
-     * so you will need to create those manually in order for bulk actions to function.
-     * 
      * @return array An associative array containing all the bulk actions: 'slugs'=>'Visible Titles'
      **************************************************************************/
     function get_bulk_actions() {
         $actions = array(
-            'delete'    => 'Delete',
             'print'		=> 'Print',
+            'delete'    => 'Delete',
             'extend'	=> 'Extend Expiration',
             'confirm'	=> 'Confirm Payment'
         );
@@ -245,59 +209,18 @@ class freeseat_list_table extends \WP_List_Table {
      * @see $this->prepare_items()
      **************************************************************************/
 	function process_bulk_action() {        
-		//Detect when a bulk action is being triggered...  FIXME
-		if( 'delete'===$this->current_action() ) {
-			start_notifs();
-			foreach ( $_GET['booking'] as $book ) {
-				set_book_status( $book, ST_DELETED );
-			}
-			send_notifs( ST_DELETED );
-		}
+		//Detect when a bulk action is being triggered... 
 		if( 'print'===$this->current_action() ) {
-		
-			if (count($ab) && isset($_POST["print"])) {
-				show_head(true);
-				do_hook('adminprint_process');  // process parameters from bookinglist
-				$hide_tickets = do_hook_exists('ticket_prepare_override');
-				foreach ($ab as $x) {
-					do_hook_function('ticket_render_override', $x);
-				}
-				do_hook('ticket_finalise_override');
-		
-				if (!$hide_tickets) {
-					do_hook('ticket_prepare');
-					foreach ($ab as $x) {
-						do_hook_function('ticket_render', $x);
-					}
-					do_hook('ticket_finalise');
-				}
-				// print_legal_info();
-				$showid = $x['showid'];
-				$bookinglist_url = admin_url( 'admin.php?page=freeseat-reservations' );
-				echo "<p class='main'>";
-				printf($lang['backto'],"[<a href='$bookinglist_url'>".$lang["link_bookinglist"]."</a>] ");
-				echo "</p>";
-				show_foot();
-				exit;
-			}		
-		
+			bookinglist_print($_GET['booking']);
+		}
+		if( 'delete'===$this->current_action() ) {
+			bookinglist_delete($_GET['booking']);
 		}
         if( 'extend'===$this->current_action() ) {
-		    foreach ($_GET['booking'] as $booking) {
-				$st = $booking['state'];
-				$id = $booking['bookid'];
-				if ($st == ST_SHAKEN || $st == ST_BOOKED) {
-					$sql = "update booking set timestamp=NOW(), state=".ST_BOOKED." where id=$id";
-        			if (!freeseat_query($sql)) myboom();
-				}
-			}        
+        	bookinglist_extend($_GET['booking']);
         }
 		if( 'confirm'===$this->current_action() ) {
-			start_notifs();
-			foreach ( $_GET['booking'] as $book ) {
-				set_book_status( $book, ST_PAID );
-			}
-			send_notifs( ST_PAID );
+			bookinglist_confirm($_GET['booking']);
         }
 		// FIXME do_hook( 'bookinglist_process' );
     }
@@ -321,30 +244,10 @@ class freeseat_list_table extends \WP_List_Table {
         global $wpdb, $bookings_on_a_page; //This is used only if making any database queries
 
         $per_page = $bookings_on_a_page;
-        
-        /**
-         * REQUIRED. Now we need to define our column headers. This includes a complete
-         * array of columns to be displayed (slugs & titles), a list of columns
-         * to keep hidden, and a list of columns that are sortable. Each of these
-         * can be defined in another method (as we've done here) before being
-         * used to build the value for our _column_headers property.
-         */
         $columns = $this->get_columns();
         $hidden = array();
         $sortable = $this->get_sortable_columns();
-        
-        /**
-         * REQUIRED. Finally, we build an array to be used by the class for column 
-         * headers. The $this->_column_headers property takes an array which contains
-         * 3 other arrays. One for all columns, one for hidden columns, and one
-         * for sortable columns.
-         */
         $this->_column_headers = array($columns, $hidden, $sortable);
-        
-        /**
-         * Optional. You can handle your bulk actions however you see fit. In this
-         * case, we'll handle them within our package just to keep things clean.
-         */
         $this->process_bulk_action();
        
 		/** BUILD QUERY ACCORDING TO filter settings **/
@@ -393,45 +296,13 @@ class freeseat_list_table extends \WP_List_Table {
 				$and = "and";
 		}
         
-        $order = (!empty($_REQUEST['order'])) ? $_REQUEST['order'] : 'asc';
-        $orderby = (!empty($_REQUEST['orderby'])) ? $_REQUEST['orderby'] : 'id';
-        $orderby .= " $order";
-        /***********************************************************************
-         * In a real-world situation, this is where you would place your query.
-         **********************************************************************/
+        $orderby = (isset($_REQUEST['orderby']) ? $_REQUEST['orderby'] : 'id' ).' '.
+        (isset($_REQUEST['order']) ? $_REQUEST['order'] : 'asc');
         $data = get_bookings( $cond, ( $orderby == "id" ? "bookid" : "$orderby,bookid" ), 0, $per_page );
-                
-        /**
-         * REQUIRED for pagination. Let's figure out what page the user is currently 
-         * looking at. We'll need this later, so you should always include it in 
-         * your own package classes.
-         */
         $current_page = $this->get_pagenum();
-        
-        /**
-         * REQUIRED for pagination. Let's check how many items are in our data array. 
-         * In real-world use, this would be the total number of items in your database, 
-         * without filtering. We'll need this later, so you should always include it 
-         * in your own package classes.
-         */
         $total_items = count($data);
-        
-        /**
-         * The WP_List_Table class does not handle pagination for us, so we need
-         * to ensure that the data is trimmed to only the current page. We can use
-         * array_slice() to 
-         */
         $data = array_slice($data,(($current_page-1)*$per_page),$per_page);
-        
-        /**
-         * REQUIRED. Now we can add our *sorted* data to the items property, where 
-         * it can be used by the rest of the class.
-         */
         $this->items = $data;
-        
-        /**
-         * REQUIRED. We also have to register our pagination options & calculations.
-         */
         $this->set_pagination_args( array(
             'total_items' => $total_items,                  //WE have to calculate the total number of items
             'per_page'    => $per_page,                     //WE have to determine how many items to show on a page
@@ -440,11 +311,8 @@ class freeseat_list_table extends \WP_List_Table {
     }
 }
 
-/** ************************ REGISTER THE TEST PAGE ****************************
- *******************************************************************************
- * Now we just need to define an admin page. For this example, we'll add a top-level
- * menu item to the bottom of the admin menus.
- */
+/**************************** REGISTER THE PAGE ****************************
+ ********************************************************************************/
 function freeseat_add_bookinglist_menu(){
     // add_submenu_page( $parent_slug, $page_title, $menu_title, $capability, $menu_slug, $function );
     add_submenu_page( 'freeseat-admin', 'Manage Bookings', 'Manage Bookings', 'administer_freeseat', 'freeseat-listtable', __NAMESPACE__ . '\\freeseat_render_list' );
@@ -453,19 +321,32 @@ function freeseat_add_bookinglist_menu(){
 add_action('admin_menu', __NAMESPACE__ . '\\freeseat_add_bookinglist_menu');
 
 
-/** *************************** RENDER TEST PAGE ********************************
- *******************************************************************************
- * This function renders the admin page and the example list table. Although it's
- * possible to call prepare_items() and display() from the constructor, there
- * are often times where you may need to include logic here between those steps,
- * so we've instead called those methods explicitly. It keeps things flexible, and
- * it's the way the list tables are used in the WordPress core.
- */
+/******************************* RENDER THE PAGE ********************************
+ ********************************************************************************/
 function freeseat_render_list() {
 	global $filterst, $filtershow, $lang;
+	
+	// if user clicked a row action link, deal with it here
+	if (isset($_REQUEST['action'])) {
+		switch ($_REQUEST['action']) {
+			case 'print':
+				bookinglist_print((isset($_REQUEST['booking']) ? $_REQUEST['booking'] : NULL));
+				break;
+			case 'delete':
+				bookinglist_delete($_REQUEST['booking']);
+				break;
+			case 'extend':
+				bookinglist_extend($_REQUEST['booking']);
+				break;
+			case 'confirm':
+				bookinglist_confirm($_REQUEST['booking']);
+				break;
+		}
+	}
+	// start the main page with select boxes for booking status and showid
 	$bookinglist_url = sprintf('?page=%s&action=%s',$_REQUEST['page'],'filter');
 	?>
-	<div class="wrap">
+	<div class="wrap"><div id="freeseat-wide">
 		<h2>Manage Bookings</h2>        
 		<form action="<?php echo $bookinglist_url; ?>" method="POST" name="filterform">
 			<?php if (function_exists('wp_nonce_field')) wp_nonce_field('freeseat-bookinglist-filterform'); ?>
@@ -510,8 +391,8 @@ function freeseat_render_list() {
 		} else
 			echo mysql_error();
 		echo ' <input class="button button-primary" type="submit" value="' . $lang[ "update" ] . '"></form>';
-		echo '</div>';
 		
+		// now create the WP_List_Table object
 		$ListTable = new freeseat_list_table();
 		$ListTable->prepare_items();
     ?>
@@ -523,7 +404,96 @@ function freeseat_render_list() {
             <!-- Now we can render the completed list table -->
             <?php $ListTable->display() ?>
         </form>
-    </div>
+    </div></div>
     <?php
+}
+
+function bookinglist_print($list) {
+	global $lang, $page_url;
+	// handle a request to print one or more reservations
+	// creates a page for the print routine and then exits
+	
+	$bookings = array();
+	if (!empty($list)) {
+		if (!is_array($list)) { $list = array($list); }
+		foreach ($list as $bookid) {
+			$booking = get_booking($bookid);
+			$bookings[$booking['seat']] = $booking;
+			$_SESSION['firstname'] = $booking['firstname'];
+			$_SESSION['lastname'] = $booking['lastname'];
+			$_SESSION['payment'] = $booking['payment'];
+		}
+		$_SESSION['seats'] = $bookings;
+	} else {
+		$bookings = $_SESSION['seats'];
+	}
+	$page_url = admin_url( 'admin.php?action=print&page='.$_REQUEST['page'] );
+	show_head(true);
+	do_hook('adminprint_process');  // process parameters 
+	$hide_tickets = do_hook_exists('ticket_prepare_override');
+	foreach ($bookings as $x) {
+		do_hook_function('ticket_render_override', $x);
+	}
+	do_hook('ticket_finalise_override');
+
+	if (!$hide_tickets) {
+		do_hook('ticket_prepare');
+		foreach ($bookings as $x) {
+			do_hook_function('ticket_render', $x);
+		}
+		do_hook('ticket_finalise');
+	}
+	$showid = $x['showid'];
+	$bookinglist_url = sprintf('?page=%s',$_REQUEST['page']);
+	echo "<p class='main'>";
+	printf($lang['backto'],"[<a href='$bookinglist_url'>".$lang["link_bookinglist"]."</a>] ");
+	echo "</p>";
+	show_foot();
+	exit;
+}
+
+function bookinglist_delete($list) {
+	// handle a request to delete one or more reservations
+	$bookings = array();
+	if (!is_array($list)) { $list = array($list); }
+	foreach ($list as $bookid) {
+		$bookings[] = get_booking($bookid);
+	} 
+	start_notifs();
+	foreach ( $bookings as $booking ) {
+		set_book_status( $booking, ST_DELETED );
+	}
+	send_notifs( ST_DELETED );	
+}
+
+function bookinglist_extend($list) {
+	// handle a request to extend one or more unpaid reservations
+	$bookings = array();
+	if (!is_array($list)) { $list = array($list); }
+	foreach ($list as $bookid) {
+		$bookings[] = get_booking($bookid);
+	}
+    foreach ($bookings as $booking) {
+		$st = $booking['state'];
+		$id = $booking['bookid'];
+		if ($st == ST_SHAKEN || $st == ST_BOOKED) {
+			$sql = "update booking set timestamp=NOW(), state=".ST_BOOKED." where id=$id";
+			if (!freeseat_query($sql)) myboom();
+		}
+	}        
+}
+
+function bookinglist_confirm($list) {
+	// handle a request to confirm one or more reservation payments
+	$bookings = array();
+	if (!is_array($list)) { $list = array($list); }
+	foreach ($list as $bookid) {
+		$bookings[] = get_booking($bookid);
+	}
+	start_notifs();
+	foreach ( $bookings as $booking ) {
+		set_book_status( $booking, ST_PAID );
+	}
+	send_notifs( ST_PAID );
 }
 
