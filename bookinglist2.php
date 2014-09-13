@@ -326,16 +326,6 @@ class freeseat_list_table extends \WP_List_Table {
     }
 }
 
-/**************************** REGISTER THE PAGE ****************************
- ********************************************************************************/
-function freeseat_add_bookinglist_menu(){
-    // add_submenu_page( $parent_slug, $page_title, $menu_title, $capability, $menu_slug, $function );
-    add_submenu_page( 'freeseat-admin', 'Manage Bookings', 'Manage Bookings', 'administer_freeseat', 'freeseat-listtable', __NAMESPACE__ . '\\freeseat_render_list' );
-} 
-
-add_action('admin_menu', __NAMESPACE__ . '\\freeseat_add_bookinglist_menu');
-
-
 /******************************* RENDER THE PAGE ********************************
  ********************************************************************************/
 function freeseat_render_list() {
@@ -362,7 +352,7 @@ function freeseat_render_list() {
 	$bookinglist_url = sprintf('?page=%s&action=%s',$_REQUEST['page'],'filter');
 	?>
 	<div class="wrap"><div id="freeseat-wide">
-		<h2>Manage Bookings</h2>        
+		<h2>Manage Reservations</h2>        
 		<form action="<?php echo $bookinglist_url; ?>" method="POST" name="filterform">
 			<?php if (function_exists('wp_nonce_field')) wp_nonce_field('freeseat-bookinglist-filterform'); ?>
 			<p class="main"><?php echo $lang[ "filter" ]; ?>

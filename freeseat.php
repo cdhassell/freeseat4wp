@@ -111,7 +111,6 @@ require_once( FS_PATH . "pay.php" );
 require_once( FS_PATH . "confirm.php" );
 require_once( FS_PATH . "finish.php" );
 require_once( FS_PATH . "seatmaps.php" );
-require_once( FS_PATH . "bookinglist.php" );
 require_once( FS_PATH . "showedit.php" );
 require_once( FS_PATH . "newcron.php" );
 require_once( FS_PATH . "bookinglist2.php" );
@@ -197,7 +196,7 @@ function freeseat_admin_menu() {
 	// add_submenu_page( $parent_slug, $page_title, $menu_title, $capability, $menu_slug, $function );
 	add_menu_page( 'Current Shows', 'FreeSeat', 'administer_freeseat', 'freeseat-admin', __NAMESPACE__ . '\\freeseat_switch', plugins_url( 'freeseat/ticket.png' ) );
 	add_submenu_page( 'freeseat-admin', 'Current Shows', 'Current Shows', 'administer_freeseat', 'freeseat-admin', __NAMESPACE__ . '\\freeseat_switch' );
-	add_submenu_page( 'freeseat-admin', 'View Reservations', 'Reservations', 'administer_freeseat', 'freeseat-reservations', __NAMESPACE__ . '\\freeseat_bookinglist' );
+	add_submenu_page( 'freeseat-admin', 'View Reservations', 'Reservations', 'administer_freeseat', 'freeseat-listtable', __NAMESPACE__ . '\\freeseat_render_list' );
 	add_submenu_page( 'freeseat-admin', 'Show Setup', 'Show Setup', 'administer_freeseat', 'freeseat-showedit', __NAMESPACE__ . '\\freeseat_showedit' );
 	add_submenu_page( 'freeseat-admin', 'Edit Settings', 'Settings', 'administer_freeseat', 'freeseat-system', __NAMESPACE__ . '\\freeseat_params' );
 	add_submenu_page( 'freeseat-admin', 'Seatmaps', 'Seatmaps', 'administer_freeseat', 'freeseat-upload', __NAMESPACE__ . '\\freeseat_upload' );
