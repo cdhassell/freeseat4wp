@@ -28,8 +28,8 @@ function freeseat_plugin_init_bocatickets() {
 	$freeseat_plugin_hooks['ticket_finalise_override']['bocatickets'] = 'bocatickets_end';
 	// $freeseat_plugin_hooks['confirm_bottom']['bocatickets'] = 'bocatickets_checkbox';
 	$freeseat_plugin_hooks['confirm_process']['bocatickets'] = 'bocatickets_process';
-	$freeseat_plugin_hooks['adminprint_line']['bocatickets'] = 'bocatickets_checkbox';
-	$freeseat_plugin_hooks['adminprint_process']['bocatickets'] = 'bocatickets_process';
+	$freeseat_plugin_hooks['bookinglist_line']['bocatickets'] = 'bocatickets_checkbox';
+	$freeseat_plugin_hooks['bookinglist_process']['bocatickets'] = 'bocatickets_process';
     $freeseat_plugin_hooks['params_post']['bocatickets'] = 'bocatickets_postedit';
     $freeseat_plugin_hooks['params_edit']['bocatickets'] = 'bocatickets_editparams';    
 }
@@ -78,7 +78,7 @@ function bocatickets_editparams($options) {
 
 function bocatickets_start() {
 	if (isset($_SESSION['boca']) && $_SESSION['boca']) {
-		echo "</div>";  // close the regular page div
+		// echo "</div>";  // close the regular page div
 		return true;    // return true to suppress other ticket output 
 	}
 }
@@ -232,6 +232,6 @@ function bocatickets_checkbox() {
 }
 
 function bocatickets_process() {
-	$_SESSION["boca"] = isset($_POST["boca"]) and admin_mode();
+	$_SESSION["boca"] = isset($_REQUEST["boca"]) && admin_mode();
 }
 

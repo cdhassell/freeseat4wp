@@ -96,7 +96,6 @@ class freeseat_list_table extends \WP_List_Table {
 					$html = sprintf( $lang[ "in" ], ( (int) ( $delta / 86400 ) ) . ' ' . $lang[ "day" ] );
 			}
 		} else $html = '<i>' . $lang[ "none" ] . '</i>';			
-		// FIXME $html .= do_hook_concat( 'bookinglist_tablerow', $item );
 		if ( $item['state'] == ST_BOOKED || $item['state'] == ST_SHAKEN ) {
 			$actions = array( 'extend' => sprintf('<a href="?page=%s&action=%s&booking=%s">Extend</a>', $_REQUEST['page'],'extend', $item['bookid']) );
 			$html .= $this->row_actions($actions);
@@ -224,7 +223,6 @@ class freeseat_list_table extends \WP_List_Table {
 		if( 'confirm'===$this->current_action() ) {
 			bookinglist_confirm($_GET['booking']);
         }
-		// FIXME do_hook( 'bookinglist_process' );
     }
 
     /** ************************************************************************
@@ -358,79 +356,80 @@ function freeseat_render_list() {
 			<p class="main"><?php echo $lang[ "filter" ]; ?>
 			<select name="st" onchange="filterform.submit();">
 	<?php
-		foreach ( array(
-			 -ST_DELETED => "st_notdeleted",
-			ST_BOOKED => "st_tobepaid",
-			ST_PAID => "st_paid",
-			ST_DELETED => "st_deleted",
-			ST_DISABLED => "st_disabled",
-			0 => "st_any" 
-		) as $opt => $lab ) {
-			echo '<option value="' . $opt . '" ';
-			if ( $filterst == $opt )
-				echo "selected ";
-			echo '>' . $lang[ $lab ] . '</option>';
-		}
+	foreach ( array(
+		 -ST_DELETED => "st_notdeleted",
+		ST_BOOKED => "st_tobepaid",
+		ST_PAID => "st_paid",
+		ST_DELETED => "st_deleted",
+		ST_DISABLED => "st_disabled",
+		0 => "st_any" 
+	) as $opt => $lab ) {
+		echo '<option value="' . $opt . '" ';
+		if ( $filterst == $opt )
+			echo "selected ";
+		echo '>' . $lang[ $lab ] . '</option>';
+	}
 	?>
-	</select>
+			</select>
 	<?php
-		// limit this list to shows no more than a week ago
-		// it prevents trying to summarize the entire database 
-		$ss = get_shows( "date >= CURDATE() - INTERVAL 1 week" );
-		if ( $ss ) {
-			echo '<select name="showid" onchange="filterform.submit();">';
-			echo '<option value="">' . $lang[ "show_any" ] . '</option>';
-			$fulllist = $comma = '';
-			foreach ( $ss as $sh ) {
-				echo '<option value="' . $sh[ "id" ] . '"';
-				if ( $filtershow == $sh[ "id" ] )
-					echo 'selected >';
-				else
-					echo '>';
-				show_show_info( $sh, false );
-				echo '</option>';
-				$fulllist .= $comma . $sh[ 'id' ];
-				$comma = ', ';
-			}
-			echo '</select> ';
-		} else
-			echo mysql_error();
-		echo ' <input class="button button-primary" type="submit" value="' . $lang[ "update" ] . '"></form>';
+	// limit this list to shows no more than a week ago
+	// it prevents trying to summarize the entire database 
+	$ss = get_shows( "date >= CURDATE() - INTERVAL 1 week" );
+	if ( $ss ) {
+		echo '<select name="showid" onchange="filterform.submit();">';
+		echo '<option value="">' . $lang[ "show_any" ] . '</option>';
+		$fulllist = $comma = '';
+		foreach ( $ss as $sh ) {
+			echo '<option value="' . $sh[ "id" ] . '"';
+			if ( $filtershow == $sh[ "id" ] )
+				echo 'selected >';
+			else
+				echo '>';
+			show_show_info( $sh, false );
+			echo '</option>';
+			$fulllist .= $comma . $sh[ 'id' ];
+			$comma = ', ';
+		}
+		echo '</select> ';
+	} else {
+		echo mysql_error();
+	}
+	echo ' <input class="button button-primary" type="submit" value="' . $lang[ "update" ] . '"></form>';
+	// now create the WP_List_Table object
+	$ListTable = new freeseat_list_table();
 		
-		// now create the WP_List_Table object
-		$ListTable = new freeseat_list_table();
-		// $ListTable->prepare_items();
+	//Fetch, prepare, sort, and filter our data...
+	if( isset($_POST['s']) ){
+		$ListTable->prepare_items($_POST['s']);
+	} else {
+		$ListTable->prepare_items();
+	}
 		
-        //Fetch, prepare, sort, and filter our data...
-        if( isset($_POST['s']) ){
-                $ListTable->prepare_items($_POST['s']);
-        } else {
-                $ListTable->prepare_items();
-        }		
-		
-    ?>
-    <div id="icon-users" class="icon32"><br/></div>
-    	<!-- Form to create a search box -->
-        <form method="post">
-        	<?php $ListTable->search_box('Search by name', 'name'); ?>
-        	<input type="hidden" name="page" value="<?php echo $_REQUEST['page'] ?>" />
-    	</form>
-        <!-- Wrap the table in a form to use features like bulk actions -->
-        <form id="bookings-filter" method="get">
-            <!-- For plugins, we also need to ensure that the form posts back to our current page -->
-            <input type="hidden" name="page" value="<?php echo $_REQUEST['page'] ?>" />
-            <!-- Now we can render the completed list table -->
-            <?php $ListTable->display() ?>
-        </form>
-    </div></div>
-    <?php
+	?>
+		<div id="icon-users" class="icon32"><br/></div>
+		<!-- Form to create a search box -->
+		<form method="post">
+			<?php $ListTable->search_box('Search by name', 'name'); ?>
+			<input type="hidden" name="page" value="<?php echo $_REQUEST['page'] ?>" />
+		</form>
+
+		<!-- Wrap the table in a form to use features like bulk actions -->
+		<form id="bookings-filter" method="get">
+			<?php do_hook( 'bookinglist_line' ); ?>
+			<!-- For plugins, we also need to ensure that the form posts back to our current page -->
+			<input type="hidden" name="page" value="<?php echo $_REQUEST['page'] ?>" />
+			<!-- Now we can render the completed list table -->
+			<?php $ListTable->display() ?>
+		</form>
+	</div></div>
+	<?php
 }
 
 function bookinglist_print($list) {
 	global $lang, $page_url;
 	// handle a request to print one or more reservations
 	// creates a page for the print routine and then exits
-	
+	do_hook('bookinglist_process');  // process parameters 	
 	$bookings = array();
 	if (!empty($list)) {
 		if (!is_array($list)) { $list = array($list); }
@@ -447,8 +446,8 @@ function bookinglist_print($list) {
 	}
 	$page_url = admin_url( 'admin.php?action=print&page='.$_REQUEST['page'] );
 	show_head(true);
-	do_hook('adminprint_process');  // process parameters 
 	$hide_tickets = do_hook_exists('ticket_prepare_override');
+	
 	foreach ($bookings as $x) {
 		do_hook_function('ticket_render_override', $x);
 	}
@@ -476,7 +475,7 @@ function bookinglist_delete($list) {
 	if (!is_array($list)) { $list = array($list); }
 	foreach ($list as $bookid) {
 		$bookings[] = get_booking($bookid);
-	} 
+	}
 	start_notifs();
 	foreach ( $bookings as $booking ) {
 		set_book_status( $booking, ST_DELETED );
@@ -491,14 +490,14 @@ function bookinglist_extend($list) {
 	foreach ($list as $bookid) {
 		$bookings[] = get_booking($bookid);
 	}
-    foreach ($bookings as $booking) {
+	foreach ($bookings as $booking) {
 		$st = $booking['state'];
 		$id = $booking['bookid'];
 		if ($st == ST_SHAKEN || $st == ST_BOOKED) {
 			$sql = "update booking set timestamp=NOW(), state=".ST_BOOKED." where id=$id";
 			if (!freeseat_query($sql)) myboom();
 		}
-	}        
+	}
 }
 
 function bookinglist_confirm($list) {

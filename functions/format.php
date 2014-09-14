@@ -70,7 +70,7 @@ function close_head($wide = false,$bodyparm = "") {
 }
 
 function show_foot() {
-  global $lang,$freeseat_vars;
+  global $lang;
 
   /** In case messages had been generated after the head was closed... */
   flush_messages_html();
