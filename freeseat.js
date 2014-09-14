@@ -37,4 +37,20 @@ jQuery(document).ready(function ($){
 		heightStyle: "content",
 		icons: { "header": "ui-icon-plus", "activeHeader": "ui-icon-minus" } 
 	} );
+	
+	/* used for setting the printer on the bookinglist page */	
+	$( "#printercheck" ).click( function() {
+		var printername = $(this).prop("name");
+		var ifchecked = $(this).prop("checked");
+		$( ".freeseat-print" ).each( function() {
+			var theHref = $(this).attr("href");
+			var theArg  = "&" + printername + "=1";
+			if (ifchecked && theHref.indexOf(theArg) === -1) {
+				$(this).attr("href", theHref + theArg);
+			} else {
+				theHref = theHref.replace(theArg, ""); 
+				$(this).attr("href", theHref );
+			}
+		})
+	} );
 });

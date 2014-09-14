@@ -71,9 +71,11 @@ function freeseat_install() {
 	country varchar(2) DEFAULT NULL,
 	notes varchar(255) DEFAULT NULL,
 	expiration datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+	user_id bigint(20) unsigned NOT NULL,
 	PRIMARY KEY  (id),
 	KEY seat_query (seat,state,showid),
-	KEY groupid (groupid)
+	KEY groupid (groupid),
+	KEY user_id
 	);";
 
 	require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );

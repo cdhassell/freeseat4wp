@@ -126,7 +126,7 @@ class freeseat_list_table extends \WP_List_Table {
     function column_name($item){
         //Build row actions
         $actions = array(
-            'print'  => sprintf('<a href="?page=%s&action=%s&booking=%s">Print</a>',$_REQUEST['page'],'print',$item['bookid']),
+            'print'  => sprintf('<a class="freeseat-print" href="?page=%s&action=%s&booking=%s">Print</a>',$_REQUEST['page'],'print',$item['bookid']),
             'delete' => sprintf('<a href="?page=%s&action=%s&booking=%s">Delete</a>',$_REQUEST['page'],'delete',$item['bookid'])
         );
         //Return the title contents
@@ -305,11 +305,11 @@ class freeseat_list_table extends \WP_List_Table {
 			// get_bookings query is duplicated here so search terms can be sanitized :-p
 			if ($cond) $cond = "( $cond ) and";
 			if ($orderby) $orderby = "ORDER BY " . ($orderby == "id" ? "bookid" : "$orderby,bookid" );
-			$sql = "SELECT booking.id as bookid, booking.*, seat, seats.row, seats.col, seats.extra, seats.zone, seats.class, showid, shows.date, shows.time, shows.spectacle as spectacleid, theatres.name as theatrename, theatres.id as theatreid, seats.x, seats.y FROM booking, shows, seats, theatres WHERE $cond booking.seat = seats.id and booking.showid=shows.id and shows.theatre = theatres.id $orderby LIMIT $per_page OFFSET 0";
+			$sql = "SELECT booking.id as bookid, booking.*, seat, seats.row, seats.col, seats.extra, seats.zone, seats.class, showid, shows.date, shows.time, shows.spectacle as spectacleid, theatres.name as theatrename, theatres.id as theatreid, seats.x, seats.y FROM booking, shows, seats, theatres WHERE $cond booking.seat = seats.id and booking.showid=shows.id and shows.theatre = theatres.id $orderby"; // LIMIT $per_page OFFSET 0";
 			$sql = fs2wp( $sql );
 			$data = $wpdb->get_results($wpdb->prepare( $sql, $search, $search), ARRAY_A);
 		} else{
-        	$data = get_bookings( $cond, ( $orderby == "id" ? "bookid" : "$orderby,bookid" ), 0, $per_page );
+        	$data = get_bookings( $cond, ( $orderby == "id" ? "bookid" : "$orderby,bookid" )); // , 0, $per_page );
 		}
 
         $current_page = $this->get_pagenum();

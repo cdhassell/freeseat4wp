@@ -81,15 +81,15 @@ function login_setuserid( $bookid ) {
 	freeseat_query( "UPDATE booking SET user_id=$userid WHERE id=$bookid" );
 }
 
-add_action( 'admin_menu', __NAMESPACE__ . '\\freeseat_users_menu' );
+// add_action( 'admin_menu', __NAMESPACE__ . '\\freeseat_users_menu' );
 
 /**
  *  Adds a submenu item for the user lookup on the admin menu
  */
-function freeseat_users_menu() {
+/* function freeseat_users_menu() {
 	// add_submenu_page( $parent_slug, $page_title, $menu_title, $capability, $menu_slug, $function );
 	add_submenu_page( 'freeseat-admin', 'Users', 'Users', 'administer_freeseat', 'freeseat-users', __NAMESPACE__ . '\\freeseat_users' );
-}
+} */
 
 /**
  *   Creates a user account lookup page 
@@ -122,7 +122,10 @@ function freeseat_users() {
 		$user = get_current_user_id();
 		$userlist_url = (( isset( $post ) ) ? get_permalink() : $_SERVER['PHP_SELF'].'?page=freeseat-users' );
 	} else {
-		if ( isset($_REQUEST['user']) ) $user = $_REQUEST['user'];
+		if ( isset($_REQUEST['user']) ) 
+			$user = $_REQUEST['user'];
+		else 
+			$user = get_current_user_id();
 		$userlist_url = admin_url( 'admin.php?page=freeseat-users' );
 		// allow admin user to search for user names and see bookings for anyone
 		// this uses jquery autocomplete and the ajax callback below
@@ -218,15 +221,11 @@ function freeseat_users() {
 					}
 				} else 
 					$html .= '<i>' . $lang[ "none" ] . '</i>';
-				if (admin_mode()) {
-					// $html .= do_hook_concat( 'bookinglist_tablerow', $b );
-				}
 				$imgsrc = plugins_url( 'i2020.png' , __FILE__ );
 				$html .= "<td><img src='$imgsrc' title='$description'>";
 				$html .= login_page_buttons( $id, $st, $user );				
 			}
 			$headers = '<tr><th>' . $lang[ "bookid" ] . '<th>' . $lang[ "date" ] . '<th>' . $lang[ "show_name" ] . '<th>' . $lang["price"] . '<th>' . $lang['tickets'] . '<th>' . $lang['state'] . '<th>' . $lang[ "expiration" ];
-			// if (admin_mode()) $headers .= do_hook_concat('bookinglist_tableheader');
 			?>
 			<table cellspacing=0 cellpadding=4 border=0 class="bookinglist">
 			<?php echo $headers . $html; ?>
@@ -244,7 +243,7 @@ function freeseat_users() {
 }
 
 /**
- *  Helper function to display action buttons on the user account page
+ *  Display action buttons on the user account page
  */
 function login_page_buttons( $id, $st, $user ) {
 	global $lang, $post;
