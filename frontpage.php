@@ -50,7 +50,8 @@ function freeseat_frontpage( $page_url ) {
 		} else {
 			echo '<div class="leftblock"></div>';
 		}
-		echo '<div class="showlist">' . $linkl . '<h3>' . $s[ 'name' ] . '</h3>' . $linkr;
+		echo '<div class="showlist">';
+		echo $linkl . '<h3>' . $s[ 'name' ] . '</h3>' . $linkr;
 		/** WARN - we assume whoever filled the description field to be
 		  trustworthy enough not to write malicious or malformed html */
 		if ( $s[ "description" ] ) {

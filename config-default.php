@@ -10,7 +10,7 @@
 
 **/
 
-$plugins = array( 'autopay', 'adminprint', 'extendbooking', 'bookingnotes', 'pdftickets', 'barcode', 'paypal' );
+$plugins = array( 'pdftickets', 'barcode', 'paypal' );
 $unsecure_login = false; 
 $language = 'english';
 $logfile = "logs/freeseat.log";

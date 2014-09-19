@@ -165,6 +165,7 @@ p.emph {
     margin-left : 2em;
     margin-right : 5em;
     text-align : justify;
+    font-weight: bold;
 }
 
 /* very important paragraph text */
@@ -236,52 +237,53 @@ p.warning {
 }
 
 /* a table that contains a form */
-div.form {
+#freeseat-narrow div.form {
     margin-right : 3em; 
-    padding-top: 1em;
-    padding-bottom: 1em;
-    padding-left: 1em;
-    padding-right: 1em;
-    background-color : #f0e0d0;
+    padding: 1em;
   }
 
 /* a table that contains a form. Am using the float property to have
 it take optimal width instead of full width */
-div.form div.form {
+#freeseat-narrow div.form div.form {
     float: left;
-/*    clear: left; */
-    margin-left : 0em;
-    margin-right : 1em;
-    margin-top : 1em; 
-    margin-bottom : 1em; 
-    border-style : dotted; 
-    border-width : 1px; 
-    padding-top: 0em;
-    padding-bottom: 1em;
-    padding-left: 1em;
-    padding-right: 1em;
-    background-color : #fff0e0;
+    margin: 1em 1em 1em 0em;    
+    padding: 0em 1em 1em 1em;
+ 	-moz-border-radius: 5px;
+	border-radius: 5px;
+	border: 1px solid #AAAAAA;
+	background-color: #F8F8F8;
   }
 
-div.form p {
+#freeseat-narrow div.form p {
    clear: left;
 }
 
-div.image-selection {
+#freeseat-narrow div.form table {
+	border-collapse: collapse;
+	border: 1px solid #AAAAAA;
+}
+
+#freeseat-narrow div.form table td {
+	padding: 5px;
+	text-align: center;
+}
+
+#freeseat-narrow div.image-selection {
+	float: left;
     margin-left: 1em;
     padding-top: 1em;
 }
 
-div.name-selection {
+#freeseat-narrow div.name-selection {
 	float: left;
-	margin-right: 4em;
+	margin-right: 2em;
 }
 
 div.clear-both {
 	clear: both;
 }
 
-div.ticket { 
+/* div.ticket { 
 	border : 1px;
 	border-style : dashed;
 	margin-bottom : 1em;
@@ -291,24 +293,15 @@ div.ticket {
 	overflow: hidden;
 }
 
-#freeseat-narrow span.subpage {
+#span.subpage {
   font-size:x-small;
   vertical-align:sub;
-
-}
+}  */
 
 /* a table that contains a form */
 #freeseat-narrow table.form {
     margin-left : 2em;
     margin-right : 3em;
-    border-bottom-style : dashed;
-    border-bottom-width : 1px;
-    border-left-style : dashed;
-    border-left-width : 1px;
-    border-right-style : dashed;
-    border-right-width : 1px;
-    border-top-style : dashed;
-    border-top-width : 1px;
   }
 
 #freeseat-narrow table.bookinglist td { 
@@ -316,15 +309,15 @@ div.ticket {
 }
 
 #freeseat-wide table.summary, #freeseat-narrow table.summary { 
-  margin: 1em 2em;
-  border: 1px solid black; 
-  border-collapse: collapse; 
-  width: auto;
-  overflow-x: auto;
+	margin: 1em 2em;
+	border: 1px solid #AAAAAA; 
+	border-collapse: collapse; 
+	width: auto;
+	overflow-x: auto;
 }
 
 #freeseat-narrow tr.seatmap {
-  min-height: 1em;
+	min-height: 1em;
 }
 
 #freeseat-narrow td.form {
@@ -333,23 +326,23 @@ div.ticket {
   }
 
 #freeseat-narrow td.bookid {
-  padding: 0 2em;
+	padding: 0 2em;
 }
 
 #freeseat-narrow td.col, #freeseat-narrow td.row {
-  font-size: big;
-  font-weight: bold;
-  padding: 0 1em;
+	font-size: big;
+	font-weight: bold;
+	padding: 0 1em;
 }
 
 #freeseat-narrow td.zoneextra {
-  font-size: small;
-  padding: 0 1em;
+	font-size: small;
+	padding: 0 1em;
 }
 
 #freeseat-narrow td.cat, #freeseat-narrow td.class, #freeseat-narrow td.price {
-  padding: 0 1em; 
-  text-align: right;
+	padding: 0 1em; 
+	text-align: right;
 }
 
 #freeseat-narrow td.remove {
@@ -362,36 +355,36 @@ div.ticket {
 }
 
 #freeseat-narrow .showlist {
-  padding: 1em;
-  color: black;
-  float: left;
-  max-width: 500px;
+	padding: 1em;
+	color: black;
+	float: left;
+	max-width: 500px;
 }
 
 #freeseat-wide tr.seatmap td p a {
-  color: black;
+	color: black;
 }
 
 #freeseat-wide td.stage { 
-  text-align: center; 
-  font-weight: bold;
-  background-color: #ffe49d;  /* beige */
-  color: black;	
+	text-align: center; 
+	font-weight: bold;
+	background-color: #ffe49d;  /* beige */
+	color: black;	
 }
 
 #freeseat-narrow th.ticket { 
-  font-weight: normal;
-  background-color: black; 
-  color: white; 
-  padding-right: 1em;
-  padding-left: 1em;
+	font-weight: normal;
+	background-color: black; 
+	color: white; 
+	padding-right: 1em;
+	padding-left: 1em;
  }
 
 /* if we put a p into each li then only the bullet will be coloured */
 #freeseat-wide ul li, #freeseat-narrow ul li {
-     color:#577482; /*99cce5;*/
-     margin-left: 2em;
-     margin-right: 3em;
+	color:#577482; /*99cce5;*/
+	margin-left: 2em;
+	margin-right: 3em;
 }
 
 #download-image img {
@@ -400,37 +393,37 @@ div.ticket {
 }
 
 .centered {
-  margin-left: auto; 
-  margin-right: auto;
-  border-collapse: collapse;
-  text-align: center;
+	margin-left: auto; 
+	margin-right: auto;
+	border-collapse: collapse;
+	text-align: center;
 }
 
 h4 {
-  margin: .5em 0;
+	margin: .5em 0;
 }
 
 div.ad {
-  float: right;
-  margin: 0 5em;
-  margin-left: auto;
-  margin-right: auto;
+	float: right;
+	margin: 0 5em;
+	margin-left: auto;
+	margin-right: auto;
 }
 
 div.highlight {  
-  font-size : 12pt; 
-  font-weight: bolder; 
-  color : black; 
-  background-color: yellow; 
-  width: 45em;
+	font-size : 12pt; 
+	font-weight: bolder; 
+	color : black; 
+	background-color: yellow; 
+	width: 45em;
 }
 
 #freeseat-narrow div.paymentinfo {
 	margin: 10px;
 	padding: 10px;
-	background-color: white;
-	-moz-border-radius: 15px;
-	border-radius: 15px;
+	background-color: #F8F8F8;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
 	border: 1px solid #AAAAAA;
 } 
 
@@ -451,10 +444,11 @@ div.highlight {
 #freeseat-narrow div.user-info {
 	margin: 10px;
 	padding: 10px;
-	-moz-border-radius: 15px;
-	border-radius: 15px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
 	border: 1px solid #AAAAAA;
 	max-width: 600px;
+	background-color: #F8F8F8;
 } 
 
 .nowrap {

@@ -69,7 +69,6 @@ function freeseat_install() {
 	city varchar(127) DEFAULT NULL,
 	us_state varchar(2) DEFAULT NULL,
 	country varchar(2) DEFAULT NULL,
-	notes varchar(255) DEFAULT NULL,
 	expiration datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
 	user_id bigint(20) unsigned NOT NULL,
 	PRIMARY KEY  (id),
@@ -210,9 +209,9 @@ function freeseat_install_data() {
 	// set sample purchase dates at current date
 	$buydate = strftime( "%F" ) . ' 00:00:00';
 	
-	$wpdb->query("INSERT INTO freeseat_booking (id, seat, state, cat, firstname, lastname, email, phone, timestamp, payment, groupid, showid, address, postalcode, city, us_state, country, notes, expiration) VALUES
-(1, 14, 4, 2, 'Office', 'Sale', '', '', '$buydate', 0, NULL, 1, '', '', '', 'PA', 'US', NULL, '0000-00-00 00:00:00'),
-(2, 15, 4, 2, 'Office', 'Sale', '', '', '$buydate', 0, 1, 1, '', '', '', 'PA', 'US', NULL, '0000-00-00 00:00:00');");
+	$wpdb->query("INSERT INTO freeseat_booking (id, seat, state, cat, firstname, lastname, email, phone, timestamp, payment, groupid, showid, address, postalcode, city, us_state, country, expiration) VALUES
+(1, 14, 4, 2, 'Office', 'Sale', '', '', '$buydate', 0, NULL, 1, '', '', '', 'PA', 'US', '0000-00-00 00:00:00'),
+(2, 15, 4, 2, 'Office', 'Sale', '', '', '$buydate', 0, 1, 1, '', '', '', 'PA', 'US', '0000-00-00 00:00:00');");
 	$wpdb->query("INSERT INTO freeseat_class_comment (spectacle, class, comment, description) VALUES
 (1, 1, 'Section A', NULL),
 (1, 2, 'Section B', NULL);");

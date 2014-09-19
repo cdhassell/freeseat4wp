@@ -39,7 +39,7 @@ This is a development release for public comment and testing purposes.  It is no
 
 <ul><li>Plugins not yet converted: klikandpay and seasontickets. Currently the only payment plugin is paypal.  There are no plans to convert seasontickets at the moment.  Htmltickets is unnecesary and will be dropped.
 
-<li>The setup.sql files in groupdiscount, civicrm, bookingnotes, and castpw are not handled yet.  For the moment, the default install includes all of the extra fields required by those plugins. 
+<li>The setup.sql files in groupdiscount, civicrm and castpw are not handled yet.  For the moment, the default install includes all of the extra fields required by those plugins. 
 
 <li>Testing, comments, documentation, consistency, and more testing.
 </li></ul>

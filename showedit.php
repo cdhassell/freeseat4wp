@@ -405,13 +405,12 @@ function freeseat_showedit()
 	if (function_exists('wp_nonce_field')) wp_nonce_field('freeseat-showedit-choose-spectacle');
 	// spectacle selection form depends on the onchange action in choose_spectacle()
 	echo '<h3>' . $lang["spectacle_name"] . '</h3>';
-	
 	choose_spectacle( true, $spec );
-	echo ' <input class="button button-primary" type="submit" value="'.$lang["select"].'">'; 
-	// the following doesn't work, but don't know why
-	// submit_button( $lang[ "select" ], 'primary', 'submit', false );
+	// echo ' <input class="button button-primary" type="submit" value="'.$lang["select"].'">'; 
+	submit_button( $lang[ "select" ], 'primary', 'submit', false );
 	echo '</form>';
 	echo '<div class="form">'; // the big div
+	echo '<div class="form">'; // smaller div grouping the spectacle items together
 	echo "<form action='$showedit_url' method='post' enctype='multipart/form-data'>"; // data submission form
 	if (function_exists('wp_nonce_field')) wp_nonce_field('freeseat-showedit-enter-data');
 	echo '<input style="display : none;" type="submit" name="submit">';// default action when user presses enter in a field
@@ -430,13 +429,14 @@ function freeseat_showedit()
 	} else
 		echo $lang['noimage'];
 	if (!$ready) choose_local_file('image');
-	echo '</div>';
+	echo '</div>';  // closing the image selection div
+	echo '</div>';  // closing the spectacle div
 	
 	echo '<div class="form clear-both">';
 	echo '<h3>' . $lang['datesandtimes'] . '</h3>';
 	if (!$ready) echo '<p class="fine-print">' . $lang["warn_spectacle"] . '</p>';
 	
-	echo '<table BORDER="1" CELLPADDING="4">';
+	echo '<table>';
 	echo '<tr><th>'.$lang["date_title"].'<th>'.$lang["time_title"].'<th>'.$lang["theatre_name"].'<th>'.$lang["seats_booked"].'</tr>';
 	$dispperf = 0;
 	foreach ( $dates as $i => $dt ) {
@@ -487,7 +487,7 @@ function freeseat_showedit()
 	}
 	echo '</div><div class="form">';
 	echo '<h3>' . $lang['prices'] . '</h3>';
-	echo '<table BORDER="1" CELLPADDING="4" >';
+	echo '<table>';
 	echo '<tr><th>'. $lang["class"] . '<th>'.$lang["price"].'<th>'.$lang["price_discount"].'<th>'.$lang["comment"].'</tr>';
 	for ( $i=1; $i<=4; $i++ ) { // class loop
 		echo '<tr><td>'. $i . '</td>';
@@ -500,8 +500,8 @@ function freeseat_showedit()
 		echo '</tr>';
 	}
 	
-	echo '</table></div><p>';
-	echo '<br style="clear:both;"></div>'; // a br to make the big div large enough
+	echo '</table></div>';
+	echo '<div class="clear-both"></div></div>'; 
 	
 	if ($ready) {
 	  echo '<p class="emph">' . $lang["warn_show_confirm"] . '</p>';
@@ -513,7 +513,7 @@ function freeseat_showedit()
 	} else {
 	  echo '<p class="emph">' . $lang["are-you-ready"] . '</p>';
 	  echo '<p class="main">';
-	  submit_button( $lang["continue"] );
+	  submit_button( $lang["continue"], 'primary', 'submit', false );
 	  echo '</p>';
 	}
 	

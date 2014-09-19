@@ -110,7 +110,7 @@ if ($scannerinput) { ?>
 </p><p>
    <?=$booking["firstname"]?>
    <?=$booking["lastname"]?> <a href="mailto:<?=$booking["email"]?>"><?=$booking["email"]?></a>
-   <?=$booking["phone"]?><br> <?=$booking["notes"]?>
+   <?=$booking["phone"]?><br>
 </p>
 <?php } else { ?>
 <p class="ready">Ready</p>
