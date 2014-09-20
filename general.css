@@ -140,6 +140,7 @@ display a seat of the given class on a seatmap */
 
 ul {
 	margin: 0 0 0.5em 0;
+	list-style: disc outside none;
 }
 
 li p {
@@ -359,6 +360,11 @@ div.clear-both {
 	color: black;
 	float: left;
 	max-width: 500px;
+}
+
+#freeseat-narrow .description {
+	max-height: 300px;
+	overflow: hidden;
 }
 
 #freeseat-wide tr.seatmap td p a {
