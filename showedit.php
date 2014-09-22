@@ -12,34 +12,6 @@ Modifications for Wordpress are Copyright (C) 2013 twowheeler.
  * Helper functions needed for editing show data
  */
 
-/** if an image file was uploaded, this will handle the file */
-function get_upload( &$perf ) {
-	global $upload_path, $lang;
-
-	$permitted = array("jpeg","jpg","gif","png","bmp");
-	foreach( $_FILES as $file_name => $file_array ) {
-		if ($file_array['name'] != "") {
-			// do nothing if user didn't submit a file
-			$parts = pathinfo($file_array['name']);
-			$target = $parts["basename"];
-			if ( is_uploaded_file( $file_array['tmp_name'] )
-				//&& strstr( $file_array['type'], "image" )
-				&& isset($parts["extension"])
-				&& in_array(strtolower($parts["extension"]),$permitted)) {
-				if ( !move_uploaded_file( $file_array['tmp_name'], FS_PATH . $upload_path . $target ) ) {
-					kaboom( $lang['err_upload'] ) ;
-					/* (keep old value if upload failed) */
-				} else {
-					$perf['imagesrc'] = $target;
-				}
-			} else  {
-				kaboom( $lang['err_filetype'] . "image" );
-				$perf['imagesrc'] = "";
-			}
-		}
-	}
-}
-
 /* displays a combo box allowing to choose a theatre for the given
    performance. Pass currently selected value as second parameter */
 function choose_seatmap( $perf, $theatre=null )
@@ -47,14 +19,6 @@ function choose_seatmap( $perf, $theatre=null )
 	enhanced_list_box(array( 'table' => 'theatres', 'id_field' => 'id', 
 		'value_field' => 'name', 'highlight_id' => $theatre), '', '', "theatre_$perf" );
 	return "";
-}
-
-function choose_local_file($spec)
-/* opens a file dialog to upload a file to the server
-- Maximum allowable file size is curently 1MB */
-{
-	echo '<input type="hidden" name="MAX_FILE_SIZE" value="1000000">';
-	echo '<input name="uploadedfile" type="file" accept="image/*"><br>';
 }
 
 function choose_spectacle( $new, $spec )
@@ -109,7 +73,7 @@ function print_var( $name, $value, $ready=false, $headername=null, $width=12 ) {
 	if ($ready) {
 		/* Note that we *don't* escape $value. The point is to let
 			the admin enter HTML formatting in there if needed */
-		echo '<p class="main">' . stripslashes($value) . '</p>';
+		echo '<p class="main" style="max-width:225px;">' . stripslashes($value) . '</p>';
 	}
 }
 
@@ -149,16 +113,9 @@ function set_perf( $perf )
 	$spec = ( isset( $perf[ "id" ] ) ? (int) $perf[ "id" ] : 0 );
 	$values = array( stripslashes($perf['name']), stripslashes($perf['description']), $perf['imagesrc'] );
 	if ( $spec > 0 ) {
-		/* $q = "UPDATE spectacles set name=".quoter($perf["name"])
-		    .", description=".quoter($perf["description"])
-		    .", imagesrc=".quoter($perf["imagesrc"])." where id=$spec";  */
 		$query = "UPDATE spectacles set name=%s, description=%s, imagesrc=%s where id=$spec";
 		$result = freeseat_query( $query, $values );
 	} else {
-		/* $q = "INSERT into spectacles (name, imagesrc, description) values ("
-		    .quoter($perf['name']).", "
-		    .quoter($perf['imagesrc']).", "
-		    .quoter($perf['description']).")";  */
 		$query = "INSERT into spectacles (name, description, imagesrc ) values ( %s, %s, %s )";
 		$result = freeseat_query( $query, $values );
 		$spec = freeseat_insert_id();
@@ -168,6 +125,73 @@ function set_perf( $perf )
 		return false;
 	}
 	return $spec;
+}
+
+function show_post($spec) {
+	global $lang, $upload_path, $page_url;
+	
+	$ss = array( get_spectacle( $spec['id'] ) );
+	$content = '';
+	// does this post already exist?
+	$args=array(
+		'name' => 'freeseat_'.$spec['id'],
+		'post_type' => 'post',
+		'post_status' => 'publish',
+		'numberposts' => 1
+	);
+	$old_posts = get_posts($args);
+	if( $old_posts ) {
+		$ID = $old_posts[0]->ID;
+	} else {
+		$ID = '';	
+	}
+	// display all currently available shows with dates and times with links to the show pages
+	foreach ( $ss as $s ) {
+		$content .= "<div class='freeseat-narrow container'>";
+		$url = replace_fsp( $page_url, PAGE_REPR ). '&spectacleid=' . $s[ "id" ];
+		$linkl = "<a href='$url'>";
+		$linkr = '</a>';
+	    $content .= '<div class="leftblock">';
+		if ( $s[ 'imagesrc' ] ) {
+			$content .= $linkl . '<img src="' . freeseat_url( $upload_path . $s[ 'imagesrc' ] ) . '">' . $linkr;
+		} 
+		$content .= '</div>';
+		$content .= '<div class="showlist">';
+		$content .= $linkl . '<h3>' . $s[ 'name' ] . '</h3>' . $linkr;
+		if ( $s[ "description" ] ) {
+			$content .= '<p class="description"><i>' . stripslashes( $s[ 'description' ] ) . '</i></p>';
+		}
+		if ($s) {
+			$content .= '<p>'.$lang['datesandtimes'].'</p><ul>';
+			$shows = fetch_all( "select * from shows where date >= curdate() and spectacle='".$s['id']."' order by date" );
+			foreach ($shows as $show) {
+				$showid = $show['id'];
+				$d = f_date($show['date']);
+				$t = f_time($show['time']);
+				$target = replace_fsp( $page_url, PAGE_SEATS ) . '&showid=' . $showid;
+				$content .= "<li><a href='$target'>$d, $t</a></li>";
+			}
+			$content .= '</ul>';
+		}
+		$content .= '</div>';  // end of showlist
+		$content .= '</div>';  // end of container
+	}
+	// set up the post array
+	$post = array(
+		'ID'             => $ID,  // Are you updating an existing post?
+		'post_content'   => $content,  // The full text of the post.
+		'post_name'      => 'freeseat_'.$spec['id'], // The name (slug) for your post
+		'post_title'     => $spec['name'],  // The title of your post.
+		'post_status'    => 'publish',
+		'post_type'      => 'post',
+		'comment_status' => 'closed',  // Default is the option 'default_comment_status', or 'closed'.
+		'tags_input'     => 'shows'  // [ '<tag>, <tag>, ...' | array ] // Default empty.
+	);
+	if(empty($ID)) {
+		$ID = wp_insert_post( $post );
+	} else {
+		$ID = wp_update_post( $post );
+	}
 }
 
 /*
@@ -224,7 +248,6 @@ function freeseat_showedit()
 		if ( isset( $_POST[ $item ] ) )
 			$perf[ $item ] = nogpc( $_POST[ $item ] );
 	}
-	//$prices = $_SESSION['prices'];
 	for ( $i=1; $i<=4; $i++ ) { // class loop
 		for ( $j=CAT_NORMAL; $j>=CAT_REDUCED; $j-- ) { // cat loop
 			$item = "p_$i"."_$j";   //implode( "_", array( 'p', $i, $j ));
@@ -250,10 +273,6 @@ function freeseat_showedit()
 	for ( $i=0; isset($_POST["d$i"]); $i++ ) {
 		// not isset()ting because they would only return false if user
 		// alters the html before submitting a form
-		
-		// copytodates($i,'date',sanitise_date($_POST[ "d$i" ]));
-		// copytodates($i,'time',sanitise_time($_POST[ "t$i" ]));
-		
 		$value = sanitise_date( $_POST[ "d$i" ] );
 		if ( ( $permit_warn_booking ) && $dates[ $i ][ "booked" ] && ( $dates[ $i ][ 'date' ] != $value ) ) {
 			kaboom($lang["warn_bookings"]);
@@ -293,14 +312,7 @@ function freeseat_showedit()
 			$dates["x$i"]['theatrename'] = $th["name"];
 	}
 	$nextxtra = $i; // this is the first $i such that dx$i was NOT defined.
-	
-	get_upload($perf);
-	
-	// imagesrc has now been set as follows:
-	// 1: if user uploads something then that is the value.
-	// 2: otherwise, if POST gives a values then that is taken
-	// 3: otherwise, any existing data in the database is used
-	// print "<pre>Dates = " . print_r( $dates, 1 ) . "</pre>";
+
 	// make sure all of the variables are initialized
 	for ( $i=1; $i<=4; $i++ ) {   // class loop
 		for ( $j=CAT_NORMAL; $j>=CAT_REDUCED; $j-- ) {   // cat loop
@@ -367,6 +379,7 @@ function freeseat_showedit()
 			    $perf['id'] = $spec;
 				$ready = false;
 			    do_hook_function("showedit_save", $perf);
+			    show_post($perf);
 			    // clear variables and redisplay
 			    $_POST = array();
 			    $dates = get_shows( "spectacle = $spec");
@@ -398,7 +411,7 @@ function freeseat_showedit()
 	echo '<pre>POST:';print_r($_POST);echo '</pre>';
 	echo '<pre>dates:';print_r($dates);echo '</pre>'; 
 	echo '<pre>perf:';print_r($perf);echo '</pre>'; 
-	echo "<pre>spec=$spec</pre>";  */
+	echo "<pre>spec=$spec</pre>";   */
 	
 	echo '<h2>' . $lang[$ready?'title_mconfirm':'title_maint'] . '</h2>';
 	echo "<form action='$showedit_url' name='choose_spec' method='post'>";
@@ -422,13 +435,21 @@ function freeseat_showedit()
 	
 	echo '<div class="image-selection"><h3>' . $lang['imagesrc'] . '</h3>' ; // image upload form
 	 // imagesrc: default, to be used if user does not upload an image.
-	echo '<input type="hidden" name="imagesrc" value="'.htmlspecialchars($perf["imagesrc"]).'">';
+	echo '<input type="hidden" name="imagesrc" value="'.$perf["imagesrc"].'">';
 	if ($perf['imagesrc']) {
-	    echo $lang['file'] . htmlspecialchars($perf['imagesrc']) . '<br>';
-	    echo '<img src="' . htmlspecialchars( plugins_url( $upload_url.$perf['imagesrc'], __FILE__ ) ) . '"><br>';
+	    echo $lang['file'] . basename(parse_url( $perf['imagesrc'], PHP_URL_PATH)). '<br>';
+	    echo '<img src="' . $perf['imagesrc'] . '"><br>';
 	} else
 		echo $lang['noimage'];
-	if (!$ready) choose_local_file('image');
+	if (!$ready) {
+		// now using the standard wordpress file uploader.  files are copied to the media library.
+		?><label for="upload_image">
+			<input type="hidden" name="MAX_FILE_SIZE" value="1000000">
+			<input id="upload_image" type="text" size="25" name="imagesrc" value="http://" />
+			<input id="upload_image_button" class="button" type="button" value="Upload Image" />
+			<br />Enter a URL or upload an image
+		</label><?php
+	}
 	echo '</div>';  // closing the image selection div
 	echo '</div>';  // closing the spectacle div
 	
@@ -483,7 +504,6 @@ function freeseat_showedit()
 	echo '<input type="hidden" name="perfcount" value="'.$perfcount.'">';
 	if (!$ready) {
 		submit_button( "+ Add a Date", 'secondary', 'addperf' );
-		// echo '<input type="submit" name="addperf" value="+ Add a Date">';
 	}
 	echo '</div><div class="form">';
 	echo '<h3>' . $lang['prices'] . '</h3>';
@@ -521,3 +541,12 @@ function freeseat_showedit()
 	show_foot(); 
 } // end of freeseat-showedit
 
+add_action('admin_enqueue_scripts', __NAMESPACE__ . '\\freeseat_fileupload');
+ 
+function freeseat_fileupload() {
+    if (isset($_GET['page']) && $_GET['page'] == 'freeseat-showedit') {
+        wp_enqueue_media();
+        wp_register_script('freeseat-admin-js', WP_PLUGIN_URL.'/freeseat/fileupload.js', array('jquery'));
+        wp_enqueue_script('freeseat-admin-js');
+    }
+}

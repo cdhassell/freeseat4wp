@@ -82,12 +82,7 @@ function show_foot() {
 <div id="trailerboard">
 <div class="ad"><p class="fine-print">
 (<?php
- /* NOTE - Please don't remove the link to the project page when
- running your ticketing site (You may move the link around though).
-
- Leaving that tiny ad in place just increases chances more people use
- it and therefore motivates me to support it further :) Thanks */
-    printf($lang["poweredby"],'<a href="http://freeseat.sf.net" target="_blank">FreeSeat</a>');
+    printf($lang["poweredby"],'<a href="https://github.com/cdhassell/freeseat4wp" target="_blank">FreeSeat</a>');
 ?>)</p></div></div></div>
 </div></div><!--end of wrap div from header-->
 <?php

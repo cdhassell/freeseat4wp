@@ -247,7 +247,7 @@ p.warning {
 it take optimal width instead of full width */
 #freeseat-narrow div.form div.form {
     float: left;
-    margin: 1em 1em 1em 0em;    
+    margin: 1em 1em 0 0;    
     padding: 0em 1em 1em 1em;
  	-moz-border-radius: 5px;
 	border-radius: 5px;

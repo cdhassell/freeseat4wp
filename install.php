@@ -133,7 +133,7 @@ function freeseat_install() {
 	$sql = "CREATE TABLE IF NOT EXISTS $table_name (
 	id int(7) NOT NULL AUTO_INCREMENT,
 	name varchar(64) DEFAULT NULL,
-	imagesrc varchar(64) DEFAULT NULL,
+	imagesrc varchar(256) DEFAULT NULL,
 	description text,
 	castpw varchar(64) DEFAULT NULL,
 	PRIMARY KEY  (id)
@@ -146,7 +146,7 @@ function freeseat_install() {
 	$sql = "CREATE TABLE IF NOT EXISTS $table_name (
 	id int(7) NOT NULL AUTO_INCREMENT,
 	name varchar(64) DEFAULT NULL,
-	imagesrc varchar(64) DEFAULT NULL,
+	imagesrc varchar(256) DEFAULT NULL,
 	staggered_seating int(1) DEFAULT '0',
 	PRIMARY KEY  (id)
 	);";
