@@ -130,7 +130,8 @@ function set_perf( $perf )
 function show_post($spec) {
 	global $lang, $upload_path, $page_url;
 	
-	$ss = array( get_spectacle( $spec['id'] ) );
+	$wpcat = wp_create_category( 'Shows' );
+	$s = get_spectacle( $spec['id'] );
 	$content = '';
 	// does this post already exist?
 	$args=array(
@@ -145,37 +146,32 @@ function show_post($spec) {
 	} else {
 		$ID = '';	
 	}
-	// display all currently available shows with dates and times with links to the show pages
-	foreach ( $ss as $s ) {
-		$content .= "<div class='freeseat-narrow container'>";
-		$url = replace_fsp( $page_url, PAGE_REPR ). '&spectacleid=' . $s[ "id" ];
-		$linkl = "<a href='$url'>";
-		$linkr = '</a>';
-	    $content .= '<div class="leftblock">';
-		if ( $s[ 'imagesrc' ] ) {
-			$content .= $linkl . '<img src="' . freeseat_url( $upload_path . $s[ 'imagesrc' ] ) . '">' . $linkr;
-		} 
-		$content .= '</div>';
-		$content .= '<div class="showlist">';
-		$content .= $linkl . '<h3>' . $s[ 'name' ] . '</h3>' . $linkr;
-		if ( $s[ "description" ] ) {
-			$content .= '<p class="description"><i>' . stripslashes( $s[ 'description' ] ) . '</i></p>';
-		}
-		if ($s) {
-			$content .= '<p>'.$lang['datesandtimes'].'</p><ul>';
-			$shows = fetch_all( "select * from shows where date >= curdate() and spectacle='".$s['id']."' order by date" );
-			foreach ($shows as $show) {
-				$showid = $show['id'];
-				$d = f_date($show['date']);
-				$t = f_time($show['time']);
-				$target = replace_fsp( $page_url, PAGE_SEATS ) . '&showid=' . $showid;
-				$content .= "<li><a href='$target'>$d, $t</a></li>";
-			}
-			$content .= '</ul>';
-		}
-		$content .= '</div>';  // end of showlist
-		$content .= '</div>';  // end of container
+	// display available shows with dates and times and links to the show pages
+	$content .= "<div class='freeseat-narrow container'>";
+    $content .= '<div class="leftblock">';
+	if ( $s[ 'imagesrc' ] ) {
+		$content .= '<img src="' . $s['imagesrc'] . '">';
+	} 
+	$content .= '</div>';
+	$content .= '<div class="showlist">';
+	$content .= '<h3>' . $s[ 'name' ] . '</h3>';
+	if ( $s[ "description" ] ) {
+		$content .= '<p class="description"><i>' . stripslashes( $s[ 'description' ] ) . '</i></p>';
 	}
+	if ($s) {
+		$content .= '<p>'.$lang['datesandtimes'].'</p><ul>';
+		$shows = fetch_all( "select * from shows where date >= curdate() and spectacle='".$s['id']."' order by date" );
+		foreach ($shows as $show) {
+			$showid = $show['id'];
+			$d = f_date($show['date']);
+			$t = f_time($show['time']);
+			$target = replace_fsp( $page_url, PAGE_SEATS ) . '&showid=' . $showid;
+			$content .= "<li><a href='$target'>$d, $t</a></li>";
+		}
+		$content .= '</ul>';
+	}
+	$content .= '</div>';  // end of showlist
+	$content .= '</div>';  // end of container
 	// set up the post array
 	$post = array(
 		'ID'             => $ID,  // Are you updating an existing post?
@@ -185,7 +181,8 @@ function show_post($spec) {
 		'post_status'    => 'publish',
 		'post_type'      => 'post',
 		'comment_status' => 'closed',  // Default is the option 'default_comment_status', or 'closed'.
-		'tags_input'     => 'shows'  // [ '<tag>, <tag>, ...' | array ] // Default empty.
+		'tags_input'     => 'shows',  // [ '<tag>, <tag>, ...' | array ] // Default empty.
+		'post_category'  => array($wpcat)
 	);
 	if(empty($ID)) {
 		$ID = wp_insert_post( $post );
@@ -419,7 +416,6 @@ function freeseat_showedit()
 	// spectacle selection form depends on the onchange action in choose_spectacle()
 	echo '<h3>' . $lang["spectacle_name"] . '</h3>';
 	choose_spectacle( true, $spec );
-	// echo ' <input class="button button-primary" type="submit" value="'.$lang["select"].'">'; 
 	submit_button( $lang[ "select" ], 'primary', 'submit', false );
 	echo '</form>';
 	echo '<div class="form">'; // the big div
@@ -444,8 +440,7 @@ function freeseat_showedit()
 	if (!$ready) {
 		// now using the standard wordpress file uploader.  files are copied to the media library.
 		?><label for="upload_image">
-			<input type="hidden" name="MAX_FILE_SIZE" value="1000000">
-			<input id="upload_image" type="text" size="25" name="imagesrc" value="http://" />
+			<input id="upload_image" type="text" size="25" name="imagesrc" value="<?php echo $perf['imagesrc']; ?>" />
 			<input id="upload_image_button" class="button" type="button" value="Upload Image" />
 			<br />Enter a URL or upload an image
 		</label><?php
@@ -499,7 +494,6 @@ function freeseat_showedit()
 	    $dispperf++;		  // ..idea by now
 	  }
 	}
-	  
 	echo '</table>';
 	echo '<input type="hidden" name="perfcount" value="'.$perfcount.'">';
 	if (!$ready) {
@@ -519,8 +513,8 @@ function freeseat_showedit()
 		print_var("comment$i", $prices[$i]['comment'], $ready);
 		echo '</tr>';
 	}
-	
 	echo '</table></div>';
+	
 	echo '<div class="clear-both"></div></div>'; 
 	
 	if ($ready) {

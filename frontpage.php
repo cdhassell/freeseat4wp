@@ -45,8 +45,8 @@ function freeseat_frontpage( $page_url ) {
 		$linkr = '</a>';
 	    
 		if ( $s[ 'imagesrc' ] ) {
-			$img = freeseat_url( $upload_path . $s[ 'imagesrc' ] );
-			echo '<div class="leftblock">' . $linkl . '<img src="' . $img . '">' . $linkr . '</div>';
+			//$img = freeseat_url( $upload_path . $s[ 'imagesrc' ] );
+			echo '<div class="leftblock">' . $linkl . '<img src="' . $s['imagesrc'] . '">' . $linkr . '</div>';
 		} else {
 			echo '<div class="leftblock"></div>';
 		}
