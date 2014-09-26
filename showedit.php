@@ -131,8 +131,6 @@ function show_post($spec) {
 	global $lang, $upload_path, $page_url;
 	
 	$wpcat = wp_create_category( 'Shows' );
-	$s = get_spectacle( $spec['id'] );
-	$content = '';
 	// does this post already exist?
 	$args=array(
 		'name' => 'freeseat_'.$spec['id'],
@@ -141,47 +139,19 @@ function show_post($spec) {
 		'numberposts' => 1
 	);
 	$old_posts = get_posts($args);
-	if( $old_posts ) {
-		$ID = $old_posts[0]->ID;
-	} else {
-		$ID = '';	
-	}
-	// display available shows with dates and times and links to the show pages
-	$content .= "<div class='freeseat-narrow container'>";
-    $content .= '<div class="leftblock">';
-	if ( $s[ 'imagesrc' ] ) {
-		$content .= '<img src="' . $s['imagesrc'] . '">';
-	} 
-	$content .= '</div>';
-	$content .= '<div class="showlist">';
-	$content .= '<h3>' . $s[ 'name' ] . '</h3>';
-	if ( $s[ "description" ] ) {
-		$content .= '<p class="description"><i>' . stripslashes( $s[ 'description' ] ) . '</i></p>';
-	}
-	if ($s) {
-		$content .= '<p>'.$lang['datesandtimes'].'</p><ul>';
-		$shows = fetch_all( "select * from shows where date >= curdate() and spectacle='".$s['id']."' order by date" );
-		foreach ($shows as $show) {
-			$showid = $show['id'];
-			$d = f_date($show['date']);
-			$t = f_time($show['time']);
-			$target = replace_fsp( $page_url, PAGE_SEATS ) . '&showid=' . $showid;
-			$content .= "<li><a href='$target'>$d, $t</a></li>";
-		}
-		$content .= '</ul>';
-	}
-	$content .= '</div>';  // end of showlist
-	$content .= '</div>';  // end of container
+	$ID = ( $old_posts ? $old_posts[0]->ID : '' );
+	// the only content is a shortcode call to freeseat-single
+	$content = "[freeseat-single spectacleid=\"{$spec['id']}\"]";
 	// set up the post array
 	$post = array(
-		'ID'             => $ID,  // Are you updating an existing post?
-		'post_content'   => $content,  // The full text of the post.
-		'post_name'      => 'freeseat_'.$spec['id'], // The name (slug) for your post
-		'post_title'     => $spec['name'],  // The title of your post.
+		'ID'             => $ID,  
+		'post_content'   => $content, 
+		'post_name'      => 'freeseat_'.$spec['id'], 
+		'post_title'     => $spec['name'], 
 		'post_status'    => 'publish',
 		'post_type'      => 'post',
-		'comment_status' => 'closed',  // Default is the option 'default_comment_status', or 'closed'.
-		'tags_input'     => 'shows',  // [ '<tag>, <tag>, ...' | array ] // Default empty.
+		'comment_status' => 'closed', 
+		'tags_input'     => 'shows',  
 		'post_category'  => array($wpcat)
 	);
 	if(empty($ID)) {

@@ -76,7 +76,20 @@ function freeseat_cron() {
 		$output .= "\nShake $shake_count ";
 	if ($mail_count)
 		$output .= "\nMail $mail_count";
-
+	
+	// expire posts after all dates have passed
+	$sql = "select distinct spectacle from shows where date <= curdate()";
+	$list = fetch_all($sql);
+	foreach ($list as $spec) {
+		$args=array(
+			'name' => 'freeseat_'.$spec,
+			'post_type' => 'post',
+			'post_status' => 'publish',
+			'numberposts' => 1
+		);
+		$old_posts = get_posts($args);
+	}
+	
 	do_hook('cron');
 	$output .= "\nDone.";
 	sys_log( $output );

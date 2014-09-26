@@ -67,6 +67,7 @@ register_activation_hook( __FILE__, __NAMESPACE__ . '\\freeseat_add_caps');
 add_action( 'admin_menu', __NAMESPACE__ . '\\freeseat_admin_menu' );
 add_action( 'plugins_loaded', __NAMESPACE__ . '\\freeseat_update_db_check' );
 add_shortcode( 'freeseat-shows', __NAMESPACE__ . '\\freeseat_front' );
+add_shortcode( 'freeseat-single', __NAMESPACE__ . '\\freeseat_single' );
 add_shortcode( 'freeseat-direct', __NAMESPACE__ . '\\freeseat_direct' );
 add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\\freeseat_user_styles' );
 add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\\freeseat_admin_styles' );
@@ -151,9 +152,9 @@ function freeseat_switch( $shortcode_fsp = 0 ) {
 		case PAGE_SEATS:
 			freeseat_seats( $page_url );
 			break;
-		case PAGE_REPR:
+		/* case PAGE_REPR:
 			freeseat_repr( $page_url );
-			break;
+			break; */
 		default:
 			freeseat_frontpage( $page_url );
 			break;
@@ -213,6 +214,20 @@ function freeseat_direct( $atts ) {
 	ob_start();
 	$_SESSION['showid'] = $showid;
 	freeseat_switch('2');
+	return ob_get_clean();
+}
+
+/*
+ *  Handler for the shortcode call freeseat-single
+ *  Must return output rather than echo it
+ */
+function freeseat_single( $atts ) {
+	extract( shortcode_atts( array(
+		'spectacleid' => '0',
+	), $atts ) );
+	ob_start();
+	if ($spectacleid) $_GET['spectacleid'] = $spectacleid;
+	freeseat_switch('1');
 	return ob_get_clean();
 }
 

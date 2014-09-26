@@ -359,7 +359,7 @@ div.clear-both {
 	padding: 1em;
 	color: black;
 	float: left;
-	max-width: 500px;
+	max-width: 400px;
 }
 
 #freeseat-narrow .description {
@@ -480,7 +480,7 @@ a:hover {
 	padding:10px;	
 }
 
-#freeseat-narrow .leftblock a img {
+#freeseat-narrow .leftblock img {
 	width: 300px;
 	margin-top: 14px;
 }
