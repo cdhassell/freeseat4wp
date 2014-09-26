@@ -33,25 +33,24 @@ function freeseat_frontpage( $page_url ) {
 	/* displays an image and text description of spectacles on opening page */
 	
 	show_head();
-	if ( !empty($lang['index_head'] ) ) 
-		echo '<h2>'. $lang[ "index_head" ] . '</h2>';
+	/* if ( !empty($lang['index_head'] ) ) 
+		echo '<h2>'. $lang[ "index_head" ] . '</h2>'; */
 	
 	// display all currently available shows with dates and times
 	// with links to the show pages
 	foreach ( $ss as $s ) {
 		echo "<div class='container'>";
-		$url = replace_fsp( $page_url, PAGE_REPR ). '&spectacleid=' . $s[ "id" ];
-		$linkl = "<a href='$url'>";
-		$linkr = '</a>';
+		// $url = replace_fsp( $page_url, PAGE_REPR ). '&spectacleid=' . $s[ "id" ];
+		// $linkl = "<a href='$url'>";
+		// $linkr = '</a>';
 	    
 		if ( $s[ 'imagesrc' ] ) {
-			//$img = freeseat_url( $upload_path . $s[ 'imagesrc' ] );
-			echo '<div class="leftblock">' . $linkl . '<img src="' . $s['imagesrc'] . '">' . $linkr . '</div>';
+			echo '<div class="leftblock"><img src="' . $s['imagesrc'] . '"></div>';
 		} else {
 			echo '<div class="leftblock"></div>';
 		}
 		echo '<div class="showlist">';
-		echo $linkl . '<h3>' . $s[ 'name' ] . '</h3>' . $linkr;
+		echo '<h3>' . $s[ 'name' ] . '</h3>';
 		/** WARN - we assume whoever filled the description field to be
 		  trustworthy enough not to write malicious or malformed html */
 		if ( $s[ "description" ] ) {
@@ -60,12 +59,26 @@ function freeseat_frontpage( $page_url ) {
 		if ($s) {
 			echo '<p>'.$lang['datesandtimes'].'</p><ul>';
 			$shows = fetch_all( "select * from shows where date >= curdate() and spectacle='".$s['id']."' order by date" );
-			foreach ($shows as $show) {
+			foreach ($shows as $show) {	
+				/* total seats */
+				$tot = m_eval( "select count(*) from seats where theatre=" . $show[ "theatre" ] );
+				/* how many have been booked so far */
+				$bk  = m_eval( "select count(*) from booking where showid=" . $show[ "id" ] . " and state!=" . ST_DELETED );
+				/* how many are disabled (included in above counts) */
+				$ds  = m_eval( "select count(*) from booking where showid=" . $show[ "id" ] . " and state=" . ST_DISABLED );
+				if ( ( $tot === null ) || ( $bk === null ) || ( $ds === null ) ) {
+					$tot = "??";
+					$bk  = "??";
+				} else {
+					$tot -= $ds;
+					$bk -= $ds;
+				}
+				$summary = ( admin_mode() ? " ($bk/$tot)" : "" );
 				$showid = $show['id'];
 				$d = f_date($show['date']);
 				$t = f_time($show['time']);
 				$target = replace_fsp( $page_url, PAGE_SEATS ) . '&showid=' . $showid;
-				echo "<li><a href='$target'>$d, $t</a></li>";
+				echo "<li><a href='$target'>$d, $t</a>$summary</li>";
 			}
 			echo '</ul>';
 		}
