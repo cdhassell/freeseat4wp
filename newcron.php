@@ -101,7 +101,7 @@ function freeseat_cron() {
 			wp_update_post($newpost);
 		}
 	}
-	$output .= "\nposts = ". print_r($posts,1);
+	$output .= "\nsid = $sid";
 	do_hook('cron');
 	$output .= "\nDone.";
 	sys_log( $output );
