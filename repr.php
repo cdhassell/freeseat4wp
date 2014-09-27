@@ -86,16 +86,13 @@ function freeseat_repr( $page_url )
 	echo "<div class='container'>";
 	echo "<div class='leftblock'>";
 	if ( ( $spec[ 'imagesrc' ] ) ) {
-		$img = freeseat_url( $upload_path . $spec[ 'imagesrc' ] );
+		$img = $spec[ 'imagesrc' ];
 		echo "<img width='100' src='$img'>";
 	}
 	echo '</div>';
 	echo '<div class="showlist"><h2>';
 	printf( $lang[ "showlist" ], htmlspecialchars( stripslashes( $spec[ "name" ] ) ) );
 	echo '</h2>';
-	/* echo "<p class='main'><i>";
-	echo stripslashes( $spec['description'] );
-	echo "</i></p>"; */
 	echo '</div>';
 	echo '</div>';
 	if ( admin_mode() ) {

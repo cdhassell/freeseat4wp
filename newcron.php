@@ -14,7 +14,8 @@ $Id: cron.php 388 2012-03-30 21:07:47Z tendays $
  **/
 
 function freeseat_cron() {
-
+	global $wpdb;
+	
 	prepare_log("cronjob");
 	$now = time();
 	
@@ -79,25 +80,28 @@ function freeseat_cron() {
 	
 	// expire posts after all dates have passed
 	$sql = "select distinct spectacle from shows where date > curdate()";
-	$list = fetch_all($sql);
-	$args=array(
-		'name' => 'freeseat_%',
-		'post_type' => 'post',
-		'post_status' => 'publish',
-		'numberposts' => -1
-	);
-	$posts = get_posts($args);
-	/* foreach ($posts as $post) {
-		if (!in_array($post->ID,$list)) {
+	$blob = fetch_all($sql);
+	$list = array();
+	foreach($blob as $item) {
+		$list[] = $item['spectacle'];
+	}
+	$query = "SELECT * FROM $wpdb->posts WHERE $wpdb->posts.post_name LIKE 'freeseat_%' ";
+	$posts = $wpdb->get_results($query);
+	
+	foreach ($posts as $post) {
+		$pid = $post->ID;
+		$n = $post->post_name;
+		$t = explode("_",$n);
+		$sid = $t[1];
+		if (!in_array($sid,$list)) {
 			$newpost = array(
-				'ID'  => $post->ID,
+				'ID'  => $pid,
 				'post_status' => 'draft'
 			);
 			wp_update_post($newpost);
 		}
-	} */
-	$output .= "posts = ". print_r($posts,1);
-	$output .= "list = ".  print_r($list,1);
+	}
+	$output .= "\nposts = ". print_r($posts,1);
 	do_hook('cron');
 	$output .= "\nDone.";
 	sys_log( $output );
