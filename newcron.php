@@ -78,18 +78,26 @@ function freeseat_cron() {
 		$output .= "\nMail $mail_count";
 	
 	// expire posts after all dates have passed
-	$sql = "select distinct spectacle from shows where date <= curdate()";
+	$sql = "select distinct spectacle from shows where date > curdate()";
 	$list = fetch_all($sql);
-	foreach ($list as $spec) {
-		$args=array(
-			'name' => 'freeseat_'.$spec,
-			'post_type' => 'post',
-			'post_status' => 'publish',
-			'numberposts' => 1
-		);
-		$old_posts = get_posts($args);
-	}
-	
+	$args=array(
+		'name' => 'freeseat_%',
+		'post_type' => 'post',
+		'post_status' => 'publish',
+		'numberposts' => -1
+	);
+	$posts = get_posts($args);
+	/* foreach ($posts as $post) {
+		if (!in_array($post->ID,$list)) {
+			$newpost = array(
+				'ID'  => $post->ID,
+				'post_status' => 'draft'
+			);
+			wp_update_post($newpost);
+		}
+	} */
+	$output .= "posts = ". print_r($posts,1);
+	$output .= "list = ".  print_r($list,1);
 	do_hook('cron');
 	$output .= "\nDone.";
 	sys_log( $output );

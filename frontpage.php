@@ -39,11 +39,7 @@ function freeseat_frontpage( $page_url ) {
 	// display all currently available shows with dates and times
 	// with links to the show pages
 	foreach ( $ss as $s ) {
-		echo "<div class='container'>";
-		// $url = replace_fsp( $page_url, PAGE_REPR ). '&spectacleid=' . $s[ "id" ];
-		// $linkl = "<a href='$url'>";
-		// $linkr = '</a>';
-	    
+		echo "<div class='container'>";	    
 		if ( $s[ 'imagesrc' ] ) {
 			echo '<div class="leftblock"><img src="' . $s['imagesrc'] . '"></div>';
 		} else {
