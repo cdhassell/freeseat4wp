@@ -3,7 +3,7 @@
 Plugin Name: FreeSeat
 Plugin URI: http://github.com/cdhassell/freeseat4wp
 Description: FreeSeat for Wordpress implements a theatre ticketing system with optional links to CiviCRM.
-Version: 0.1
+Version: 0.2
 Author: twowheeler
 Author URI: 
 */
