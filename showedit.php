@@ -63,17 +63,16 @@ function print_var( $name, $value, $ready=false, $headername=null, $width=12 ) {
 
 	if ($headername) echo '<h3>' . $headername . '</h3>';
 	if ($name=="description" && !$ready) { // i am so sorry
-		echo '<textarea name="'. htmlspecialchars( stripslashes( $name ) ).'" border=1 rows=18 cols=32>' . $value; 
-		echo '</textarea>';
+		echo '<textarea name="'. htmlspecialchars( $name, ENT_QUOTES ).'" border=1 rows=18 cols=32>' . $value . '</textarea>';
 	} else {
 		$size = ( ($name=="name") ? 30 : 12 );
-		$escvalue = htmlspecialchars( stripslashes( $value ) );
+		$escvalue = htmlspecialchars( stripslashes( $value ), ENT_QUOTES );
 		echo '<input size="'.$size.'" '.($ready?'type="hidden" ':'').' name="'.$name.'" value="'.$escvalue.'">';
 	}
 	if ($ready) {
 		/* Note that we *don't* escape $value. The point is to let
 			the admin enter HTML formatting in there if needed */
-		echo '<p class="main" style="max-width:225px;">' . stripslashes($value) . '</p>';
+		echo "<p class='main' style='max-width:225px;'>$value</p>";
 	}
 }
 
@@ -159,6 +158,9 @@ function show_post($spec) {
 	} else {
 		$ID = wp_update_post( $post );
 	}
+	if (isset($spec['imageid']) && $spec['imageid']) {
+		set_post_thumbnail( $ID, $spec['imageid'] );
+	}
 }
 
 /*
@@ -211,7 +213,7 @@ function freeseat_showedit()
 	$allisfine = true; // set to false in case something went wrong reading post data
 	$permit_warn_booking = isset( $_POST[ "submit" ] ); // whether changes in
 		// spectacle data may display that warn_booking message
-	foreach (array( 'name', 'description', 'imagesrc' ) as $item) {
+	foreach (array( 'name', 'description', 'imagesrc', 'imageid' ) as $item) {
 		if ( isset( $_POST[ $item ] ) )
 			$perf[ $item ] = nogpc( $_POST[ $item ] );
 	}
@@ -298,10 +300,10 @@ function freeseat_showedit()
 		$ready = false;            // data and a button to save
 	}
 	if ($ready) {			        // changes. When false show
-		if ($perf["name"]=='') {	       // an editable form and a
-			$ready = false;		      // button to confirm. It is
+		if ($perf["name"]=='') {	// an editable form and a
+			$ready = false;		    // button to confirm. It is
 			kaboom($lang["err_nospec"]);     // set to true if user
-		}				    // submitted a form and there were no mistakes
+		}							// submitted a form and there were no mistakes
 		$atleastone = false;
 		foreach ($dates as $dt) {
 			if (isset($dt['date']) && ($dt['date']!="0000-00-00")) $atleastone = true;
@@ -400,8 +402,12 @@ function freeseat_showedit()
 	echo '</div>';
 	
 	echo '<div class="image-selection"><h3>' . $lang['imagesrc'] . '</h3>' ; // image upload form
-	 // imagesrc: default, to be used if user does not upload an image.
+	// imagesrc: default, to be used if user does not upload an image.
 	echo '<input type="hidden" name="imagesrc" value="'.$perf["imagesrc"].'">';
+	// imageid holds the WP id value that will be used to access the post
+	// the value is added to this hidden field by fileupload.js
+	$imageid = ( isset($perf['imageid']) ? $perf['imageid'] : 0 ); 
+	echo "<input type='hidden' name='imageid' value='$imageid' id='imageid'>";
 	if ($perf['imagesrc']) {
 	    echo $lang['file'] . basename(parse_url( $perf['imagesrc'], PHP_URL_PATH)). '<br>';
 	    echo '<img src="' . $perf['imagesrc'] . '"><br>';

@@ -43,9 +43,12 @@ function just_keep($x,$ok) {
 }
 
 /** cancel magic quotes on the given data if needed. YAY for PHP's
-    worst design decision ever. **/
+    worst design decision ever. 
+    NOTE: Wordpress enforces magic quotes regardless of the setting 
+    of get_magic_quotes_gpc(), so we have to always unescape our strings. **/
 function nogpc($x) {
-  return get_magic_quotes_gpc()?stripslashes($x):$x;
+  // return get_magic_quotes_gpc()?stripslashes($x):$x;
+  return stripslashes(str_replace('\\','',$x));
 }
 
 /** turn the given string into a (mysql-compliant) date. Returns
