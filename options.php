@@ -45,7 +45,7 @@ add_filter( 'plugin_action_links_freeseat/freeseat.php', __NAMESPACE__ . '\\free
 // Define default option settings
 function freeseat_add_defaults() {
 	$tmp = get_option('freeseat_options');
-    if(($tmp['chk_default_options_db']=='1')||(!is_array($tmp))) {
+    if( (isset($tmp['chk_default_options_db']) && $tmp['chk_default_options_db']=='1') || (!is_array($tmp)) ) {
 		delete_option('freeseat_options'); // so we don't have to reset all the 'off' checkboxes too! (don't think this is needed but leave for now)
 		$arr = array(	
 			'max_seats' => 30,

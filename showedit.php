@@ -516,7 +516,7 @@ add_action('admin_enqueue_scripts', __NAMESPACE__ . '\\freeseat_fileupload');
 function freeseat_fileupload() {
     if (isset($_GET['page']) && $_GET['page'] == 'freeseat-showedit') {
         wp_enqueue_media();
-        wp_register_script('freeseat-admin-js', WP_PLUGIN_URL.'/freeseat/fileupload.js', array('jquery'));
+        wp_register_script('freeseat-admin-js', plugins_url( 'fileupload.js', __FILE__ ), array('jquery'));
         wp_enqueue_script('freeseat-admin-js');
     }
 }

@@ -29,7 +29,7 @@ function freeseat_plugin_init_civicrm() {
 	
 	$freeseat_plugin_hooks['finish_end']['civicrm'] = 'civicrm_sync';
 	$freeseat_plugin_hooks['showedit_save']['civicrm'] = 'civicrm_showedit';
-	$freeseat_plugin_hooks['config_db']['civicrm'] = 'civicrm_config_db';
+	// $freeseat_plugin_hooks['config_db']['civicrm'] = 'civicrm_config_db';
 }
 
 /* 
@@ -320,9 +320,9 @@ function civicrm_showedit($spec) {
 	return;
 }
 
-function civicrm_config_db($user) {
+/* function civicrm_config_db($user) {
 	return config_checksql_for('plugins/civicrm/setup.sql', $user);
-}
+} */
 
 function civicrm_getvalue( $metakey ) {
 	// retrieves an arbitrary value from the usermeta table

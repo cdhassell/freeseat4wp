@@ -12,7 +12,6 @@ function freeseat_plugin_init_groupdiscount() {
     $freeseat_plugin_hooks['get_print']['groupdiscount'] = 'groupdiscount_print';
     $freeseat_plugin_hooks['params_post']['groupdiscount'] = 'groupdiscount_post';
     $freeseat_plugin_hooks['params_edit']['groupdiscount'] = 'groupdiscount_editparams';
-    $freeseat_plugin_hooks['config_db']['groupdiscount'] = 'groupdiscount_config_db';
     init_language('groupdiscount');
 }
 
@@ -74,8 +73,3 @@ function groupdiscount_editparams($options) {
 </tr>
 <?php
 }
-
-function groupdiscount_config_db($user) {
-  return config_checksql_for('plugins/groupdiscount/setup.sql', $user);
-}
-

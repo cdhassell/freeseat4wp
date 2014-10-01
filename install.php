@@ -1,26 +1,8 @@
 <?php namespace freeseat;
 
-register_activation_hook(   FS_PATH . 'freeseat.php', __NAMESPACE__ . '\\freeseat_install'   );
-register_deactivation_hook( FS_PATH . 'freeseat.php', __NAMESPACE__ . '\\freeseat_deactivate');
+register_activation_hook(   plugin_basename(__FILE__), __NAMESPACE__ . '\\freeseat_install'   );
+register_deactivation_hook( plugin_basename(__FILE__), __NAMESPACE__ . '\\freeseat_deactivate');
 add_action( 'wp_loaded', __NAMESPACE__ . '\\freeseat_check_data' );
-add_filter( 'plugin_action_links_freeseat/freeseat.php', __NAMESPACE__ . '\\freeseat_sample_data_link' );
-add_action( 'activated_plugin', __NAMESPACE__ . '\\save_error');
-
-// this is for debugging purposes - captures startup error messages and saves them in the db
-function save_error() {
-    update_option('plugin_error',  ob_get_contents());
-}
-
-/**
- *  Adds a link to the plugin screen for installing sample data
- *  It disappears once there is data in the tables
- */
-function freeseat_sample_data_link( $links ) {
-	if (!get_option('freeseat_data_installed')) {
-		$links[] = '<a href="'. admin_url( 'plugins.php?install=data&plugin=freeseat') .'">Add sample data</a>';
-	}
-	return $links;
-}
 
 /**
  *  Checks if we have a request to install sample data
@@ -49,7 +31,7 @@ function freeseat_check_data() {
 function freeseat_install() {
 	global $wpdb, $freeseat_db_version;
 	
-   $table_name = 'freeseat_booking';
+	$table_name = 'freeseat_booking';
       
 	$sql = "CREATE TABLE IF NOT EXISTS $table_name (
 	id int(10) NOT NULL AUTO_INCREMENT,
@@ -74,7 +56,7 @@ function freeseat_install() {
 	PRIMARY KEY  (id),
 	KEY seat_query (seat,state,showid),
 	KEY groupid (groupid),
-	KEY user_id
+	KEY user_id 
 	);";
 
 	require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );

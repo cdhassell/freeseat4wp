@@ -1,6 +1,6 @@
 <?php namespace freeseat;
 /*
-Plugin Name: FreeSeat
+Plugin Name: FreeSeat4WP
 Plugin URI: http://github.com/cdhassell/freeseat4wp
 Description: FreeSeat for Wordpress implements a theatre ticketing system with optional links to CiviCRM.
 Version: 0.2
@@ -195,7 +195,7 @@ function freeseat_admin_menu() {
 	// Add menus - available only for Administrators
 	// add_menu_page( $page_title, $menu_title, $capability, $menu_slug, $function, $icon_url, $position );
 	// add_submenu_page( $parent_slug, $page_title, $menu_title, $capability, $menu_slug, $function );
-	add_menu_page( 'Current Shows', 'FreeSeat', 'administer_freeseat', 'freeseat-admin', __NAMESPACE__ . '\\freeseat_switch', plugins_url( 'freeseat/ticket.png' ) );
+	add_menu_page( 'Current Shows', 'FreeSeat', 'administer_freeseat', 'freeseat-admin', __NAMESPACE__ . '\\freeseat_switch', plugins_url( 'ticket.png', __FILE__ ) );
 	add_submenu_page( 'freeseat-admin', 'Current Shows', 'Current Shows', 'administer_freeseat', 'freeseat-admin', __NAMESPACE__ . '\\freeseat_switch' );
 	add_submenu_page( 'freeseat-admin', 'View Reservations', 'Reservations', 'administer_freeseat', 'freeseat-listtable', __NAMESPACE__ . '\\freeseat_render_list' );
 	add_submenu_page( 'freeseat-admin', 'Show Setup', 'Show Setup', 'administer_freeseat', 'freeseat-showedit', __NAMESPACE__ . '\\freeseat_showedit' );
@@ -257,7 +257,7 @@ function freeseat_update_db_check() {
 function freeseat_user_styles() {
 	global $stylesheet;
 	
-	wp_register_style( 'freeseat_styles', plugins_url( 'freeseat/' . $stylesheet ) );
+	wp_register_style( 'freeseat_styles', plugins_url( $stylesheet, __FILE__ ) );
 	wp_enqueue_style( 'freeseat_styles' );
 }
 
@@ -269,7 +269,7 @@ function freeseat_admin_styles( $hook ) {
 	
 	if ( false === strpos( $hook, 'page_freeseat' ) )
 		return;
-	wp_register_style( 'freeseat_styles', plugins_url( 'freeseat/' . $stylesheet ) );
+	wp_register_style( 'freeseat_styles', plugins_url( $stylesheet, __FILE__ ) );
 	wp_enqueue_style( 'freeseat_styles' );
 }
 
@@ -288,3 +288,37 @@ function freeseat_add_caps() {
 // delete_option('freeseat_options');
 // freeseat_add_defaults();
 
+add_filter( 'plugin_action_links_' . plugin_basename(__FILE__), __NAMESPACE__ . '\\freeseat_sample_data_link' );
+add_action( 'activated_plugin', __NAMESPACE__ . '\\save_error');
+
+// this is for debugging purposes - captures startup error messages and saves them in the db
+function save_error() {
+    update_option('plugin_error',  ob_get_contents());
+}
+
+/**
+ *  Adds a link to the plugin screen for installing sample data
+ *  It disappears once there is data in the tables
+ */
+function freeseat_sample_data_link( $links ) {
+	if (!get_option('freeseat_data_installed')) {
+		$links[] = '<a href="'. admin_url( 'plugins.php?install=data&plugin=freeseat') .'">Add sample data</a>';
+	}
+	return $links;
+}
+
+/** Returns the list of available languages. */
+function language_list() {
+	$langs = array();
+	if ($dh = opendir(FS_PATH . 'languages')) {
+		while (($file = readdir($dh)) !== false) {
+			if (preg_match('/^(.*)\.php$/',$file,$matches)) {
+				if ($matches[1] != 'default') {
+					$langs[] = $matches[1];
+				}
+			}
+		}
+		closedir($dh);
+	}
+	return $langs;
+}
