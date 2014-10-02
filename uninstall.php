@@ -15,7 +15,8 @@ $tables = array(
 	'freeseat_spectacles', 
 	'freeseat_theatres', 
 	'freeseat_class_comment', 
-	'freeseat_seat_locks' 
+	'freeseat_seat_locks',
+	'freeseat_ccard_transactions'
  );
  
 foreach( $tables as $table_name ) {

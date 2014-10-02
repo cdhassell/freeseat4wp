@@ -35,6 +35,8 @@ function freeseat_check_data() {
 function freeseat_install() {
 	global $wpdb, $freeseat_db_version;
 	
+	require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+		
 	$table_name = 'freeseat_booking';
       
 	$sql = "CREATE TABLE IF NOT EXISTS $table_name (
@@ -63,7 +65,6 @@ function freeseat_install() {
 	KEY user_id 
 	);";
 
-	require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 	dbDelta( $sql );
  
 	$table_name = 'freeseat_price';
