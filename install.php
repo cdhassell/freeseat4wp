@@ -4,6 +4,10 @@ register_activation_hook(   plugin_basename(__FILE__), __NAMESPACE__ . '\\freese
 register_deactivation_hook( plugin_basename(__FILE__), __NAMESPACE__ . '\\freeseat_deactivate');
 add_action( 'wp_loaded', __NAMESPACE__ . '\\freeseat_check_data' );
 
+require_once( ABSPATH . 'wp-config.php' ); 
+require_once( ABSPATH . 'wp-includes/wp-db.php' ); 
+require_once( ABSPATH . 'wp-admin/includes/taxonomy.php' ); 
+
 /**
  *  Checks if we have a request to install sample data
  *  If so it calls freeseat_install_data()
