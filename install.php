@@ -62,7 +62,7 @@ function freeseat_install() {
 	PRIMARY KEY  (id),
 	KEY seat_query (seat,state,showid),
 	KEY groupid (groupid),
-	KEY user_id 
+	KEY user_id (user_id) 
 	);";
 
 	dbDelta( $sql );
