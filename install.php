@@ -522,7 +522,7 @@ function freeseat_install_data() {
 	$wpdb->query("INSERT INTO freeseat_shows (id, spectacle, theatre, date, time, disabled, civicrm_id) VALUES
 (1, 1, 1, '$showdate1', '19:30:00', 0, NULL),
 (2, 1, 1, '$showdate2', '19:30:00', 0, NULL);");
-	$filespec = plugins_url( 'files/thetempest2.jpg', __FILES__ );
+	$filespec = plugins_url( 'files/thetempest2.jpg', __FILE__ );
 	$wpdb->query("INSERT INTO freeseat_spectacles (id, name, imagesrc, description, castpw) VALUES
 (1, 'The Tempest', '$filespec', 'This classic Shakespearean play is set on a remote island, where Prospero, the rightful Duke of Milan, plots to restore his daughter Miranda to her rightful place using illusion and skillful manipulation. He conjures up a storm to lure his usurping brother Antonio and the complicit King Alonso of Naples to the island. There, his machinations bring about the revelation of Antonio\'s lowly nature, the redemption of the King, and the marriage of Miranda to Alonso\'s son, Ferdinand.', '');");
 	$wpdb->query("INSERT INTO freeseat_theatres (id, name, imagesrc, staggered_seating) VALUES

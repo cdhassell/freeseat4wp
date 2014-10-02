@@ -129,7 +129,7 @@ function set_perf( $perf )
 function show_post($spec) {
 	global $lang, $upload_path, $page_url;
 	
-	$wpcat = wp_create_category( 'Shows' );
+	$wpcat = \wp_create_category( 'Shows' );
 	// does this post already exist?
 	$args=array(
 		'name' => 'freeseat_'.$spec['id'],
