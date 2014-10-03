@@ -80,7 +80,7 @@ function freeseat_add_defaults() {
 			'USPS_user' => 'my-USPS-account',
 			'paypal_account' => 'tickets@theglobe.org',	
 			'paypal_auth_token' => 'a very long string of characters from your paypal account',
-			'plugins' => array( 'adminprint', 'autopay', 'extendbooking', 'bookingmap', 'pdftickets' ),
+			'plugins' => array( 'pdftickets', 'barcode', 'paypal' ),
 		);
 		update_option('freeseat_options', $arr);
 	}
