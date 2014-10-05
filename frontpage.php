@@ -12,7 +12,7 @@ $Id: index.php 341 2011-04-25 19:03:48Z tendays $
 */
 
 function freeseat_frontpage( $page_url ) {
-	global $lang, $upload_path;
+	global $lang, $upload_path, $post;
 			
 	/** With no parameters, we show spectacles that have a representation
 	today or later. With a spectacleid parameter, show that spectacle
@@ -33,25 +33,21 @@ function freeseat_frontpage( $page_url ) {
 	/* displays an image and text description of spectacles on opening page */
 	
 	show_head();
-	/* if ( !empty($lang['index_head'] ) ) 
-		echo '<h2>'. $lang[ "index_head" ] . '</h2>'; */
-	
 	// display all currently available shows with dates and times
 	// with links to the show pages
 	foreach ( $ss as $s ) {
 		echo "<div class='container'>";	    
 		if ( $s[ 'imagesrc' ] ) {
 			echo '<div class="leftblock"><img src="' . $s['imagesrc'] . '"></div>';
-		} else {
-			echo '<div class="leftblock"></div>';
 		}
 		echo '<div class="showlist">';
 		echo '<h3>' . $s[ 'name' ] . '</h3>';
 		/** WARN - we assume whoever filled the description field to be
 		  trustworthy enough not to write malicious or malformed html */
 		if ( $s[ "description" ] ) {
-			echo '<p class="description"><i>' . stripslashes( $s[ 'description' ] ) . '</i></p>';
+			echo '<p class="description"><i>' . $s[ 'description' ]  . '</i></p>';
 		}
+		echo "<!--nextpage-->";
 		if ($s) {
 			echo '<p>'.$lang['datesandtimes'].'</p><ul>';
 			$shows = fetch_all( "select * from shows where date >= curdate() and spectacle='".$s['id']."' order by date" );
