@@ -158,59 +158,58 @@ sent to $admin_mail and false is returned.
 
 The parameters are assumed to be well-formed numbers. The amount is in
 $currency, but the one inserted into the database is in hundredth of a $currency. **/
-function process_ccard_transaction($groupid,$transid,$amount) {
-    global $lang, $currency;
-  $balance = $amount;
+function process_ccard_transaction( $groupid, $transid, $amount ) {
+	global $lang, $currency;
+	$balance = $amount;
 
-  $success = true; // let's be optimistic
-
-  start_notifs();
-
-  $rows = freeseat_query( "insert into ccard_transactions (groupid,numxkp,amount) values ($groupid,".quoter($transid).",".$amount.")" );
-  if ( $rows != 1 ) {
-    myboom($lang["err_ccard_mysql"]);
-    $success = false;
-    // could not log it but let's at least try to process it. (PANIC mail will be sent anyway)
-  }
-
-  $bs = get_bookings("booking.groupid=$groupid or booking.id=$groupid");
-
-  if ($bs===FALSE) {
-    myboom($lang["err_bookings"]);
-    $success = false;
-  } else foreach ($bs as $n => $b) {
-    if ($b["cat"] != CAT_FREE) {
-      if ($balance >= get_seat_price($b)) {
-	if (!set_book_status($b,ST_PAID)) {
-	  myboom( sprintf( $lang[ "err_ccard_pay" ], $b[ "bookid" ] ) );
-	  $success = false;
+	$success = true; // let's be optimistic
+	start_notifs();	
+	$rows = m_eval( "SELECT count(groupid) FROM ccard_transactions WHERE groupid=$groupid AND numxp='$transid' " );
+	if ($rows==0) {  // should be equal to 1 or 0
+		freeseat_query( "INSERT INTO ccard_transactions (groupid,numxkp,amount) VALUES (%d, %s, %d)", $groupid, quoter($transid), $amount );
 	} else {
-	  if ( mysql_affected_rows() == 1 ) {
-	    $balance -= get_seat_price($b);
-	  } else {
-	    myboom(sprintf($lang["err_ccard_repay"],$b["bookid"]));
-	  }
+		sys_log( sprintf( $lang["err_ccard_mysql"], freeseat_mysql_error() );
+		$success = false;
+		// could not log it but let's at least try to process it. (PANIC mail will be sent anyway)
 	}
-      } else {
-	  myboom(sprintf($lang["err_ccard_insuff"],
-			 $b["bookid"],
-			 price_to_string(get_seat_price($b)),
-			 price_to_string($balance),
-			 $currency));
-	$success = false;
-      }
-    }
-  }
-  if ($balance>0) {
-    kaboom(sprintf($lang["err_ccard_toomuch"],
-		   price_to_string($balance),
-		   price_to_string($amount),
-		   $currency));
-    $success = false;
-  }
-  send_notifs(); // Should we tell the user what's going on in case
-                 // things went bad?
-  return $success;
+	$bs = get_bookings("booking.groupid=$groupid or booking.id=$groupid");
+	if ($bs===FALSE) {
+		myboom($lang["err_bookings"]);
+		$success = false;
+	} else foreach ($bs as $n => $b) {
+		if ($b["cat"] != CAT_FREE) {
+			if ($balance >= get_seat_price($b)) {
+				if (!set_book_status($b,ST_PAID)) {
+					myboom( sprintf( $lang[ "err_ccard_pay" ], $b[ "bookid" ] ) );
+					$success = false;
+				} else {
+					if ( mysql_affected_rows() == 1 ) {
+						$balance -= get_seat_price($b);
+					} else {
+						myboom(sprintf($lang["err_ccard_repay"],$b["bookid"]));
+					}
+				}
+			} else {
+				myboom(sprintf($lang["err_ccard_insuff"],
+					$b["bookid"],
+					price_to_string(get_seat_price($b)),
+					price_to_string($balance),
+					$currency
+				));
+				$success = false;
+			}
+		}
+	}
+	if ($balance>0) {
+		kaboom(sprintf($lang["err_ccard_toomuch"],
+			price_to_string($balance),
+			price_to_string($amount),
+			$currency
+		));
+		$success = false;
+	}
+	send_notifs();
+	return $success;
 }
 
 /** update the status for a booking $b (sql record like returned by

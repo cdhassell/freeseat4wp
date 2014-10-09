@@ -158,9 +158,9 @@ function show_post($spec) {
 	} else {
 		$ID = wp_update_post( $post );
 	}
-	if (isset($spec['imageid']) && $spec['imageid']) {
+	/* if (isset($spec['imageid']) && $spec['imageid']) {
 		set_post_thumbnail( $ID, $spec['imageid'] );
-	}
+	} */
 }
 
 /*

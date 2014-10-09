@@ -140,7 +140,7 @@ display a seat of the given class on a seatmap */
 
 ul {
 	margin: 0 0 0.5em 0;
-	list-style: disc outside none;
+	list-style: disc inside none;
 }
 
 li p {
@@ -503,3 +503,19 @@ a:hover {
 	color: white;
 }
 
+img.wp-post-image {
+	float: left;
+	margin-right: 1em;
+}
+
+div.entry-content p, div.entry-content h3 {
+	clear: none;
+}
+
+div.entry-content ul li {
+	list-style-position: inside;
+}
+
+div.entry-content ul {
+	display: inline-block;
+}

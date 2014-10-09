@@ -533,12 +533,12 @@ function freeseat_install_data() {
 	$wpdb->query("INSERT INTO freeseat_theatres (id, name, imagesrc, staggered_seating) VALUES
 	(1, 'Two reserved classes 4x30&6x32, lettered rows', NULL, 0);");
 	
-	$post = array(
+	/* $post = array(
 		'id' => 1,
 		'name' => 'The Tempest',
 		'imageid' => 0,
 	);
-	show_post($post);
+	show_post($post); */
 }
 
 /**

@@ -58,24 +58,21 @@ $Id: confirm.php 279 2010-10-30 16:38:43Z tendays $
 
 */
 
-add_action( 'init', __NAMESPACE__ . '\\freeseat_paypal_init_handler' );
+add_action( 'init', __NAMESPACE__ . '\\freeseat_paypal_ipn_handler' );
 
 function freeseat_plugin_init_paypal() {
     global $freeseat_plugin_hooks;
 
-    $freeseat_plugin_hooks['ccard_checkamount']['paypal'] = 'paypal_checkamount';
-    $freeseat_plugin_hooks['ccard_confirm_button']['paypal'] = 'paypal_confirm_button';
-    // validation is done by checkamount.
-    $freeseat_plugin_hooks['ccard_ipn_auth']['paypal'] = 'paypal_true';
-    $freeseat_plugin_hooks['ccard_exists']['paypal'] = 'paypal_true';
-    $freeseat_plugin_hooks['ccard_partner']['paypal'] = 'paypal_partner';
-    $freeseat_plugin_hooks['ccard_paymentform']['paypal'] = 'paypal_paymentform';
-    $freeseat_plugin_hooks['ccard_readparams']['paypal'] = 'paypal_readparams';
-    $freeseat_plugin_hooks['check_session']['paypal'] = 'paypal_checksession';
-    $freeseat_plugin_hooks['confirm_process']['paypal'] = 'paypal_pdt_check';
-    $freeseat_plugin_hooks['params_post']['paypal'] = 'paypal_postedit';
-    $freeseat_plugin_hooks['params_edit']['paypal'] = 'paypal_editparams';    
-    init_language('paypal');
+	$freeseat_plugin_hooks['ccard_confirm_button']['paypal'] = 'paypal_confirm_button';
+	$freeseat_plugin_hooks['ccard_ipn_auth']['paypal'] = 'paypal_true';
+	$freeseat_plugin_hooks['ccard_exists']['paypal'] = 'paypal_true';
+	$freeseat_plugin_hooks['ccard_partner']['paypal'] = 'paypal_partner';
+	$freeseat_plugin_hooks['ccard_paymentform']['paypal'] = 'paypal_paymentform';
+	$freeseat_plugin_hooks['check_session']['paypal'] = 'paypal_checksession';
+	$freeseat_plugin_hooks['confirm_process']['paypal'] = 'paypal_pdt_check';
+	$freeseat_plugin_hooks['params_post']['paypal'] = 'paypal_postedit';
+	$freeseat_plugin_hooks['params_edit']['paypal'] = 'paypal_editparams';    
+	init_language('paypal');
 }
 
 function paypal_true($void) {
@@ -213,26 +210,31 @@ function paypal_paymentform() {
 	echo '</form>';
 }
 
-/** Requests and returns the amount of given transaction id,
- TRUE if the transaction is still pending, FALSE
-in case there was a problem */
+/** 
+ *  Requests and returns the amount of given transaction id,
+ *  TRUE if the transaction is still pending, FALSE
+ *  in case there was a problem 
+ */
 function paypal_checkamount($transid) {
-  global $lang, $transid, $paypal;
-  $repost = array();
-  if (!isset($_POST["txn_id"])) return FALSE;
+	global $lang, $transid, $paypal;
+	$repost = array();
+	if (!isset($_POST["txn_id"])) return FALSE;
 
-  /* Cancel magic quotes before resending the query... */
-  foreach ($_POST as $key => $value) {
-      $repost[$key] = nogpc($value);
-  }
-	$reply=fsockPost($paypal["url"],$repost);
-	if (eregi("VERIFIED",$reply))  {
-		if (($_POST["payment_status"]=="Completed") &&
+	/* Cancel magic quotes before resending the query... */
+	$cmd = "cmd=_notify-validate";
+	foreach ( $_POST as $key => $value ) {
+		$repost[$key] = nogpc($value);
+		$cmd .= '&' . $key . "=" . urlencode( nogpc($value) );
+	}
+	$reply = fsockPost( $paypal["url"], $cmd );
+	$reply = implode( ",", $reply );
+	if ( strpos( $reply, "VERIFIED" )!==FALSE )  {
+		if (($repost["payment_status"]=="Completed") &&
 			($repost["txn_id"]==$transid )  &&
 			($repost["receiver_email"]== $paypal["business"] )) {
 			//ok it checks out
-			return string_to_price($_POST["mc_gross"]);
-		} elseif ($_POST["payment_status"]=="Pending") {
+			return string_to_price($repost["mc_gross"]);
+		} elseif ($repost["payment_status"]=="Pending") {
 			// ok but status is still pending
 			kaboom(sprintf($lang["err_scriptstatus"],"Pending"));
 			return TRUE;
@@ -251,14 +253,11 @@ function paypal_checkamount($transid) {
 	return FALSE;  
 }
 
-function fsockPost($url,$data) {
-	//posts transaction data using fsockopen.
+function fsockPost($url,$postdata) {
+	// Posts transaction data using fsockopen back to Paypal
+	// Either freeseat_paypal_ipn_handler() or paypal_pdt_check() will check the response
 	$web = parse_url($url);
-
-	$postdata = "cmd=_notify-validate";
-	foreach ($data as $i=>$v) { //build post string
-		$postdata.= '&' . $i . "=" . urlencode($v);
-	}
+	$info = array();
 
 	if ($web["scheme"] == "https") { 		//set the port number
 		$web["port"]="443";  
@@ -277,10 +276,10 @@ function fsockPost($url,$data) {
 		fputs($fp, "Content-length: ".strlen($postdata)."\r\n");
 		fputs($fp, "Connection: close\r\n\r\n");
 		fputs($fp, $postdata . "\r\n\r\n");
-		while(!feof($fp))     	//loop through the response from the server
-			$info[]=@fgets($fp, 1024);
-		fclose($fp);                //close fp - we are done with it
-		$info=implode(",",$info);  //collapse results into a string
+		while(!feof($fp)) {    	//loop through the response from the server
+			$info[] = @fgets($fp, 1024);
+		}
+		fclose($fp);            //close fp - we are done with it
 	}
 	return $info;
 }
@@ -344,65 +343,72 @@ function paypal_checksession($level) {
 }
 
 function paypal_pdt_check() { 
-	// On success, saves an array with all PDT data variables in $_SESSION['PDT'].
+	// Called on the confirm_process hook, to query Paypal for payment verification.
 	// Accepts a pending status for eCheck transactions as ok.
-	// On failure, the user is shown a failure message and we exit.
-	global $paypal, $freeseat_vars, $lang, $page_url;
+	global $paypal, $freeseat_vars, $lang, $page_url, $transid;
 	
 	$paypal_auth_token = $freeseat_vars['paypal_auth_token'];
-	if (!isset($_GET["ok"]) || !$_GET["ok"]) return;  // let main script deal with it 
+	// if (!isset($_GET["ok"]) || !$_GET["ok"]) return;  // let main script deal with it 
 	if (!isset($paypal_auth_token)) return; // nothing to check
 	if ($_SESSION['payment']!=PAY_CCARD) return;  // wrong payment type
 	if (isset($_GET['tx'])) {
 		$tx_token = $_GET['tx'];
-		$req = "cmd=_notify-synch&tx=$tx_token&at=$paypal_auth_token";
-		// post back to PayPal system to validate
-		$header = "POST /cgi-bin/webscr HTTP/1.0\r\n";
-		$header .= "Content-Type: application/x-www-form-urlencoded\r\n";
-		$header .= "Content-Length: " . strlen($req) . "\r\n\r\n";
-		// If possible, securely post back to paypal using HTTPS
-		// $fp = fsockopen ('www.paypal.com', 80, $errno, $errstr, 30);
-		$fp = fsockopen ('ssl://www.paypal.com', 443, $errno, $errstr, 30);
-		if (!$fp) {
-			sys_log("Unable to reach PayPal site to verify transaction");
-			return;
-		} 
-		fputs ($fp, $header . $req);
-		$res = '';
-		$headerdone = false;
-		while (!feof($fp)) {
-			$line = fgets ($fp, 1024);
-			if (strcmp($line, "\r\n") == 0) 
-				$headerdone = true;
-			elseif ($headerdone) 
-				$res .= $line;
-		}
-		// parse the data
-		$lines = explode("\n", $res);
- 		$keyarray = array();
-		if (strcmp ($lines[0], "SUCCESS") == 0) {
-			foreach ($lines as $i => $j){
-				list($key,$val) = explode("=", $j);
+		$cmd = "cmd=_notify-synch&tx=$tx_token&at=$paypal_auth_token";
+		$url = $paypal["url"]."/cgi-bin/webscr";
+		$reply = fsockPost( $url, $cmd );	// returns an array of strings
+ 		$keyarray = array();		
+		foreach ($reply as $line) {
+			$line = str_replace( array("\r","\n"), "", $line );
+			if (strcmp ($line, "SUCCESS") == 0) {
+				$success = true;
+			}
+			if ( strpos( "=", $line ) !== FALSE ) {
+				list($key,$val) = explode("=", $line);
 				$keyarray[urldecode($key)] = urldecode($val);
 			}
-			if (((strcmp("Completed",$keyarray["payment_status"]) == 0) ||
-				(strcmp("Pending",$keyarray["payment_status"]) == 0)) &&	
-				(strcmp($keyarray["receiver_email"],$paypal["business"]) == 0)) {
-				$keyarray["txnok"] = TRUE;
-				$_SESSION['PDT'] = $keyarray;
-				return;
-			} 
 		}
-		sys_log("Paypal transaction failed\nHeader: ".$header."\nReq: ".$req."\nRes: ".$res);
-		fclose ($fp);
+		if ($success) {
+			if ((strcmp("Completed",$keyarray["payment_status"]) == 0) &&
+				strcmp($keyarray["receiver_email"],$paypal["business"]) == 0) {
+				$amount = string_to_price($keyarray["mc_gross"]);
+				$ok = process_ccard_transaction( $groupid, $transid, $amount );
+				// return $amount;
+			} elseif ((strcmp("Pending",$keyarray["payment_status"]) == 0) &&	
+				(strcmp($keyarray["receiver_email"],$paypal["business"]) == 0)) {
+				sys_log("Pending payment GID=$groupid  TID=$transid  Amt=$unsafeamount ");
+				paypal_extend($groupid);
+				// return TRUE;
+			} else {
+				sys_log(sprintf($lang["err_scriptauth"],'Paypal PDT success'));
+				sys_log("Reply: ".implode(",",$reply));
+				sys_log("Txn_id: ".$keyarray["txn_id"]." $transid");
+			}
+		} else {
+			sys_log(sprintf($lang["err_scriptauth"],'Paypal PDT failed'));
+			sys_log("Reply: ".implode(",",$reply));
+		}
+
 	}
-	show_head();
-	echo sprintf( $lang["pdt_failure_page"], replace_fsp( $page_url, PAGE_SEATS ) ); 
-	show_foot();
-	exit;
+	return FALSE;
+	// show_head();
+	// echo sprintf( $lang["pdt_failure_page"], replace_fsp( $page_url, PAGE_SEATS ) ); 
+	// show_foot();
+	// exit;
 }
 
-function freeseat_paypal_init_handler() {
+function paypal_extend($groupid) {
+	// Extend the expiration of a pending payment 
+	$extend_date = date("Y-m-d H:i:s",time()+86400*4);
+	$q="UPDATE booking SET timestamp='$extend_date' WHERE booking.groupid=$groupid OR booking.id=$groupid";
+	if (!freeseat_query( $q )) sys_log(freeseat_mysql_error());
+}
+
+/*  
+ *  IPN Handler
+ *  Called by Paypal server to notify us of events 
+ *  Runs asynchonously on the init WP system hook
+ */
+function freeseat_paypal_ipn_handler() {
 	global $lang, $transid, $paypal, $groupid, $unsafeamount, $smtp_sender, $admin_mail;
 
 	if ( isset( $_REQUEST[ 'freeseat_ipn' ] ) ) {
@@ -427,7 +433,7 @@ function freeseat_paypal_init_handler() {
 			exit;
 		}  
 		
-		if (do_hook_exists("ccard_readparams")) {
+		if (paypal_readparams()) {	// read POST for return params
 			/** This will be put in the mail in case something goes wrong,
 			otherwise it gets discarded */
 			kaboom("groupid=$groupid transid=$transid unsafeamount=$unsafeamount");
@@ -437,8 +443,8 @@ function freeseat_paypal_init_handler() {
 					doesn't handle those. */
 				exit;
 			}
-			
-			$amount = do_hook_function("ccard_checkamount", $transid);
+			// verify the payment via API & get the amount paid
+			$amount = paypal_checkamount($transid); 
 			
 			if ($amount===TRUE || $amount===FALSE) {   
 				// do nothing
@@ -453,14 +459,11 @@ function freeseat_paypal_init_handler() {
 			
 			if ($amount===TRUE) {
 				sys_log("Pending payment GID=$groupid  TID=$transid  Amt=$unsafeamount ");
-				// extend the booking timestamp by 4 days to allow for an echeck to clear
-				$extend_date = date("Y-m-d H:i:s",time()+86400*4);
-				$q="update booking set timestamp='$extend_date' where booking.groupid=$groupid or booking.id=$groupid";
-				if (!freeseat_query( $q )) sys_log(freeseat_mysql_error());
+				paypal_extend($groupid);
 				exit;
 			} else if ($amount !== FALSE) {
 				/* Thank You email will be sent at this point if things work well. */
-				$success = process_ccard_transaction($groupid,$transid,$amount);
+				$success = process_ccard_transaction( $groupid, $transid, $amount );
 			} // else: checking amount failed. We set alert to true below.
 		}
 		
