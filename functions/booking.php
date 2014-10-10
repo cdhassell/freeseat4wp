@@ -168,7 +168,7 @@ function process_ccard_transaction( $groupid, $transid, $amount ) {
 	if ($rows==0) {  // should be equal to 1 or 0
 		freeseat_query( "INSERT INTO ccard_transactions (groupid,numxkp,amount) VALUES (%d, %s, %d)", $groupid, quoter($transid), $amount );
 	} else {
-		sys_log( sprintf( $lang["err_ccard_mysql"], freeseat_mysql_error() );
+		sys_log( sprintf( $lang["err_ccard_mysql"], freeseat_mysql_error() ));
 		$success = false;
 		// could not log it but let's at least try to process it. (PANIC mail will be sent anyway)
 	}

@@ -69,7 +69,7 @@ function freeseat_plugin_init_paypal() {
 	$freeseat_plugin_hooks['ccard_partner']['paypal'] = 'paypal_partner';
 	$freeseat_plugin_hooks['ccard_paymentform']['paypal'] = 'paypal_paymentform';
 	$freeseat_plugin_hooks['check_session']['paypal'] = 'paypal_checksession';
-	$freeseat_plugin_hooks['confirm_process']['paypal'] = 'paypal_pdt_check';
+	$freeseat_plugin_hooks['finish_post_booking']['paypal'] = 'paypal_pdt_check';
 	$freeseat_plugin_hooks['params_post']['paypal'] = 'paypal_postedit';
 	$freeseat_plugin_hooks['params_edit']['paypal'] = 'paypal_editparams';    
 	init_language('paypal');
@@ -172,7 +172,7 @@ function paypal_paymentform() {
     $url = replace_fsp( $page_url, PAGE_FINISH );
     $paypal["cancel_url" ] = $url;
     $paypal["success_url"] = add_query_arg( 'ok', 'yes', $url );     
-    $paypal["notify_url" ] = add_query_arg( 'freeseat_ipn', '1', $url ); // back door confirmation IPN
+    $paypal["notify_url" ] = add_query_arg( 'freeseat_ipn', '1', $url ); // back door to IPN handler
     $paypal["return_method"] = "2"; //1=GET 2=POST
     $paypal["bn"] = "toolkit-php";
     $paypal["cmd"] = "_xclick";
@@ -342,15 +342,23 @@ function paypal_checksession($level) {
   return false; // all is fine
 }
 
-function paypal_pdt_check() { 
-	// Called on the confirm_process hook, to query Paypal for payment verification.
-	// Accepts a pending status for eCheck transactions as ok.
-	global $paypal, $freeseat_vars, $lang, $page_url, $transid;
+/**
+ *  If we do not have a verification from IPN yet, we can check via PDT
+ *  Requires that the paypal_auth_token be set
+ *  Called on the finish_post_booking hook
+ *  Accepts a pending status for eCheck transactions as ok
+ *  Pass $groupid as parameter.
+ **/
+function paypal_pdt_check($groupid) { 
+	global $paypal, $freeseat_vars, $lang, $page_url, $transid, $smtp_sender, $admin_mail;
 	
+	// Did we get the IPN? If so nothing further is needed
+	$sql = "SELECT count(numxkp) FROM ccard_transactions WHERE groupid=$groupid";
+	if ( m_eval($sql) ) return TRUE;
+	
+	// If not, make a call to paypal to verify sale
 	$paypal_auth_token = $freeseat_vars['paypal_auth_token'];
-	// if (!isset($_GET["ok"]) || !$_GET["ok"]) return;  // let main script deal with it 
-	if (!isset($paypal_auth_token)) return; // nothing to check
-	if ($_SESSION['payment']!=PAY_CCARD) return;  // wrong payment type
+	if (!isset($paypal_auth_token)) return FALSE; // nothing to check
 	if (isset($_GET['tx'])) {
 		$tx_token = $_GET['tx'];
 		$cmd = "cmd=_notify-synch&tx=$tx_token&at=$paypal_auth_token";
@@ -368,32 +376,32 @@ function paypal_pdt_check() {
 			}
 		}
 		if ($success) {
+			$amount = string_to_price($keyarray["mc_gross"]);
+			$transid  = $tx_token;  // FIXME are these the same?? nogpc($keyarray["txn_id"]);
 			if ((strcmp("Completed",$keyarray["payment_status"]) == 0) &&
 				strcmp($keyarray["receiver_email"],$paypal["business"]) == 0) {
-				$amount = string_to_price($keyarray["mc_gross"]);
 				$ok = process_ccard_transaction( $groupid, $transid, $amount );
-				// return $amount;
+				return $ok;
 			} elseif ((strcmp("Pending",$keyarray["payment_status"]) == 0) &&	
 				(strcmp($keyarray["receiver_email"],$paypal["business"]) == 0)) {
-				sys_log("Pending payment GID=$groupid  TID=$transid  Amt=$unsafeamount ");
 				paypal_extend($groupid);
-				// return TRUE;
+				sys_log("Pending payment GID=$groupid  TID=$transid  Amt=$amount ");
+				return TRUE;
 			} else {
 				sys_log(sprintf($lang["err_scriptauth"],'Paypal PDT success'));
 				sys_log("Reply: ".implode(",",$reply));
-				sys_log("Txn_id: ".$keyarray["txn_id"]." $transid");
 			}
 		} else {
 			sys_log(sprintf($lang["err_scriptauth"],'Paypal PDT failed'));
 			sys_log("Reply: ".implode(",",$reply));
 		}
-
 	}
+	// something is wrong, mail the admin
+	$subject = ($success?$lang["alert"]:$lang["failure"]);
+	$body = "\n".sprintf($lang["ccard_failed"],$subject);
+	$body .= flush_messages_text();
+	send_message($smtp_sender,$admin_mail,$subject,$body);
 	return FALSE;
-	// show_head();
-	// echo sprintf( $lang["pdt_failure_page"], replace_fsp( $page_url, PAGE_SEATS ) ); 
-	// show_foot();
-	// exit;
 }
 
 function paypal_extend($groupid) {
@@ -416,8 +424,7 @@ function freeseat_paypal_ipn_handler() {
 
 		$messages = array();
 		$success = false; // set to true once the transaction is successfully processed.
-		$alert = false; // set to true if the contents of $messages should be
-				// sent to admin
+		$alert = false; // set to true if $messages should be sent to admin
 		
 		// !$success && $alert   means the thing completely failed
 		// $success && $alert    means we managed but there was a problem.
@@ -425,14 +432,7 @@ function freeseat_paypal_ipn_handler() {
 		// !$success && !$alert  does not make sense
 		
 		prepare_log("ccard_ipn");
-		
-		if (! do_hook_exists("ccard_ipn_auth")) {   
-			header("Status: 403 Forbidden");
-			echo "<html><body><h1>403 Forbidden</h1><p>".$lang["err_badip"]."</p></body></html>";
-			sys_log($lang["warn_badlogin"]);
-			exit;
-		}  
-		
+	
 		if (paypal_readparams()) {	// read POST for return params
 			/** This will be put in the mail in case something goes wrong,
 			otherwise it gets discarded */

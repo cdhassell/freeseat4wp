@@ -23,7 +23,7 @@ function freeseat_finish( $page_url ) {
 	if ((!isset($_SESSION["booking_done"])) || ($_SESSION["booking_done"]===false)) {
 		$_SESSION["groupid"] = 0;
 		do_hook('confirm_process'); // process any extra parameters from confirm.php
-		check_session(4,true);
+		check_session(4,true); 
 		foreach ($_SESSION["seats"] as $n => $s) {
 			/* $_GET["panic"] is for debugging purposes */
 			if (($bookid = book($_SESSION,$s))===false) { // || $_GET["panic"]=="NOW") {
@@ -44,49 +44,57 @@ function freeseat_finish( $page_url ) {
 			}
 		}
 		$_SESSION["booking_done"] = ST_BOOKED;
-	} else check_session(4);
-	// did we get a payment? record it in session
-	if (isset($_GET["ok"])) {
-		if ($_GET["ok"]=="yes") {
+	} else check_session(4); // a valid user name and payment method must exist at this point
+
+	if ( $_SESSION["payment"]==PAY_CCARD) { 	
+		// did we get a payment? record it in session	
+		if ( do_hook_exists('finish_post_booking', $_SESSION['groupid']) ) {
 			$_SESSION["booking_done"] = ST_PAID;
 		} else {
 			kaboom(sprintf($lang["err_ccard_user"],$smtp_sender));
+		}
+	} else {
+		// otherwise just check if we are ready
+		if (isset($_GET["ok"]) && $_GET["ok"]=="yes") {
+			$_SESSION["booking_done"] = ST_PAID;
 		}
 	}
 	
 	if (($_SESSION["payment"]==PAY_CCARD) && ($_SESSION["booking_done"]!=ST_PAID)
 		&& (get_total()>0)) {
+		// expecting credit card payment but it failed. let them try again.
 		show_head();
 		echo $lang["intro_ccard"];
 		do_hook('ccard_paymentform');
-	} else { // not credit card or coming back from credit card processor
+	} else { 
+		// not a credit card sale, or coming back from credit card processor
 		$config = get_config();
 		if (($_SESSION["payment"]==PAY_CCARD) && (get_total()>0)) {
-		/* if the payment is done by credit card, check if tickets have
+			/* if the payment is done by credit card, check if tickets have
 			already been paid (they should), and only mail the user if not. */
-		$bs = get_bookings("booking.groupid=".$_SESSION["groupid"]." or booking.id=".$_SESSION["groupid"]);
-		if ($bs) {
-			$allpaid = true;
-			foreach ($bs as $n => $b) {
-				if ($b["state"]!=ST_PAID) $allpaid = false;
+			$bs = get_bookings("booking.groupid=".$_SESSION["groupid"]." or booking.id=".$_SESSION["groupid"]);
+			if ($bs) {
+				$allpaid = true;
+				foreach ($bs as $n => $b) {
+					if ($b["state"]!=ST_PAID) $allpaid = false;
+				}
+				if ($allpaid) {
+					/* get_total() is non-zero but all tickets are marked PAID
+					then a thank you/confirmation message has already been sent
+					by set_book_status/send_notifs. */
+					$_SESSION["mail_sent"] = true;
+				}
+			} else {
+				/* the correct value for allpaid is not known because things
+				went wrong. I think it's best to set it to FALSE as (I think)
+	 			it's best to tell people they should pay when actually they
+				don't, than not tell them when they should. */
+				$allpaid = false;
+				myboom();
 			}
-			if ($allpaid) {
-				/* get_total() is non-zero but all tickets are marked PAID
-				then a thank you/confirmation message has already been sent
-				by set_book_status/send_notifs. */
-				$_SESSION["mail_sent"] = true;
-			}
-		} else {
-			/* the correct value for allpaid is not known because things
-			went wrong. I think it's best to set it to FALSE as (I think)
-	 		it's best to tell people they should pay when actually they
-			don't, than not tell them when they should. */
-			$allpaid = false;
-			myboom();
+		} else { /* not paying by ccard, or all tickets free. */
+			$allpaid = (get_total() == 0);
 		}
-	} else { /* not paying by ccard, or all tickets free. */
-		$allpaid = (get_total() == 0);
-	}
 		// make the ticket output page
 		show_head(true);
 		/* Ticket-printing plugins may request to override ticket rendering
