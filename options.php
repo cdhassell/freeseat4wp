@@ -53,7 +53,7 @@ function freeseat_add_defaults() {
 			'shakedelay_ccard' => 2,
 			'closing_ccard' => 60,
 			'disabled_ccard' => true,
-			'opening_cash' => 0,
+			// 'opening_cash' => 0,
 			'closing_cash' => 88800,
 			'disabled_cash' => false,
 			'paydelay_post' => 5,
@@ -302,11 +302,11 @@ function freeseat_params() {
 						<label><input name="freeseat_options[disabled_ccard]" type="checkbox" value="1" <?php if (isset($options['disabled_ccard'])) { checked('1', $options['disabled_ccard']); } ?> /> <?php _e( 'Disable' ); ?></label>
 					</th>
 					<td> 
-						<?php _e( 'Close online reservations' ); ?><br />
+						<?php _e( 'Close online reservations before show' ); ?><br />
 						<input type="number" min="0" name="freeseat_options[closing_ccard]" value="<?php echo $options['closing_ccard']; ?>" /> Minutes
 					</td>
 					<td>
-						<?php _e( 'Reminders about unpaid reservations' ); ?><br />
+						<?php _e( 'Send reminders about unpaid reservations for' ); ?><br />
 						<input type="number" min="0" name="freeseat_options[shakedelay_ccard]" value="<?php echo $options['shakedelay_ccard']; ?>" /> Days
 					</td>
 					<td>
@@ -319,12 +319,12 @@ function freeseat_params() {
 						<?php _e( 'Will-call Orders' ); ?><br />
 						<label><input name="freeseat_options[disabled_cash]" type="checkbox" value="1" <?php if (isset($options['disabled_cash'])) { checked('1', $options['disabled_cash']); } ?> /> <?php _e( 'Disable' ); ?></label>
 					</th>
-					<td> 
+					<!-- td> 
 						<?php _e( 'Open will-call reservations' ); ?><br />
 						<input type="number" min="0" name="freeseat_options[opening_cash]" value="<?php echo $options['opening_cash']; ?>" /> Minutes
-					</td>
+					</td -->
 					<td>
-						<?php _e( 'Close will-call reservations' ); ?><br />
+						<?php _e( 'Close will-call reservations before show' ); ?><br />
 						<input type="number" min="0" name="freeseat_options[closing_cash]" value="<?php echo $options['closing_cash']; ?>" /> Minutes
 					</td>
 					<td>
@@ -336,12 +336,12 @@ function freeseat_params() {
 						<label><input name="freeseat_options[disabled_post]" type="checkbox" value="1" <?php if (isset($options['disabled_post'])) { checked('1', $options['disabled_post']); } ?> /> <?php _e( 'Disable' ); ?></label>
 					</th>
 					<td> 
-						<?php _e( 'Close postal reservations' ); ?><br />
+						<?php _e( 'Close postal reservations before show' ); ?><br />
 						<input type="number" min="0" name="freeseat_options[closing_post]" value="<?php echo $options['closing_post']; ?>" /> Minutes
 					</td>
 					<td>
-						<?php _e( 'Reminders about unpaid reservations' ); ?><br />
-						<input type="number" min="0" name="freeseat_options[shakedelay_post]" value="<?php echo $options['shakedelay_post']; ?>" /> Days
+						<?php _e( 'Send reminders about unpaid reservations for' ); ?><br />
+						<input type="number" min="0" width="3" name="freeseat_options[shakedelay_post]" value="<?php echo $options['shakedelay_post']; ?>" /> Days
 					</td>					<td>
 						<?php _e( 'Cancel unpaid postal reservations after' ); ?><br />
 						<input type="number" min="0" name="freeseat_options[paydelay_post]" value="<?php echo $options['paydelay_post']; ?>" /> Days

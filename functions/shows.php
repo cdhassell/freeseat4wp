@@ -49,7 +49,7 @@ function payment_open($sh,$mode) {
 			return do_hook_exists('ccard_exists') && (!$c["disabled_ccard"]) && ($now<=$show_at-60*$c["closing_ccard"]);
 		case PAY_CASH:
 			return ((!$c["disabled_cash"]) && ($now<=$show_at-60*$c["closing_cash"]) 
-					&& ($c["opening_cash"] && ($now>=sub_open_time($show_at,60*$c["opening_cash"])))
+					// && ($c["opening_cash"] && ($now>=sub_open_time($show_at,60*$c["opening_cash"])))
 				);
 		case PAY_OTHER:
 			return admin_mode();

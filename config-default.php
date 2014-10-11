@@ -24,16 +24,8 @@ $upload_url = 'files/';
 $moneyfactor = 100;
 $postaltax = false;
 $ccp = '';
-$paypal["url"]="https://www.sandbox.paypal.com/cgi-bin/webscr";	// for the sandbox
-// $paypal["url"]="https://www.paypal.com/cgi-bin/webscr";	// for the real thing
-
 $admin_mail      = "postmaster@example.com"; 
 $smtp_helo       = "example.com";
 $smtp_user       = "user@example.com";
 $default_server_name = "example.com";
-
-$ccard_provider = "paypal";
-$paypal["currency_code"]="USD"; // [USD,GBP,JPY,CAD,EUR]
-$paypal["lc"]="US";
-
 

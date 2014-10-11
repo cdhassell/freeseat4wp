@@ -649,7 +649,7 @@ function select_country() {
 function pay_option($p) {
 	global $sh;
 	if (payment_open($sh,$p)) {
-		echo '<label>' . f_payment($p);
+		echo '<label style="margin-left:1em;">' . f_payment($p);
 		echo "&nbsp;<input type='radio' name='payment' value='$p'";
 		if ($_SESSION["payment"]==$p) echo ' checked="checked"';
 		echo "></label>";
