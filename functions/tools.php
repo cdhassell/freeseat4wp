@@ -124,22 +124,24 @@ function sys_log($s) {
 }
 
 function log_done() {
+	global $role;
+	$role = '';
   /*  global $loghandle;
   if ($loghandle) fclose($loghandle);
   $loghandle = null; */
 }
 
 /* Whether the given timestamp is a holiday. For now it is assumed not
- to depend on time, but only on date */
+ to depend on time, but only on date 
 function is_holiday($t) {
-  /* WARN For now only the weekend is considered holiday */
+  // WARN For now only the weekend is considered holiday 
   return (($t+262800) % 604800) > 432000;
 }
 
-/** Pass two timestamps ($a<$z) ; this function returns how many
-seconds of holidays there are between the two timestamps */
+// Pass two timestamps ($a<$z) ; this function returns how many
+// seconds of holidays there are between the two timestamps 
 function holidays_between($a,$z) {
-  /* WARN For now only the weekend is considered holiday */
+  // WARN For now only the weekend is considered holiday
 
   // 604800: seconds in a week
   // 262800: shift to have Monday at 0am have weektime=0
@@ -153,23 +155,22 @@ function holidays_between($a,$z) {
   $leftz = ($weektimez>432000)?604800-$weektimez:172800;
 
   return ($weekz-$weeka)*2/7-($leftz-$lefta);
-}
+} */
 
 /** return the timestamp corresponding to $delta seconds before $timestamp
 (which is a unix timestamp), skipping any bank holiday. */
 function sub_open_time($timestamp,$delta) {
-  //  echo "X"; // DEBUG (see how much recursion there is)
-  if ($delta==0)
-    return $timestamp;
-
-  /* following lines are an optimisation and don't change actual value returned. */
-  if ($delta<0) {
-    if (is_holiday($timestamp)) $timestamp -= (($timestamp+3600)%86400)-86399;
-  } else {
-    if (is_holiday($timestamp)) $timestamp -= ($timestamp+3600)%86400;
-  }
-
-  return sub_open_time($timestamp-$delta,holidays_between($timestamp-$delta,$timestamp));
+	// bank holiday stuff is irrelevant, skipping
+	return $timestamp - $delta;
+	/* if ($delta==0)
+	return $timestamp;
+	// following lines are an optimisation and don't change actual value returned. 
+	if ($delta<0) {
+		if (is_holiday($timestamp)) $timestamp -= (($timestamp+3600)%86400)-86399;
+	} else {
+		if (is_holiday($timestamp)) $timestamp -= ($timestamp+3600)%86400;
+	}
+	return sub_open_time($timestamp-$delta,holidays_between($timestamp-$delta,$timestamp)); */
 }
 
 /** first output mysql error then the optional parameter. Returns
@@ -191,16 +192,6 @@ function array_union($a,$b) {
   $c = $a;
   foreach ($b as $k=>$v) $c[$k] = $v;
   return $c;
-}
-
-/** Same as array_flip (flip keys and values) but trims and down-case
- the value *before* the flip. */
-function array_fliplowtrim($a) {
-  $r = array();
-  foreach ($a as $k => $v) {
-    $r[strtolower(trim($v))] = $k;
-  }
-  return $r;
 }
 
 /* aa being an array of arrays, Set key k to value v for each array in

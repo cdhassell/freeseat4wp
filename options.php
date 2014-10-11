@@ -150,7 +150,7 @@ function freeseat_params() {
 			<!-- Each Plugin Option Defined on a New Table Row -->
 			<table class="form-table">
 				<tr valign="top" style="border-top:#dddddd 1px solid;"><!-- Major Heading -->
-					<th scope="col">
+					<th scope="col" style="padding:0;">
 						<h3>
 							<?php _e( 'FreeSeat Plugins' ); ?>
 						</h3>
@@ -183,7 +183,7 @@ function freeseat_params() {
 						?>
 					</td>
 				<tr valign="top" style="border-top:#dddddd 1px solid;"><!-- Major Heading -->
-					<th scope="col" colspan="4">
+					<th scope="col" colspan="4" style="padding:0;">
 						<h3>
 							<?php _e( 'General Options' ); ?>
 						</h3>
@@ -203,7 +203,7 @@ function freeseat_params() {
 					</td>
 					<td>
 						<?php _e( 'Maximum seats in one sale' ); ?><br />
-						<input type="number" min="0" size="6" name="freeseat_options[max_seats]" value="<?php echo $options['max_seats']; ?>" />
+						<input type="number" min="0" name="freeseat_options[max_seats]" value="<?php echo $options['max_seats']; ?>" />
 					</td>
 				</tr>
 				<tr>
@@ -290,7 +290,7 @@ function freeseat_params() {
 					</td>
 				</tr>
 				<tr valign="top" style="border-top:#dddddd 1px solid;"><!-- Major Heading -->
-					<th scope="col" colspan="4">
+					<th scope="col" colspan="4" style="padding:0;">
 						<h3>
 							<?php _e( 'Payment Options' ); ?>
 						</h3>
@@ -303,15 +303,15 @@ function freeseat_params() {
 					</th>
 					<td> 
 						<?php _e( 'Close online reservations' ); ?><br />
-						<input type="number" min="0" size="6" name="freeseat_options[closing_ccard]" value="<?php echo $options['closing_ccard']; ?>" /> Minutes
+						<input type="number" min="0" name="freeseat_options[closing_ccard]" value="<?php echo $options['closing_ccard']; ?>" /> Minutes
 					</td>
 					<td>
 						<?php _e( 'Reminders about unpaid reservations' ); ?><br />
-						<input type="number" min="0" size="6" name="freeseat_options[shakedelay_ccard]" value="<?php echo $options['shakedelay_ccard']; ?>" /> Days
+						<input type="number" min="0" name="freeseat_options[shakedelay_ccard]" value="<?php echo $options['shakedelay_ccard']; ?>" /> Days
 					</td>
 					<td>
 						<?php _e( 'Cancel unpaid reservations after' ); ?><br />
-						<input type="number" min="0" size="6" name="freeseat_options[paydelay_ccard]" value="<?php echo $options['paydelay_ccard']; ?>" /> Days
+						<input type="number" min="0" name="freeseat_options[paydelay_ccard]" value="<?php echo $options['paydelay_ccard']; ?>" /> Days
 					</td>
 				</tr>
 				<tr>
@@ -321,11 +321,11 @@ function freeseat_params() {
 					</th>
 					<td> 
 						<?php _e( 'Open will-call reservations' ); ?><br />
-						<input type="number" min="0" size="6" name="freeseat_options[opening_cash]" value="<?php echo $options['opening_cash']; ?>" /> Minutes
+						<input type="number" min="0" name="freeseat_options[opening_cash]" value="<?php echo $options['opening_cash']; ?>" /> Minutes
 					</td>
 					<td>
 						<?php _e( 'Close will-call reservations' ); ?><br />
-						<input type="number" min="0" size="6" name="freeseat_options[closing_cash]" value="<?php echo $options['closing_cash']; ?>" /> Minutes
+						<input type="number" min="0" name="freeseat_options[closing_cash]" value="<?php echo $options['closing_cash']; ?>" /> Minutes
 					</td>
 					<td>
 					</td>
@@ -337,36 +337,43 @@ function freeseat_params() {
 					</th>
 					<td> 
 						<?php _e( 'Close postal reservations' ); ?><br />
-						<input type="number" min="0" size="6" name="freeseat_options[closing_post]" value="<?php echo $options['closing_post']; ?>" /> Minutes
+						<input type="number" min="0" name="freeseat_options[closing_post]" value="<?php echo $options['closing_post']; ?>" /> Minutes
 					</td>
 					<td>
 						<?php _e( 'Reminders about unpaid reservations' ); ?><br />
-						<input type="number" min="0" size="6" name="freeseat_options[shakedelay_post]" value="<?php echo $options['shakedelay_post']; ?>" /> Days
+						<input type="number" min="0" name="freeseat_options[shakedelay_post]" value="<?php echo $options['shakedelay_post']; ?>" /> Days
 					</td>					<td>
 						<?php _e( 'Cancel unpaid postal reservations after' ); ?><br />
-						<input type="number" min="0" size="6" name="freeseat_options[paydelay_post]" value="<?php echo $options['paydelay_post']; ?>" /> Days
+						<input type="number" min="0" name="freeseat_options[paydelay_post]" value="<?php echo $options['paydelay_post']; ?>" /> Days
 					</td>
 					<td>
 					</td>
 				</tr>	
 				<tr valign="top" style="border-top:#dddddd 1px solid;"><!-- Major Heading -->
-					<th scope="col" colspan="4">
+					<th scope="col" colspan="4" style="padding:0;">
 						<h3>
 							<?php _e( 'Other Options' ); ?>
 						</h3>
 					</th>
 				</tr>
+				<!-- Freeseat plugins can add parameters here -->
 				<?php do_hook_function('params_edit', $options ); ?>
 				
-				<tr><td colspan="2"><div style="margin-top:10px;"></div></td></tr>
 				<tr valign="top" style="border-top:#dddddd 1px solid;">
 					<th scope="row">Database Options</th>
 					<td colspan="3">
-						<label><input name="freeseat_options[chk_default_options_db]" type="checkbox" value="1" <?php if (isset($options['chk_default_options_db'])) { checked('1', $options['chk_default_options_db']); } ?> /> Restore defaults upon plugin deactivation/reactivation</label>
-						<br /><span style="color:#666666;margin-left:2px;">Only check this if you want to reset plugin settings upon Plugin reactivation</span>
+						<label><input name="freeseat_options[chk_default_options_db]" type="checkbox" value="1" 
+						<?php 
+							if (isset($options['chk_default_options_db'])) { 
+								checked('1', $options['chk_default_options_db']); 
+							}
+							$text = __("Only check this if you want to reset all settings to defaults when FreeSeat4WP is deactivated and reactivated.  Otherwise, settings will be retained.");
+							echo " title='$text'";
+						?> /> Restore all default settings</label>
 					</td>
 				</tr>
 			</table>
+			<hr />
 			<p class="submit">
 			<input type="submit" class="button-primary" value="<?php _e('Save Changes') ?>" />
 			</p>

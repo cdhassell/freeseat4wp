@@ -39,20 +39,22 @@ function show_at($sh) {
     show at the present time */
 function payment_open($sh,$mode) {
 	global $now;
+	
 	$c = get_config();
 	$show_at = show_at($sh);
 	switch ($mode) {
-	case PAY_POSTAL:
-		return (!$c["disabled_post"]) && ($now<=sub_open_time($show_at,60*$c["closing_post"]));
-	case PAY_CCARD:
-		return do_hook_exists('ccard_exists') && (!$c["disabled_ccard"]) && ($now<=$show_at-60*$c["closing_ccard"]);
-	case PAY_CASH:
-		return (!$c["disabled_cash"]) && ($now<=$show_at-60*$c["closing_cash"]) &&
-			($now>=sub_open_time($show_at,60*$c["opening_cash"]));
-	case PAY_OTHER:
-		return admin_mode();
-	default:
-		return false;
+		case PAY_POSTAL:
+			return (!$c["disabled_post"]) && ($now<=sub_open_time($show_at,60*$c["closing_post"]));
+		case PAY_CCARD:
+			return do_hook_exists('ccard_exists') && (!$c["disabled_ccard"]) && ($now<=$show_at-60*$c["closing_ccard"]);
+		case PAY_CASH:
+			return ((!$c["disabled_cash"]) && ($now<=$show_at-60*$c["closing_cash"]) 
+					&& ($c["opening_cash"] && ($now>=sub_open_time($show_at,60*$c["opening_cash"])))
+				);
+		case PAY_OTHER:
+			return admin_mode();
+		default:
+			return false;
   }
 }
 
@@ -66,16 +68,16 @@ force zero to be returned */
 function show_closing_in($sh) {
 	global $now;
 	
-	if ($sh["disabled"] && !do_hook_exists("show_unlocked")) return 0;
+	if ($sh["disabled"]) return 0;
 	$show_at = show_at($sh);
 	$closing = $now;
 	$c = get_config();
 	if (payment_open($sh,PAY_CCARD))
-		$closing = max($closing,$show_at-$c["closing_ccard"]);
+		$closing = max($closing,$show_at-60*$c["closing_ccard"]);
 	if (payment_open($sh,PAY_CASH))
-		$closing = max($closing,$show_at-$c["closing_cash"]);
+		$closing = max($closing,$show_at-60*$c["closing_cash"]);
 	if (payment_open($sh,PAY_POSTAL))
-		$closing = max($closing,sub_open_time($show_at,$c["closing_post"]));
+		$closing = max($closing,sub_open_time($show_at,60*$c["closing_post"]));
 	return ($closing-$now)/60;
 }
 

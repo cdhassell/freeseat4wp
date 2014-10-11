@@ -61,10 +61,9 @@ $Id: confirm.php 279 2010-10-30 16:38:43Z tendays $
 add_action( 'init', __NAMESPACE__ . '\\freeseat_paypal_ipn_handler' );
 
 function freeseat_plugin_init_paypal() {
-    global $freeseat_plugin_hooks;
+    global $freeseat_plugin_hooks, $paypal, $paypal_sandbox;
 
 	$freeseat_plugin_hooks['ccard_confirm_button']['paypal'] = 'paypal_confirm_button';
-	$freeseat_plugin_hooks['ccard_ipn_auth']['paypal'] = 'paypal_true';
 	$freeseat_plugin_hooks['ccard_exists']['paypal'] = 'paypal_true';
 	$freeseat_plugin_hooks['ccard_partner']['paypal'] = 'paypal_partner';
 	$freeseat_plugin_hooks['ccard_paymentform']['paypal'] = 'paypal_paymentform';
@@ -73,6 +72,13 @@ function freeseat_plugin_init_paypal() {
 	$freeseat_plugin_hooks['params_post']['paypal'] = 'paypal_postedit';
 	$freeseat_plugin_hooks['params_edit']['paypal'] = 'paypal_editparams';    
 	init_language('paypal');
+	$paypal = array();
+	$paypal["currency_code"]="USD"; // [USD,GBP,JPY,CAD,EUR]
+	$paypal["lc"]="US";
+	$paypal["url"] = ( $paypal_sandbox ? 
+		"https://www.sandbox.paypal.com/cgi-bin/webscr" :	// for the sandbox
+		"https://www.paypal.com/cgi-bin/webscr"				// for the real thing
+	);
 }
 
 function paypal_true($void) {
@@ -85,6 +91,7 @@ function paypal_postedit( &$options ) {
 	if ( is_array( $options ) ) {
 		$options['paypal_account'] = wp_filter_nohtml_kses($options['paypal_account']); 
 		$options['paypal_auth_token'] = wp_filter_nohtml_kses($options['paypal_auth_token']);
+		if (!isset($options['paypal_sandbox'])) $options['paypal_sandbox'] = 0;
 	}
 	return $options;
 }
@@ -95,6 +102,7 @@ function paypal_editparams($options) {
 	if ( !is_array( $options ) ) return;
 	if ( !isset( $options['paypal_account'] ) ) $options['paypal_account'] = 'Paypal account email';
 	if ( !isset( $options['paypal_auth_token'] ) ) $options['paypal_auth_token'] = '';
+	if ( !isset( $options['paypal_sandbox'] ) ) $options['paypal_sandbox'] = 0;
 ?>  
 <!-- paypal stuff -->
 <tr>
@@ -107,6 +115,9 @@ function paypal_editparams($options) {
 	<td colspan="2">
 		<?php _e( 'Paypal account authorization token' ); ?><br />
 		<input type="text" size="60" name="freeseat_options[paypal_auth_token]" value="<?php echo $options['paypal_auth_token']; ?>" />
+	</td>
+	<td>
+		<label><input name="freeseat_options[paypal_sandbox]" type="checkbox" value="1" <?php if (isset($options['paypal_sandbox'])) { checked('1', $options['paypal_sandbox']); } ?> /> <?php _e( 'Sandbox mode' ); ?></label>
 	</td>
 </tr>
 <?php
@@ -362,8 +373,7 @@ function paypal_pdt_check($groupid) {
 	if (isset($_GET['tx'])) {
 		$tx_token = $_GET['tx'];
 		$cmd = "cmd=_notify-synch&tx=$tx_token&at=$paypal_auth_token";
-		$url = $paypal["url"]."/cgi-bin/webscr";
-		$reply = fsockPost( $url, $cmd );	// returns an array of strings
+		$reply = fsockPost( $paypal["url"], $cmd );	// returns an array of strings
  		$keyarray = array();		
 		foreach ($reply as $line) {
 			$line = str_replace( array("\r","\n"), "", $line );
