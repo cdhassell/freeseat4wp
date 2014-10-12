@@ -31,17 +31,8 @@ function load_alerts() {
 	$_SESSION[ "messages" ] = array( );
 }
 
-/* Whether administration were requested. Note that you probably don't
-   want to call this function before db_connect(), because admin
-   credentials won't be checked.
-
-   when $unsecure_login is false, we need two things be in admin_mode:
-   both a secure connexion (which implies a valid client ssl certificate)
-   and either $_SESSION["adminpass"] or $_POST["adminpass"] to be correctly
-   set. In the latter case the password is shifted into the session */
 function admin_mode() {
-    global $lang,$unsecure_login;
-    return current_user_can( 'administer_freeseat' );
+    return current_user_can( 'manage_freeseat' );
 }
 
 /** check that the session is sufficiently defined. When you pass a

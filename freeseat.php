@@ -192,15 +192,15 @@ function freeseat_wordpress_version() {
  * Adds extra submenus and menu options to the admin panel's menu structure
  */
 function freeseat_admin_menu() {
-	// Add menus - available only for Administrators
+	// Add menus - available only for Managers or Administrators 
 	// add_menu_page( $page_title, $menu_title, $capability, $menu_slug, $function, $icon_url, $position );
 	// add_submenu_page( $parent_slug, $page_title, $menu_title, $capability, $menu_slug, $function );
-	add_menu_page( 'Current Shows', 'FreeSeat', 'administer_freeseat', 'freeseat-admin', __NAMESPACE__ . '\\freeseat_switch', plugins_url( 'ticket.png', __FILE__ ) );
-	add_submenu_page( 'freeseat-admin', 'Current Shows', 'Current Shows', 'administer_freeseat', 'freeseat-admin', __NAMESPACE__ . '\\freeseat_switch' );
-	add_submenu_page( 'freeseat-admin', 'View Reservations', 'Reservations', 'administer_freeseat', 'freeseat-listtable', __NAMESPACE__ . '\\freeseat_render_list' );
-	add_submenu_page( 'freeseat-admin', 'Show Setup', 'Show Setup', 'administer_freeseat', 'freeseat-showedit', __NAMESPACE__ . '\\freeseat_showedit' );
+	add_menu_page( 'Current Shows', 'FreeSeat', 'manage_freeseat', 'freeseat-admin', __NAMESPACE__ . '\\freeseat_switch', plugins_url( 'ticket.png', __FILE__ ) );
+	add_submenu_page( 'freeseat-admin', 'Current Shows', 'Current Shows', 'manage_freeseat', 'freeseat-admin', __NAMESPACE__ . '\\freeseat_switch' );
+	add_submenu_page( 'freeseat-admin', 'View Reservations', 'Reservations', 'manage_freeseat', 'freeseat-listtable', __NAMESPACE__ . '\\freeseat_render_list' );
+	add_submenu_page( 'freeseat-admin', 'Show Setup', 'Show Setup', 'manage_freeseat', 'freeseat-showedit', __NAMESPACE__ . '\\freeseat_showedit' );
+	add_submenu_page( 'freeseat-admin', 'Seatmaps', 'Seatmaps', 'manage_freeseat', 'freeseat-upload', __NAMESPACE__ . '\\freeseat_upload' );
 	add_submenu_page( 'freeseat-admin', 'Edit Settings', 'Settings', 'administer_freeseat', 'freeseat-system', __NAMESPACE__ . '\\freeseat_params' );
-	add_submenu_page( 'freeseat-admin', 'Seatmaps', 'Seatmaps', 'administer_freeseat', 'freeseat-upload', __NAMESPACE__ . '\\freeseat_upload' );
 }
 
 /*
@@ -277,16 +277,12 @@ function freeseat_admin_styles( $hook ) {
  * Add freeseat administration capability to editor and administrator roles.
  */
 function freeseat_add_caps() {
-	$role = get_role( 'editor' );
-	$role->add_cap( 'administer_freeseat' );
+	add_role( 'freeseat_manager', 'Freeseat4WP Manager', array('manage_freeseat') );
 	$role = get_role( 'administrator' );
 	$role->add_cap( 'administer_freeseat' );
+	$role->add_cap( 'manage_freeseat' );
 }
 
-// these can be uncommented to quickly create the default options in the database
-// normally that only happens on first install
-// delete_option('freeseat_options');
-// freeseat_add_defaults();
 
 add_filter( 'plugin_action_links_' . plugin_basename(__FILE__), __NAMESPACE__ . '\\freeseat_sample_data_link' );
 add_action( 'activated_plugin', __NAMESPACE__ . '\\save_error');
