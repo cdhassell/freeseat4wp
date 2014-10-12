@@ -70,7 +70,7 @@ function freeseat_plugin_init_paypal() {
 	$freeseat_plugin_hooks['check_session']['paypal'] = 'paypal_checksession';
 	$freeseat_plugin_hooks['finish_post_booking']['paypal'] = 'paypal_pdt_check';
 	$freeseat_plugin_hooks['params_post']['paypal'] = 'paypal_postedit';
-	$freeseat_plugin_hooks['params_edit']['paypal'] = 'paypal_editparams';    
+	$freeseat_plugin_hooks['params_edit_ccard']['paypal'] = 'paypal_editparams';    
 	init_language('paypal');
 	$paypal = array();
 	$paypal["currency_code"]="USD"; // [USD,GBP,JPY,CAD,EUR]

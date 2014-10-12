@@ -314,6 +314,8 @@ function freeseat_params() {
 						<input type="number" min="0" name="freeseat_options[paydelay_ccard]" value="<?php echo $options['paydelay_ccard']; ?>" /> Days
 					</td>
 				</tr>
+				<!-- Freeseat plugins can add parameters here -->
+				<?php do_hook_function('params_edit_ccard', $options ); ?>
 				<tr>
 					<th scope="row">
 						<?php _e( 'Will-call Orders' ); ?><br />
