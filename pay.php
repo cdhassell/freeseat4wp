@@ -113,11 +113,11 @@ function freeseat_pay( $page_url )
 				}
 			}
 		    echo "<p class='main'>".sprintf($lang["howmanyare"],$seatcount). ":</p>\n";
-		    echo "<div style='margin: 0 3em;'><ul>";
+		    echo "<div><ul>";
 			foreach ($cats as $cat => $label) {
 				if ($cat == CAT_NORMAL) continue;
 				echo "<li>".$lang[$label]."&nbsp;:&nbsp;";
-				input_field("ncat$cat", '0', ' size="2"');
+				input_field("ncat$cat", '0', ' type="number" min="0"');
 				echo "</li>";
 			}
 			echo "</ul></div>";

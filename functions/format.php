@@ -180,16 +180,15 @@ function f_mail($m) {
 _SESSION has to say about it. $d is an optional default value and $a
 is optional stuff to add to the html tag
  **/
-function input_field($k,$d='',$a='') {
+function input_field( $k, $d='', $a='' ) {
   global $lang;
-  if (isset($lang[$k])) echo $lang[$k]."&nbsp;:&nbsp;";
-  if (empty($a)) $a = " size=10";
+  if (isset($lang[$k])) echo "<label>{$lang[$k]}&nbsp;";
+  if (empty($a)) $a = " size=8";
   echo "<input name='$k'";
   if (isset($_SESSION[$k])) $d=htmlspecialchars($_SESSION[$k]);
-  if ($d!='')
-    echo ' value="'.$d.'"'; // do NOT swap the quote styles as ' in $d
-			    // is not quoted
-  echo "$a>";
+  if ($d!='') echo ' value="'.$d.'"'; 
+  // do NOT swap the quote styles as ' in $d is not quoted
+  echo "$a></label>";
 }
 
 /* Return the css class to use when displaying a booking in the given

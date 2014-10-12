@@ -302,7 +302,7 @@ function freeseat_params() {
 						<label><input name="freeseat_options[disabled_ccard]" type="checkbox" value="1" <?php if (isset($options['disabled_ccard'])) { checked('1', $options['disabled_ccard']); } ?> /> <?php _e( 'Disable' ); ?></label>
 					</th>
 					<td> 
-						<?php _e( 'Close online reservations before show' ); ?><br />
+						<?php _e( 'Close credit card reservations before show starts' ); ?><br />
 						<input type="number" min="0" name="freeseat_options[closing_ccard]" value="<?php echo $options['closing_ccard']; ?>" /> Minutes
 					</td>
 					<td>
@@ -324,7 +324,7 @@ function freeseat_params() {
 						<input type="number" min="0" name="freeseat_options[opening_cash]" value="<?php echo $options['opening_cash']; ?>" /> Minutes
 					</td -->
 					<td>
-						<?php _e( 'Close will-call reservations before show' ); ?><br />
+						<?php _e( 'Close will-call reservations before show starts' ); ?><br />
 						<input type="number" min="0" name="freeseat_options[closing_cash]" value="<?php echo $options['closing_cash']; ?>" /> Minutes
 					</td>
 					<td>
@@ -336,7 +336,7 @@ function freeseat_params() {
 						<label><input name="freeseat_options[disabled_post]" type="checkbox" value="1" <?php if (isset($options['disabled_post'])) { checked('1', $options['disabled_post']); } ?> /> <?php _e( 'Disable' ); ?></label>
 					</th>
 					<td> 
-						<?php _e( 'Close postal reservations before show' ); ?><br />
+						<?php _e( 'Close postal reservations before show starts' ); ?><br />
 						<input type="number" min="0" name="freeseat_options[closing_post]" value="<?php echo $options['closing_post']; ?>" /> Minutes
 					</td>
 					<td>

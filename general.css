@@ -517,7 +517,7 @@ div.entry-content ul li {
 }
 
 div.entry-content ul {
-	display: inline-block;
+	/* display: inline-block; */
 }
 
 input[type="number"] {
