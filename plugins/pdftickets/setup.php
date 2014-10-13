@@ -109,7 +109,7 @@ function pdftickets_maketickets() {
 		}
 		$sp = get_spectacle( $showbookings[0]["spectacleid"] );
 		if ($sp['imagesrc']) {
-			$logo = freeseat_url($upload_url . $sp['imagesrc']);
+			$logo = $sp['imagesrc'];
 		} else {
 			$logo = freeseat_url($ticket_logo);
 		}

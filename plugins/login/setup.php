@@ -81,16 +81,6 @@ function login_setuserid( $bookid ) {
 	freeseat_query( "UPDATE booking SET user_id=$userid WHERE id=$bookid" );
 }
 
-// add_action( 'admin_menu', __NAMESPACE__ . '\\freeseat_users_menu' );
-
-/**
- *  Adds a submenu item for the user lookup on the admin menu
- */
-/* function freeseat_users_menu() {
-	// add_submenu_page( $parent_slug, $page_title, $menu_title, $capability, $menu_slug, $function );
-	add_submenu_page( 'freeseat-admin', 'Users', 'Users', 'administer_freeseat', 'freeseat-users', __NAMESPACE__ . '\\freeseat_users' );
-} */
-
 /**
  *   Creates a user account lookup page 
  *   Generalized for either user or admin use

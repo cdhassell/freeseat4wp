@@ -26,7 +26,7 @@ function freeseat_plugin_init_bocatickets() {
 	$freeseat_plugin_hooks['ticket_prepare_override']['bocatickets'] = 'bocatickets_start';
 	$freeseat_plugin_hooks['ticket_render_override']['bocatickets'] = 'bocatickets_body';
 	$freeseat_plugin_hooks['ticket_finalise_override']['bocatickets'] = 'bocatickets_end';
-	// $freeseat_plugin_hooks['confirm_bottom']['bocatickets'] = 'bocatickets_checkbox';
+	$freeseat_plugin_hooks['confirm_bottom']['bocatickets'] = 'bocatickets_checkbox';
 	$freeseat_plugin_hooks['confirm_process']['bocatickets'] = 'bocatickets_process';
 	$freeseat_plugin_hooks['bookinglist_line']['bocatickets'] = 'bocatickets_checkbox';
 	$freeseat_plugin_hooks['bookinglist_process']['bocatickets'] = 'bocatickets_process';

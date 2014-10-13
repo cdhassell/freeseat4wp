@@ -191,7 +191,7 @@ function paypal_paymentform() {
     //Payment Page Settings
     $paypal["display_comment"]="1"; //0=yes 1=no
     $paypal["comment_header"]="Comments";
-    $paypal["continue_button_text"]="Finish Ticket Purchase";
+    $paypal["continue_button_text"]=$lang['paypal_button_text'];
     $paypal["background_color"]=""; //""=white 1=black
     $paypal["display_shipping_address"]="1"; //""=yes 1=no
 
@@ -207,7 +207,7 @@ function paypal_paymentform() {
 	$paypal['item_number'] = $_SESSION['groupid'];
 	$paypal['item_name'] = get_memo();		// construct memo field with summary
 	$paypal['amount'] = price_to_string(get_total());
-	sys_log( "paypal vars = " . print_r($paypal,1) );
+	// sys_log( "paypal vars = " . print_r($paypal,1) );
 	echo '<body onload="document.gopaypal.submit()">';
 	echo '<form method="post" name="gopaypal" action="'.$paypal["url"].'">';
 	if (function_exists('wp_nonce_field')) wp_nonce_field('freeseat-paypal-paymentform');
@@ -368,6 +368,7 @@ function paypal_pdt_check($groupid) {
 	if ( m_eval($sql) ) return TRUE;
 	
 	// If not, make a call to paypal to verify sale
+	$success = FALSE;
 	$paypal_auth_token = $freeseat_vars['paypal_auth_token'];
 	if (!isset($paypal_auth_token)) return FALSE; // nothing to check
 	if (isset($_GET['tx'])) {
@@ -378,7 +379,7 @@ function paypal_pdt_check($groupid) {
 		foreach ($reply as $line) {
 			$line = str_replace( array("\r","\n"), "", $line );
 			if (strcmp ($line, "SUCCESS") == 0) {
-				$success = true;
+				$success = TRUE;
 			}
 			if ( strpos( "=", $line ) !== FALSE ) {
 				list($key,$val) = explode("=", $line);
@@ -431,7 +432,7 @@ function freeseat_paypal_ipn_handler() {
 
 	if ( isset( $_REQUEST[ 'freeseat_ipn' ] ) ) {
 		// paypal is loading this page with an IPN
-
+		ob_start();
 		$messages = array();
 		$success = false; // set to true once the transaction is successfully processed.
 		$alert = false; // set to true if $messages should be sent to admin
@@ -490,6 +491,7 @@ function freeseat_paypal_ipn_handler() {
 		}
 		
 		log_done();
+		ob_end_clean();
 		exit();
 	}
 }

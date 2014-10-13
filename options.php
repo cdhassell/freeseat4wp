@@ -44,6 +44,8 @@ add_filter( 'plugin_action_links_freeseat/freeseat.php', __NAMESPACE__ . '\\free
 
 // Define default option settings
 function freeseat_add_defaults() {
+	global $upload_path;
+	
 	$tmp = get_option('freeseat_options');
     if( (isset($tmp['chk_default_options_db']) && $tmp['chk_default_options_db']=='1') || (!is_array($tmp)) ) {
 		delete_option('freeseat_options'); // so we don't have to reset all the 'off' checkboxes too! (don't think this is needed but leave for now)
@@ -63,7 +65,7 @@ function freeseat_add_defaults() {
 			'groupdiscount' => '100',
 			'groupdiscount_min' => 15,
 			'language' => 'english',
-			'ticket_logo' => '',
+			'ticket_logo' => $upload_path.'ticket-big.png',
 			'websitename' => 'The Globe Theatre',
 			'auto_email_signature' => 'Sincerely, Will',
 			'pref_country_code' => 'US',
@@ -279,11 +281,13 @@ function freeseat_params() {
 				<tr>
 					<td>
 					</td>
-					<td colspan="3">
+					<td colspan="2">
 						<?php _e( 'Default ticket logo image' ); ?><br />
 						<label for="freeseat_options[ticket_logo]">Filename: </label>
 						<input type="hidden" name="MAX_FILE_SIZE" value="500000" />
 						<input type="file" size="40" name="freeseat_options[ticket_logo]" accept="image/*" />&nbsp;
+					</td>
+					<td>						
 						<?php echo htmlspecialchars($options['ticket_logo']); ?>&nbsp;&nbsp;
 						<input type="hidden" name="freeseat_options[old_logo]" value="<?php echo htmlspecialchars($options['ticket_logo']); ?>" />
 						<img src="<?php echo plugins_url($upload_path.$options['ticket_logo'],__FILE__); ?>" width="50" height="50">
