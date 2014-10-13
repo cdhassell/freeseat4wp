@@ -58,7 +58,7 @@ $Id: confirm.php 279 2010-10-30 16:38:43Z tendays $
 
 */
 
-add_action( 'init', __NAMESPACE__ . '\\freeseat_paypal_ipn_handler' );
+add_action( 'init', __NAMESPACE__ . '\\freeseat_paypal_ipn_listener' );
 
 function freeseat_plugin_init_paypal() {
     global $freeseat_plugin_hooks, $paypal, $paypal_sandbox;
@@ -113,7 +113,7 @@ function paypal_editparams($options) {
 		<input type="text" size="25" name="freeseat_options[paypal_account]" value="<?php echo $options['paypal_account']; ?>" />
 	</td>
 	<td colspan="2">
-		<?php _e( 'Paypal account authorization token' ); ?><br />
+		<?php _e( 'Paypal account API token (optional)' ); ?><br />
 		<input type="text" size="60" name="freeseat_options[paypal_auth_token]" value="<?php echo $options['paypal_auth_token']; ?>" />
 	</td>
 	<td>
@@ -131,23 +131,6 @@ function paypal_partner() {
 <td align="center"><a href="#" onclick="javascript:window.open('https://www.paypal.com/us/cgi-bin/webscr?cmd=xpt/cps/popup/OLCWhatIsPayPal-outside','olcwhatispaypal','toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, width=400, height=350');"><img src="https://www.paypal.com/en_US/i/bnr/horizontal_solution_PPeCheck.gif" border="0" alt="Solution Graphics"></a></td></tr></table></div><!-- PayPal Logo -->
 <?php
 
-}
-
-function paypal_readparams($void) {
-	// get data back from transaction if it worked, or false if not
-	global $transid, $unsafeamount, $groupid;
-
-	if (isset($_POST["item_number"])) {
-		$groupid = (int)($_POST["item_number"]);
-		if (isset($_POST["txn_id"]) && (strlen($_POST["txn_id"])==17)) {
-		    $transid  = nogpc($_POST["txn_id"]); 
-			if (isset($_POST["mc_gross"]))  {
-				$unsafeamount = string_to_price($_POST["mc_gross"]);
-				return true;
-			}
-		}
-	}
-	return false;
 }
 
 function get_memo() {
@@ -207,7 +190,7 @@ function paypal_paymentform() {
 	$paypal['item_number'] = $_SESSION['groupid'];
 	$paypal['item_name'] = get_memo();		// construct memo field with summary
 	$paypal['amount'] = price_to_string(get_total());
-	// sys_log( "paypal vars = " . print_r($paypal,1) );
+	sys_log( "paypal vars = " . print_r($paypal,1) );
 	echo '<body onload="document.gopaypal.submit()">';
 	echo '<form method="post" name="gopaypal" action="'.$paypal["url"].'">';
 	if (function_exists('wp_nonce_field')) wp_nonce_field('freeseat-paypal-paymentform');
@@ -219,49 +202,6 @@ function paypal_paymentform() {
 	// echo '<input type="submit" value=" Pay ">';
 	// echo '</p>';
 	echo '</form>';
-}
-
-/** 
- *  Requests and returns the amount of given transaction id,
- *  TRUE if the transaction is still pending, FALSE
- *  in case there was a problem 
- */
-function paypal_checkamount($transid) {
-	global $lang, $transid, $paypal;
-	$repost = array();
-	if (!isset($_POST["txn_id"])) return FALSE;
-
-	/* Cancel magic quotes before resending the query... */
-	$cmd = "cmd=_notify-validate";
-	foreach ( $_POST as $key => $value ) {
-		$repost[$key] = nogpc($value);
-		$cmd .= '&' . $key . "=" . urlencode( nogpc($value) );
-	}
-	$reply = fsockPost( $paypal["url"], $cmd );
-	$reply = implode( ",", $reply );
-	if ( strpos( $reply, "VERIFIED" )!==FALSE )  {
-		if (($repost["payment_status"]=="Completed") &&
-			($repost["txn_id"]==$transid )  &&
-			($repost["receiver_email"]== $paypal["business"] )) {
-			//ok it checks out
-			return string_to_price($repost["mc_gross"]);
-		} elseif ($repost["payment_status"]=="Pending") {
-			// ok but status is still pending
-			kaboom(sprintf($lang["err_scriptstatus"],"Pending"));
-			return TRUE;
-		} else {
-			kaboom(sprintf($lang["err_scriptauth"],'Paypal IPN verified'));
-			kaboom("Reply: ".$reply);
-			kaboom("Payment status: ".$repost["payment_status"]);
-			kaboom("Txn_id: ".$repost["txn_id"]." $transid");
-			kaboom("Receiver: ".$repost["receiver_email"]." ".$paypal["business"]);
-		}
-	} else {
-		kaboom(sprintf($lang["err_scriptauth"],'Paypal IPN invalid'));
-		kaboom("Reply: ".$reply);
-		kaboom("URL: ".$paypal["url"]);
-	}
-	return FALSE;  
 }
 
 function fsockPost($url,$postdata) {
@@ -365,6 +305,7 @@ function paypal_pdt_check($groupid) {
 	
 	// Did we get the IPN? If so nothing further is needed
 	$sql = "SELECT count(numxkp) FROM ccard_transactions WHERE groupid=$groupid";
+	sys_log("Entered PDT check");
 	if ( m_eval($sql) ) return TRUE;
 	
 	// If not, make a call to paypal to verify sale
@@ -392,6 +333,7 @@ function paypal_pdt_check($groupid) {
 			if ((strcmp("Completed",$keyarray["payment_status"]) == 0) &&
 				strcmp($keyarray["receiver_email"],$paypal["business"]) == 0) {
 				$ok = process_ccard_transaction( $groupid, $transid, $amount );
+				sys_log("Paypal process success");
 				return $ok;
 			} elseif ((strcmp("Pending",$keyarray["payment_status"]) == 0) &&	
 				(strcmp($keyarray["receiver_email"],$paypal["business"]) == 0)) {
@@ -422,77 +364,95 @@ function paypal_extend($groupid) {
 	if (!freeseat_query( $q )) sys_log(freeseat_mysql_error());
 }
 
-/*  
- *  IPN Handler
- *  Called by Paypal server to notify us of events 
- *  Runs asynchonously on the init WP system hook
- */
-function freeseat_paypal_ipn_handler() {
-	global $lang, $transid, $paypal, $groupid, $unsafeamount, $smtp_sender, $admin_mail;
+function paypal_readparams() {
+	// get data back from transaction if it worked, or false if not
+	global $transid, $unsafeamount, $groupid;
 
-	if ( isset( $_REQUEST[ 'freeseat_ipn' ] ) ) {
-		// paypal is loading this page with an IPN
-		ob_start();
-		$messages = array();
-		$success = false; // set to true once the transaction is successfully processed.
-		$alert = false; // set to true if $messages should be sent to admin
-		
-		// !$success && $alert   means the thing completely failed
-		// $success && $alert    means we managed but there was a problem.
-		// $success && !$alert   means all went fine
-		// !$success && !$alert  does not make sense
-		
-		prepare_log("ccard_ipn");
-	
-		if (paypal_readparams()) {	// read POST for return params
-			/** This will be put in the mail in case something goes wrong,
-			otherwise it gets discarded */
-			kaboom("groupid=$groupid transid=$transid unsafeamount=$unsafeamount");
-			
-			if ($unsafeamount<0) {
-				/* This is probably a notification about a refund, FreeSeat
-					doesn't handle those. */
-				exit;
+	if (isset($_POST["item_number"])) {
+		$groupid = (int)($_POST["item_number"]);
+		if (isset($_POST["txn_id"]) && (strlen($_POST["txn_id"])==17)) {
+		    $transid  = nogpc($_POST["txn_id"]); 
+			if (isset($_POST["mc_gross"]))  {
+				$unsafeamount = string_to_price($_POST["mc_gross"]);
+				return true;
 			}
-			// verify the payment via API & get the amount paid
-			$amount = paypal_checkamount($transid); 
-			
-			if ($amount===TRUE || $amount===FALSE) {   
-				// do nothing
-			} else if ($unsafeamount!=$amount) {
-				// user provided incorrect amount but transaction id is valid.
-				// We'll use the (safe) $amount. 
-				kaboom(sprintf($lang["err_ccard_nomatch"],
-					"unsafeamount=".price_to_string($unsafeamount).
-					", amount=". price_to_string($amount)));
-				$alert = true;
-			} // else: amounts match.
-			
-			if ($amount===TRUE) {
-				sys_log("Pending payment GID=$groupid  TID=$transid  Amt=$unsafeamount ");
-				paypal_extend($groupid);
-				exit;
-			} else if ($amount !== FALSE) {
-				/* Thank You email will be sent at this point if things work well. */
-				$success = process_ccard_transaction( $groupid, $transid, $amount );
-			} // else: checking amount failed. We set alert to true below.
 		}
-		
-		if ($success)
-			echo "success";
-		else
-			$alert = true;
-		
-		if ($alert) {
-			$subject = ($success?$lang["alert"]:$lang["failure"]);
-			$body = "\n".sprintf($lang["ccard_failed"],$subject);
-			$body .= flush_messages_text();
-			send_message($smtp_sender,$admin_mail,$subject,$body);
-		}
-		
-		log_done();
-		ob_end_clean();
-		exit();
 	}
+	return false;
 }
 
+/** 
+ *  Requests and returns the amount of given transaction id,
+ *  TRUE if the transaction is still pending, FALSE
+ *  in case there was a problem 
+ */
+function paypal_checkamount($transid) {
+	global $lang, $transid, $paypal;
+	
+	$repost = array();
+	if (!isset($_POST["txn_id"])) return FALSE;
+
+	/* Cancel magic quotes before resending the query... */
+	$cmd = "cmd=_notify-validate";
+	foreach ( $_POST as $key => $value ) {
+		$repost[$key] = nogpc($value);
+		$cmd .= '&' . $key . "=" . urlencode( nogpc($value) );
+	}
+	$reply = fsockPost( $paypal["url"], $cmd );
+	$reply = implode( ",", $reply );
+	if ( strpos( $reply, "VERIFIED" )!==FALSE )  {
+		if (($repost["payment_status"]=="Completed") &&
+			($repost["txn_id"]==$transid )  &&
+			($repost["receiver_email"]== $paypal["business"] )) {
+			//ok it checks out
+			return string_to_price($repost["mc_gross"]);
+		} elseif ($repost["payment_status"]=="Pending") {
+			// ok but status is still pending
+			kaboom(sprintf($lang["err_scriptstatus"],"Pending"));
+			return TRUE;
+		} else {
+			kaboom(sprintf($lang["err_scriptauth"],'Paypal IPN verified'));
+			kaboom("Reply: ".$reply);
+			kaboom("Payment status: ".$repost["payment_status"]);
+			kaboom("Txn_id: ".$repost["txn_id"]." $transid");
+			kaboom("Receiver: ".$repost["receiver_email"]." ".$paypal["business"]);
+		}
+	} else {
+		kaboom(sprintf($lang["err_scriptauth"],'Paypal IPN invalid'));
+		kaboom("Reply: ".$reply);
+		kaboom("URL: ".$paypal["url"]);
+	}
+	return FALSE;  
+}
+
+function freeseat_paypal_ipn_listener() {
+	global $lang, $transid, $unsafeamount, $groupid;
+
+	if (!isset($_REQUEST['freeseat_ipn'])) return;
+	prepare_log("ccard_ipn");
+	sys_log("paypal listener called with ".print_r($_POST,1));	
+	ob_start();
+	if (paypal_readparams()) {
+		$amount = paypal_checkamount( $transid );
+		if ($amount===TRUE) {
+			sys_log("Pending payment GID=$groupid  TID=$transid  Amt=$unsafeamount ");
+			paypal_extend( $groupid );
+		} elseif ($amount===FALSE) {  
+			sys_log("Failed payment GID=$groupid  TID=$transid  Amt=$unsafeamount ");
+			ob_end_clean();
+			exit();
+		} elseif ($unsafeamount!=$amount) {
+			// user provided incorrect amount but transaction id is valid.
+			// We'll use the (safe) $amount. 
+			sys_log("Incorrect payment GID=$groupid  TID=$transid  Amt=$unsafeamount ");
+			kaboom(sprintf($lang["err_ccard_nomatch"],
+				"unsafeamount=".price_to_string($unsafeamount).
+				", amount=". price_to_string($amount)));
+		} 
+		/* Thank You email will be sent at this point if things work well. */
+		$success = process_ccard_transaction($groupid,$transid,$amount);
+	}
+	log_done();	
+	ob_end_clean();
+	exit();
+}

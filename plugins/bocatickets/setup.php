@@ -62,14 +62,15 @@ function bocatickets_editparams($options) {
 ?>  
 <!-- bocatickets stuff -->
 <tr>
-	<td>
-	</td>
+	<th scope="row">
+		<strong>Boca Printer</strong>
+	</th>
 	<td>
 		<?php _e( 'Ticket top line text' ); ?><br />
 		<input type="text" size="25" name="freeseat_options[tickettext_opening]" value="<?php echo $options['tickettext_opening']; ?>" />
 	</td>
 	<td colspan="2">
-		<br /><?php _e( 'Ticket closing lines' ); ?><br />
+		<?php _e( 'Ticket closing lines' ); ?><br />
 		<textarea name="freeseat_options[tickettext_closing]" rows="3" cols="35" type='textarea'><?php echo ( is_array( $options['tickettext_closing'] ) ? implode( PHP_EOL, $options['tickettext_closing'] ) : $options['tickettext_closing'] ); ?></textarea>
 	</td>
 </tr>

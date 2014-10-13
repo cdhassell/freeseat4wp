@@ -1,6 +1,6 @@
 <?php namespace freeseat;
 /*
-Plugin Name: FreeSeat4WP
+Plugin Name: FreeSeat
 Plugin URI: http://github.com/cdhassell/freeseat4wp
 Description: FreeSeat for Wordpress implements a theatre ticketing system with optional links to CiviCRM.
 Version: 0.2
@@ -172,6 +172,22 @@ function replace_fsp( $url, $newpage ) {
 	return add_query_arg( 'fsp', $newpage, add_query_arg( 'fsp', FALSE, $url ));
 }
 
+/** Returns the list of available languages. */
+function language_list() {
+	$langs = array();
+	if ($dh = opendir(FS_PATH . 'languages')) {
+		while (($file = readdir($dh)) !== false) {
+			if (preg_match('/^(.*)\.php$/',$file,$matches)) {
+				if ($matches[1] != 'default') {
+					$langs[] = $matches[1];
+				}
+			}
+		}
+		closedir($dh);
+	}
+	return $langs;
+}
+
 /*
  * Checks the WP version and deactiviates FreeSeat if the version is too old
  */
@@ -200,7 +216,9 @@ function freeseat_admin_menu() {
 	add_submenu_page( 'freeseat-admin', 'View Reservations', 'Reservations', 'manage_freeseat', 'freeseat-listtable', __NAMESPACE__ . '\\freeseat_render_list' );
 	add_submenu_page( 'freeseat-admin', 'Show Setup', 'Show Setup', 'manage_freeseat', 'freeseat-showedit', __NAMESPACE__ . '\\freeseat_showedit' );
 	add_submenu_page( 'freeseat-admin', 'Seatmaps', 'Seatmaps', 'manage_freeseat', 'freeseat-upload', __NAMESPACE__ . '\\freeseat_upload' );
-	add_submenu_page( 'freeseat-admin', 'Edit Settings', 'Settings', 'administer_freeseat', 'freeseat-system', __NAMESPACE__ . '\\freeseat_params' );
+	// add_submenu_page( 'freeseat-admin', 'Edit Settings', 'Settings', 'administer_freeseat', 'freeseat-system', __NAMESPACE__ . '\\freeseat_params' );
+	// add_options_page( $page_title, $menu_title, $capability, $menu_slug, $function);
+	add_options_page('Settings', 'FreeSeat', 'administer_freeseat', 'freeseat-system', __NAMESPACE__ . '\\freeseat_params');
 }
 
 /*
@@ -277,7 +295,7 @@ function freeseat_admin_styles( $hook ) {
  * Add freeseat administration capability to editor and administrator roles.
  */
 function freeseat_add_caps() {
-	add_role( 'freeseat_manager', 'Freeseat4WP Manager', array('manage_freeseat') );
+	add_role( 'freeseat_manager', 'Freeseat Manager', array('manage_freeseat') );
 	$role = get_role( 'administrator' );
 	$role->add_cap( 'administer_freeseat' );
 	$role->add_cap( 'manage_freeseat' );
@@ -285,12 +303,8 @@ function freeseat_add_caps() {
 
 
 add_filter( 'plugin_action_links_' . plugin_basename(__FILE__), __NAMESPACE__ . '\\freeseat_sample_data_link' );
+add_filter( 'plugin_action_links_'. plugin_basename(__FILE__), __NAMESPACE__ . '\\freeseat_plugin_settings_link', 10, 2 );
 add_action( 'activated_plugin', __NAMESPACE__ . '\\save_error');
-
-// this is for debugging purposes - captures startup error messages and saves them in the db
-function save_error() {
-    update_option('plugin_error',  ob_get_contents());
-}
 
 /**
  *  Adds a link to the plugin screen for installing sample data
@@ -303,18 +317,15 @@ function freeseat_sample_data_link( $links ) {
 	return $links;
 }
 
-/** Returns the list of available languages. */
-function language_list() {
-	$langs = array();
-	if ($dh = opendir(FS_PATH . 'languages')) {
-		while (($file = readdir($dh)) !== false) {
-			if (preg_match('/^(.*)\.php$/',$file,$matches)) {
-				if ($matches[1] != 'default') {
-					$langs[] = $matches[1];
-				}
-			}
-		}
-		closedir($dh);
-	}
-	return $langs;
+// Display a Settings link on the main Plugins page
+function freeseat_plugin_settings_link( $links ) {
+	$freeseat_links = '<a href="'.admin_url( 'admin.php?page=freeseat-system' ).'">'.__('Settings').'</a>';
+	// make the 'Settings' link appear first
+	array_unshift( $links, $freeseat_links );
+	return $links;
+}
+
+// this is for debugging purposes - captures startup error messages and saves them in the db
+function save_error() {
+    update_option('plugin_error',  ob_get_contents());
 }

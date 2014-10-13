@@ -37,7 +37,7 @@ function freeseat_namesearch() {
 			'link' => $item['user_id'] 
 		);
 	}
-	sys_log( print_r($data2,1) );
+	// sys_log( print_r($data2,1) );
 	wp_send_json( $data2 );	
 	exit();
 }

@@ -59,15 +59,17 @@ function groupdiscount_editparams($options) {
 ?>  
 <!-- group discount stuff -->
 <tr>
-	<td></td>
+	<th scope="row">
+		<strong><?php echo $lang['groupdiscount']; ?></strong>
+	</th>
 	<td>
 		<?php echo $lang['groupdiscount_min']; ?><br /> 
-		<input type="number" min="0" name="freeseat_options[groupdiscount_min]" size="6" value="<?php echo $options['groupdiscount_min'].'">&nbsp;'.$lang["seats"]; ?>
+		<input type="number" min="0" name="freeseat_options[groupdiscount_min]" value="<?php echo $options['groupdiscount_min'].'">&nbsp;'.$lang["seats"]; ?>
 	</td>
 	<td>
 		<?php echo $lang['groupdiscount']; ?> 
 		<?php echo $currency; ?> 
-		<input type="number" min="0" name="freeseat_options[groupdiscount]" size="6" value="<?php echo price_to_string($options['groupdiscount']); ?>" />&nbsp;<?php echo $lang['groupdiscount_perseat']; ?>
+		<input type="number" step="0.01" min="0.00" name="freeseat_options[groupdiscount]" value="<?php echo price_to_string($options['groupdiscount']); ?>" />&nbsp;<?php echo $lang['groupdiscount_perseat']; ?>
 	</td>
 	<td></td>
 </tr>

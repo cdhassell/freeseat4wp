@@ -35,8 +35,9 @@ function UScleanup_editparams($options) {
 ?>  
 <!-- UScleanup stuff -->
 <tr>
-	<td>
-	</td>
+	<th scope="row">
+		<strong>US Cleanup</strong>
+	</th>
 	<td>
 		<?php _e( 'USPS API account' ); ?><br />
 		<input type="text" size="25" name="freeseat_options[USPS_user]" value="<?php echo $options['USPS_user']; ?>" />

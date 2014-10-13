@@ -29,8 +29,6 @@
 // Set-up Action and Filter Hooks
 register_activation_hook(  FS_PATH . 'freeseat.php', __NAMESPACE__ . '\\freeseat_add_defaults');
 add_action( 'admin_init', __NAMESPACE__ . '\\freeseat_init' );
-add_filter( 'plugin_action_links_freeseat/freeseat.php', __NAMESPACE__ . '\\freeseat_plugin_settings_link', 10, 2 );
-
 
 // ------------------------------------------------------------------------------
 // CALLBACK FUNCTION FOR: register_activation_hook(__FILE__, 'freeseat_add_defaults')
@@ -65,7 +63,7 @@ function freeseat_add_defaults() {
 			'groupdiscount' => '100',
 			'groupdiscount_min' => 15,
 			'language' => 'english',
-			'ticket_logo' => $upload_path.'ticket-big.png',
+			'ticket_logo' => plugins_url( $upload_path.'ticket-big.png', __FILE__ ),
 			'websitename' => 'The Globe Theatre',
 			'auto_email_signature' => 'Sincerely, Will',
 			'pref_country_code' => 'US',
@@ -102,18 +100,6 @@ function freeseat_init(){
 }
 
 // ------------------------------------------------------------------------------
-// CALLBACK FUNCTION FOR: add_action('admin_menu', 'freeseat_add_options_page');
-// ------------------------------------------------------------------------------
-// THIS FUNCTION RUNS WHEN THE 'admin_menu' HOOK FIRES, AND ADDS A NEW OPTIONS
-// PAGE FOR YOUR PLUGIN TO THE SETTINGS MENU.
-// ------------------------------------------------------------------------------
-
-// Add menu page
-function freeseat_add_options_page() {
-	add_options_page('Settings', 'Settings', 'manage_options', __FILE__, __NAMESPACE__ . '\\freeseat_params');
-}
-
-// ------------------------------------------------------------------------------
 // CALLBACK FUNCTION SPECIFIED IN: add_options_page()
 // ------------------------------------------------------------------------------
 // THIS FUNCTION IS SPECIFIED IN add_options_page() AS THE CALLBACK FUNCTION THAT
@@ -123,7 +109,7 @@ function freeseat_add_options_page() {
 
 // Render the options form
 function freeseat_params() {
-	global $freeseat_available_plugins, $us_state, $country, $moneyfactor, $freeseat_plugin_hooks, $upload_path;
+	global $freeseat_available_plugins, $us_state, $country, $moneyfactor, $freeseat_plugin_hooks, $upload_path, $options;
 	
 	$freeseat_plugin_groups = array();
 	foreach ( $freeseat_available_plugins as $name => $details ) {
@@ -138,7 +124,6 @@ function freeseat_params() {
 		<div id="multiCheck">
 		<!-- Beginning of the Plugin Options Form -->
 		<form method="post" action="options.php" enctype="multipart/form-data">
-			<?php settings_fields('freeseat_plugin_options'); ?>
 			<?php 
 				$options = get_option('freeseat_options');
 				if (is_array($options)) {
@@ -147,43 +132,18 @@ function freeseat_params() {
 					}
 				} 
 			?>
+			<?php
+			settings_fields('freeseat_plugin_options'); 
+			$options = get_option('freeseat_options');
+			if (is_array($options)) {
+				foreach($options['plugins'] as $name) {
+					if (!isset($options['chk_'.$name])) $options['chk_'.$name] = 1;
+				}
+			} 
+			?>
 			
 			<!-- Table Structure Containing Form Controls -->
-			<!-- Each Plugin Option Defined on a New Table Row -->
 			<table class="form-table">
-				<tr valign="top" style="border-top:#dddddd 1px solid;"><!-- Major Heading -->
-					<th scope="col" style="padding:0;">
-						<h3>
-							<?php _e( 'FreeSeat Plugins' ); ?>
-						</h3>
-					</th>
-					<td colspan="3">
-						<p><i><?php _e( "Hover over a checkbox to get a full explanation of each plugin" ); ?></i></p>
-					</td>
-				</tr>
-				<tr>
-					<td>
-					</td>
-					<td colspan="3">
-						<?php
-							foreach( $freeseat_plugin_groups as $group => $list ) {
-								echo "<h4>Plugin Category: ".ucwords($group)."</h4>";
-								echo "<div class='indent'>";
-								foreach( $list as $name => $details ) {
-									echo " <p class='main'> <label> <input name='freeseat_options[chk_$name]' type='checkbox' value='1' ";
-									if (isset( $details['details'] ) ) {
-										echo "title='".$details['details']."' ";
-									}
-									if ( in_array( $name, $options['plugins'] ) ) { 
-										echo checked('1', $options['chk_'.$name]); 
-									}
-									echo "/>".$details['english_name']."</label>";
-									echo " - <i>".$details['summary']."</i></p>";
-								}
-								echo "</div>";
-							}
-						?>
-					</td>
 				<tr valign="top" style="border-top:#dddddd 1px solid;"><!-- Major Heading -->
 					<th scope="col" colspan="4" style="padding:0;">
 						<h3>
@@ -356,6 +316,40 @@ function freeseat_params() {
 					</td>
 				</tr>	
 				<tr valign="top" style="border-top:#dddddd 1px solid;"><!-- Major Heading -->
+					<th scope="col" style="padding:0;">
+						<h3>
+							<?php _e( 'FreeSeat Plugins' ); ?>
+						</h3>
+					</th>
+					<td colspan="3">
+						<p><i><?php _e( "Hover over a checkbox to get a full explanation of each plugin" ); ?></i></p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+					</td>
+					<td colspan="3">
+						<?php
+							foreach( $freeseat_plugin_groups as $group => $list ) {
+								echo "<h4>Plugin Category: ".ucwords($group)."</h4>";
+								echo "<div class='indent'>";
+								foreach( $list as $name => $details ) {
+									echo " <p class='main'> <label> <input name='freeseat_options[chk_$name]' type='checkbox' value='1' ";
+									if (isset( $details['details'] ) ) {
+										echo "title='".$details['details']."' ";
+									}
+									if ( in_array( $name, $options['plugins'] ) ) { 
+										echo checked('1', $options['chk_'.$name]); 
+									}
+									echo "/>".$details['english_name']."</label>";
+									echo " - <i>".$details['summary']."</i></p>";
+								}
+								echo "</div>";
+							}
+						?>
+					</td>
+				</tr>
+				<tr valign="top" style="border-top:#dddddd 1px solid;"><!-- Major Heading -->
 					<th scope="col" colspan="4" style="padding:0;">
 						<h3>
 							<?php _e( 'Other Options' ); ?>
@@ -364,16 +358,17 @@ function freeseat_params() {
 				</tr>
 				<!-- Freeseat plugins can add parameters here -->
 				<?php do_hook_function('params_edit', $options ); ?>
-				
-				<tr valign="top" style="border-top:#dddddd 1px solid;">
-					<th scope="row">Database Options</th>
+				<tr>
+					<th scope="row">
+						<strong><?php _e('Clear Settings'); ?></strong>
+					</th>
 					<td colspan="3">
 						<label><input name="freeseat_options[chk_default_options_db]" type="checkbox" value="1" 
 						<?php 
 							if (isset($options['chk_default_options_db'])) { 
 								checked('1', $options['chk_default_options_db']); 
 							}
-							$text = __("Only check this if you want to reset all settings to defaults when FreeSeat4WP is deactivated and reactivated.  Otherwise, settings will be retained.");
+							$text = __("Only check this if you want to reset all settings to defaults when FreeSeat is deactivated and reactivated.  Otherwise, settings will be retained.");
 							echo " title='$text'";
 						?> /> Restore all default settings</label>
 					</td>
@@ -435,14 +430,6 @@ function freeseat_validate_options($input) {
 		}
 	}  
 	return $input;
-}
-
-// Display a Settings link on the main Plugins page
-function freeseat_plugin_settings_link( $links ) {
-	$freeseat_links = '<a href="'.admin_url( 'admin.php?page=freeseat-system' ).'">'.__('Settings').'</a>';
-	// make the 'Settings' link appear first
-	array_unshift( $links, $freeseat_links );
-	return $links;
 }
 
 function get_config( $key = null ) {

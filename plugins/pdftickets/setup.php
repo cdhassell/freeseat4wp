@@ -156,8 +156,7 @@ function pdftickets_sendtickets($pdf) {
 function freeseat_pdftickets_redirect() {
 	if( isset( $_REQUEST['freeseat-ticket-mode'] ) && $_REQUEST['freeseat-ticket-mode'] == 'pdf-file' ) {
 		// In order to download a file to the user, we have to hook to wordpress
-		// prior to any output being issued.  This call will suppress any such 
-		// output until we are ready.
+		// prior to any output being issued.  This call will suppress output until we are ready.
 		ob_start();
     }
 }
