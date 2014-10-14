@@ -158,15 +158,16 @@ function paypal_confirm_button() {
 /** Displays a button/link (a form with hidden fields from _SESSION)
 that will redirect the user to the ccard provider's payment form **/
 function paypal_paymentform() {
-	global $paypal, $lang, $freeseat_vars, $page_url;
+	global $paypal, $lang, $freeseat_vars, $post;
 	
     //Configuration Settings
     $paypal["business"] = $freeseat_vars['paypal_account'];
     // paypal is picky about the urls passed here
+    $page_url = (( isset( $post ) ) ? get_permalink() : get_bloginfo('url').'?page=freeseat-admin' );
     $url = replace_fsp( $page_url, PAGE_FINISH );
     $paypal["cancel_url" ] = $url;
     $paypal["success_url"] = add_query_arg( 'ok', 'yes', $url );     
-    $paypal["notify_url" ] = add_query_arg( 'freeseat_ipn', '1', $url ); // back door to IPN handler
+    $paypal["notify_url" ] = add_query_arg( 'freeseat-ipn', '1', get_bloginfo('url') ); // back door to IPN handler
     $paypal["return_method"] = "2"; //1=GET 2=POST
     $paypal["bn"] = "toolkit-php";
     $paypal["cmd"] = "_xclick";
@@ -193,7 +194,7 @@ function paypal_paymentform() {
 	sys_log( "paypal vars = " . print_r($paypal,1) );
 	echo '<body onload="document.gopaypal.submit()">';
 	echo '<form method="post" name="gopaypal" action="'.$paypal["url"].'">';
-	if (function_exists('wp_nonce_field')) wp_nonce_field('freeseat-paypal-paymentform');
+	// if (function_exists('wp_nonce_field')) wp_nonce_field('freeseat-paypal-paymentform');
 	// show paypal hidden variables
 	// don't require another click, just go
 	paypal_show_variables(); 
@@ -307,10 +308,11 @@ function paypal_pdt_check($groupid) {
 	$sql = "SELECT count(numxkp) FROM ccard_transactions WHERE groupid=$groupid";
 	sys_log("Entered PDT check");
 	if ( m_eval($sql) ) return TRUE;
-	
+	sys_log("No IPN record found");
 	// If not, make a call to paypal to verify sale
 	$success = FALSE;
 	$paypal_auth_token = $freeseat_vars['paypal_auth_token'];
+	// sys_log("paypal auth token = $paypal_auth_token");
 	if (!isset($paypal_auth_token)) return FALSE; // nothing to check
 	if (isset($_GET['tx'])) {
 		$tx_token = $_GET['tx'];
@@ -428,7 +430,7 @@ function paypal_checkamount($transid) {
 function freeseat_paypal_ipn_listener() {
 	global $lang, $transid, $unsafeamount, $groupid;
 
-	if (!isset($_REQUEST['freeseat_ipn'])) return;
+	if (!isset($_REQUEST['freeseat-ipn'])) return;
 	prepare_log("ccard_ipn");
 	sys_log("paypal listener called with ".print_r($_POST,1));	
 	ob_start();

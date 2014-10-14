@@ -494,7 +494,8 @@ function bookinglist_extend($list) {
 		$st = $booking['state'];
 		$id = $booking['bookid'];
 		if ($st == ST_SHAKEN || $st == ST_BOOKED) {
-			$sql = "update booking set timestamp=NOW(), state=".ST_BOOKED." where id=$id";
+			$extend_date = date("Y-m-d H:i:s",time()+86400*4);
+			$sql = "update booking set timestamp='$extend_date', state=".ST_BOOKED." where id=$id";
 			if (!freeseat_query($sql)) myboom();
 		}
 	}

@@ -45,17 +45,16 @@ function freeseat_finish( $page_url ) {
 		}
 		$_SESSION["booking_done"] = ST_BOOKED;
 	} else check_session(4); // a valid user name and payment method must exist at this point
-
-	if ( $_SESSION["payment"]==PAY_CCARD) { 	
-		// did we get a payment? record it in session	
-		if ( do_hook_exists('finish_post_booking', $_SESSION['groupid']) ) {
-			$_SESSION["booking_done"] = ST_PAID;
+	
+	// did we get a payment? record it in session	
+	if (isset($_GET["ok"]) && $_GET["ok"]=="yes") { 
+		if ( $_SESSION["payment"]==PAY_CCARD) {
+			if (do_hook_exists('finish_post_booking', $_SESSION['groupid'])) {
+				$_SESSION["booking_done"] = ST_PAID;
+			} else {
+				kaboom(sprintf($lang["err_ccard_user"],$smtp_sender));
+			}
 		} else {
-			kaboom(sprintf($lang["err_ccard_user"],$smtp_sender));
-		}
-	} else {
-		// otherwise just check if we are ready
-		if (isset($_GET["ok"]) && $_GET["ok"]=="yes") {
 			$_SESSION["booking_done"] = ST_PAID;
 		}
 	}
