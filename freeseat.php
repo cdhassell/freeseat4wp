@@ -77,13 +77,13 @@ add_action('wp_logout', __NAMESPACE__ . '\\freeseat_kill_session');
 add_action('wp_login', __NAMESPACE__ . '\\freeseat_kill_session');
 
 function freeseat_start_session() {
-    if(!session_id()) {
+    if(!session_id( $_REQUEST['session_id'] )) {
         session_start();
     }
 }
 
 function freeseat_kill_session() {
-    session_destroy ();
+    session_destroy();
 }
 
 // Set up all of the active freeseat plugins
@@ -216,7 +216,6 @@ function freeseat_admin_menu() {
 	add_submenu_page( 'freeseat-admin', 'View Reservations', 'Reservations', 'manage_freeseat', 'freeseat-listtable', __NAMESPACE__ . '\\freeseat_render_list' );
 	add_submenu_page( 'freeseat-admin', 'Show Setup', 'Show Setup', 'manage_freeseat', 'freeseat-showedit', __NAMESPACE__ . '\\freeseat_showedit' );
 	add_submenu_page( 'freeseat-admin', 'Seatmaps', 'Seatmaps', 'manage_freeseat', 'freeseat-upload', __NAMESPACE__ . '\\freeseat_upload' );
-	// add_submenu_page( 'freeseat-admin', 'Edit Settings', 'Settings', 'administer_freeseat', 'freeseat-system', __NAMESPACE__ . '\\freeseat_params' );
 	// add_options_page( $page_title, $menu_title, $capability, $menu_slug, $function);
 	add_options_page('Settings', 'FreeSeat', 'administer_freeseat', 'freeseat-system', __NAMESPACE__ . '\\freeseat_params');
 }
