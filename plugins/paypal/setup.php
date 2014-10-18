@@ -163,12 +163,12 @@ function paypal_paymentform() {
     //Configuration Settings
     $paypal["business"] = $freeseat_vars['paypal_account'];
     // paypal is picky about the urls passed here
-    $page_url = (( isset( $post ) ) ? get_permalink() : get_bloginfo('url').'?page=freeseat-admin' );
-    $url = replace_fsp( $page_url, PAGE_FINISH );
-    $url = add_query_arg( 'session_id', session_id() );
+    $sid = '?' . htmlspecialchars(SID);
+    $url = (( isset( $post ) ) ? get_permalink().$sid : get_bloginfo('url')."$sid&page=freeseat-admin" );
+    $url = replace_fsp( $url, PAGE_FINISH );
     $paypal["cancel_url" ] = $url;
     $paypal["success_url"] = add_query_arg( 'ok', 'yes', $url );     
-    $paypal["notify_url" ] = add_query_arg( 'freeseat-ipn', '1', get_bloginfo('url') ); // back door to IPN handler
+    $paypal["notify_url" ] = add_query_arg( 'freeseat-ipn', '1', get_bloginfo('url') ); // to IPN handler
     $paypal["return_method"] = "2"; //1=GET 2=POST
     $paypal["bn"] = "toolkit-php";
     $paypal["cmd"] = "_xclick";

@@ -28,7 +28,7 @@ if ( is_array($freeseat_vars) ) {
 
 ensure_plugin('barcode');
 
-db_connect();
+$messages = array();
 
 if (!admin_mode()) fatal_error($lang["access_denied"]);
 

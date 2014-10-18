@@ -76,10 +76,20 @@ add_action('init', __NAMESPACE__ . '\\freeseat_start_session', 1);
 add_action('wp_logout', __NAMESPACE__ . '\\freeseat_kill_session');
 add_action('wp_login', __NAMESPACE__ . '\\freeseat_kill_session');
 
+add_filter( 'plugin_action_links_' . plugin_basename(__FILE__), __NAMESPACE__ . '\\freeseat_sample_data_link' );
+add_filter( 'plugin_action_links_'. plugin_basename(__FILE__), __NAMESPACE__ . '\\freeseat_plugin_settings_link', 10, 2 );
+add_action( 'activated_plugin', __NAMESPACE__ . '\\save_error');
+
 function freeseat_start_session() {
-    if(!session_id( $_REQUEST['session_id'] )) {
-        session_start();
-    }
+	session_name("freeseat4wp");
+	if (isset($_COOKIE['PHPSESSID'])) {
+		$sessid = $_COOKIE['PHPSESSID'];
+	} else if (isset($_GET['PHPSESSID'])) {
+		$sessid = $_GET['PHPSESSID'];
+	} else {
+		session_start();
+	}
+	// sys_log("session id = ".session_id());
 }
 
 function freeseat_kill_session() {
@@ -115,8 +125,6 @@ require_once( FS_PATH . "seatmaps.php" );
 require_once( FS_PATH . "showedit.php" );
 require_once( FS_PATH . "newcron.php" );
 require_once( FS_PATH . "bookinglist2.php" );
-
-db_connect();
 
 /*
  *  Switching station for entry to ticket workflow
@@ -169,7 +177,12 @@ function freeseat_switch( $shortcode_fsp = 0 ) {
  *
  */
 function replace_fsp( $url, $newpage ) {
-	return add_query_arg( 'fsp', $newpage, add_query_arg( 'fsp', FALSE, $url ));
+	$url = remove_query_arg( 'fsp', $url );
+	$url = add_query_arg( array( 'fsp'=>$newpage ), $url);
+	/* $sid = session_id();
+	sys_log("session id = $sid");
+	if (!empty($sid)) $url = add_query_arg( array( 'session_id'=>$sid ), $url); */
+	return $url;
 }
 
 /** Returns the list of available languages. */
@@ -299,11 +312,6 @@ function freeseat_add_caps() {
 	$role->add_cap( 'administer_freeseat' );
 	$role->add_cap( 'manage_freeseat' );
 }
-
-
-add_filter( 'plugin_action_links_' . plugin_basename(__FILE__), __NAMESPACE__ . '\\freeseat_sample_data_link' );
-add_filter( 'plugin_action_links_'. plugin_basename(__FILE__), __NAMESPACE__ . '\\freeseat_plugin_settings_link', 10, 2 );
-add_action( 'activated_plugin', __NAMESPACE__ . '\\save_error');
 
 /**
  *  Adds a link to the plugin screen for installing sample data

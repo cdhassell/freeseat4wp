@@ -97,8 +97,7 @@ function disableseats_unseat($a, $b, $c) {}
  */
 function freeseat_disableseats() {
 	global $lang, $zone, $sh;
-	db_connect();
-	
+
 	kill_booking_done();
 	unlock_seats(false);
 	if (isset($_POST["showid"])) {

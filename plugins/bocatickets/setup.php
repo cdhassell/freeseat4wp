@@ -79,7 +79,6 @@ function bocatickets_editparams($options) {
 
 function bocatickets_start() {
 	if (isset($_SESSION['boca']) && $_SESSION['boca']) {
-		// echo "</div>";  // close the regular page div
 		return true;    // return true to suppress other ticket output 
 	}
 }
@@ -222,8 +221,8 @@ function centerin($message,$length) {
 }
 
 function bocatickets_checkbox() {
-	echo '<!-- bocatickets -->';
 	if (admin_mode()) {
+		echo '<!-- bocatickets -->';
 		echo ' <input id="printercheck" type="checkbox" name="boca"';
 		if (isset($_SESSION["boca"]) && $_SESSION["boca"]) {
 			echo ' checked="checked"';

@@ -15,8 +15,6 @@ Modifications for Wordpress are Copyright (C) 2013 twowheeler.
 function freeseat_repr( $page_url ) 
 {
 	global $lang, $spectacleid, $upload_path;
-		
-	db_connect();
 	
 	/* uncomment following lines to display debugging information  
 	echo '<pre>POST: '; print_r($_POST); echo '</pre>';

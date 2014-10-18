@@ -8,17 +8,6 @@ $Id$
 Session and booking session related functions
 */
 
-/* connects to the database using either adminuser or dbuser. In case
-the in-session password is wrong, it is cleared.
-*/
-function db_connect($die_on_failure = true) {
-	global /*$dbserv, $dbuser, $dbpass, $dbdb, $adminuser, $lang,*/ $messages;
-	// no longer much to do here
-	// session_name("freeseat");
-	// @session_start();
-	$messages = array();	
-}
-
 /** Call this after creating the session, for passing on messages that
 were created after show_head(). WARNING on register_globals
 systems you MUST reset $messages yourself at the beginning (db_connect

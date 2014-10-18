@@ -104,7 +104,6 @@ function bookingmap_unseat($a, $b, $c) {}
 
 function freeseat_bookingmap() {
 	global $lang, $sh;
-	db_connect();
 	
 	if (!admin_mode()) fatal_error($lang["access_denied"]);
 

@@ -7,4 +7,4 @@ $lang['login_required'] = "Login Required";
 $lang['login_reminder'] = "Please log in before making a ticket purchase";
 $lang['login_start_typing'] = "Start typing the first few letters of the name until your selection appears";
 $lang['login_user_search'] = "User Search";
-
+$lang['login_greeting'] = "On this page you may view your recent purchases, reprint your tickets or make a payment for any unpaid reservations.";

@@ -133,11 +133,11 @@ display a seat of the given class on a seatmap */
 	padding: 3px;
 	line-height: 1;
  }
-
+/*
 #freeseat-wide table.fixed {
 	table-layout: auto;
 }
-
+*/
 ul {
 	margin: 0 0 0.5em 0;
 	list-style: disc inside none;
@@ -493,7 +493,7 @@ a:hover {
 	width: 15em;
 	display: inline;
 }
-
+/*
 #freeseat-narrow td span.textbuttons {
 	font-size: small;
 }
@@ -502,7 +502,7 @@ a:hover {
 	background-color: black; 
 	color: white;
 }
-
+*/
 img.wp-post-image {
 	float: left;
 	margin-right: 1em;

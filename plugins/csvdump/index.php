@@ -26,7 +26,7 @@ if ( is_array($freeseat_vars) ) {
 	}
 }
 
-db_connect();
+$messages = array();
 
 /*
  *  Fetches all booking data from the database.

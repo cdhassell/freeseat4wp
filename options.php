@@ -285,10 +285,10 @@ function freeseat_params() {
 						<?php _e( 'Will-call Orders' ); ?><br />
 						<label><input name="freeseat_options[disabled_cash]" type="checkbox" value="1" <?php if (isset($options['disabled_cash'])) { checked('1', $options['disabled_cash']); } ?> /> <?php _e( 'Disable' ); ?></label>
 					</th>
-					<!-- td> 
+					<?php /*  <td> 
 						<?php _e( 'Open will-call reservations' ); ?><br />
 						<input type="number" min="0" name="freeseat_options[opening_cash]" value="<?php echo $options['opening_cash']; ?>" /> Minutes
-					</td -->
+					</td> */ ?>
 					<td>
 						<?php _e( 'Close will-call reservations before show starts' ); ?><br />
 						<input type="number" min="0" name="freeseat_options[closing_cash]" value="<?php echo $options['closing_cash']; ?>" /> Minutes

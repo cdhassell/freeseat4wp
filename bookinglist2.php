@@ -54,7 +54,11 @@ class freeseat_list_table extends \WP_List_Table {
 	
 	function column_state($item) {
 		if ( $item['state'] == ST_BOOKED || $item['state'] == ST_SHAKEN ) {
-			$actions = array( 'confirm' => sprintf('<a href="?page=%s&action=%s&booking=%s">Paid</a>',$_REQUEST['page'],'confirm',$item['bookid']));
+			if (admin_mode()) {
+				$actions = array( 'confirm' => sprintf('<a href="?page=%s&action=%s&booking=%s">Paid</a>',$_REQUEST['page'],'confirm',$item['bookid']));
+			} else {
+				$actions = array( 'pay' => sprintf('<a href="?page=%s&action=%s&booking=%s">Pay</a>',$_REQUEST['page'],'pay',$item['bookid']));
+			}
 			return f_state( $item[ 'state' ] ) .' '. $this->row_actions($actions);
 		} else {
 			return f_state( $item[ 'state' ] );
@@ -96,7 +100,7 @@ class freeseat_list_table extends \WP_List_Table {
 					$html = sprintf( $lang[ "in" ], ( (int) ( $delta / 86400 ) ) . ' ' . $lang[ "day" ] );
 			}
 		} else $html = '<i>' . $lang[ "none" ] . '</i>';			
-		if ( $item['state'] == ST_BOOKED || $item['state'] == ST_SHAKEN ) {
+		if (admin_mode() && ( $item['state'] == ST_BOOKED || $item['state'] == ST_SHAKEN )) {
 			$actions = array( 'extend' => sprintf('<a href="?page=%s&action=%s&booking=%s">Extend</a>', $_REQUEST['page'],'extend', $item['bookid']) );
 			$html .= $this->row_actions($actions);
 		}
@@ -195,12 +199,19 @@ class freeseat_list_table extends \WP_List_Table {
      * @return array An associative array containing all the bulk actions: 'slugs'=>'Visible Titles'
      **************************************************************************/
     function get_bulk_actions() {
-        $actions = array(
-            'print'		=> 'Print',
-            'delete'    => 'Delete',
-            'extend'	=> 'Extend Expiration',
-            'confirm'	=> 'Confirm Payment'
-        );
+        if (admin_mode()) {
+            $actions = array(
+    	        'print'		=> 'Print',
+        	    'delete'    => 'Delete',
+            	'extend'	=> 'Extend Expiration',
+            	'confirm'	=> 'Confirm Payment',
+        	);
+		} else {
+        	$actions = array(
+	            'print'		=> 'Print',
+            	'pay'		=> 'Make Payment'
+        	);
+        }
         return $actions;
     }
 
@@ -211,18 +222,21 @@ class freeseat_list_table extends \WP_List_Table {
      **************************************************************************/
 	function process_bulk_action() {        
 		//Detect when a bulk action is being triggered... 
-		if( 'print'===$this->current_action() ) {
+		if( 'print' ===  $this->current_action() ) {
 			bookinglist_print($_GET['booking']);
 		}
-		if( 'delete'===$this->current_action() ) {
+		if( 'delete' === $this->current_action() ) {
 			bookinglist_delete($_GET['booking']);
 		}
-        if( 'extend'===$this->current_action() ) {
+        if( 'extend' === $this->current_action() ) {
         	bookinglist_extend($_GET['booking']);
         }
-		if( 'confirm'===$this->current_action() ) {
+		if( 'confirm'=== $this->current_action() ) {
 			bookinglist_confirm($_GET['booking']);
         }
+		if( 'pay'  ===   $this->current_action() ) {
+			bookinglist_pay($_GET['booking']);
+		}
     }
 
     /** ************************************************************************
@@ -268,32 +282,32 @@ class freeseat_list_table extends \WP_List_Table {
 			$filterst = -ST_DELETED;		
 		
 		$cond = "";
-		$and  = ""; // set to "and" once $cond is non empty
 		if ( $filtershow )
-			$cond = "showid=$filtershow and";
+			$cond = "showid=$filtershow ";
 		else if ( isset($fulllist) && !empty($fulllist) )
-			$cond = "showid IN ($fulllist) and";
+			$cond = "showid IN ($fulllist) ";
 		else
-			$cond = " ";
+			$cond = "booking.showid=shows.id ";
+
+		if (!admin_mode()) {
+			$user = get_current_user_id();
+			$cond .= "and user_id=$user ";
+		}
 		
 		switch ( $filterst ) {
 			case ST_BOOKED:
-				$cond .= " $and (state=" . ST_BOOKED . " or state=" . ST_SHAKEN . ")";
-				$and = "and";
+				$cond .= "and (state=" . ST_BOOKED . " or state=" . ST_SHAKEN . ") ";
 				break;
 			case ST_PAID:
 			case ST_DELETED:
 			case ST_DISABLED:
-				$cond .= " $and state=$filterst";
-				$and = "and";
+				$cond .= "and state=$filterst ";
 				break;
 			case 0:
-				$cond .= " $and (state=" . ST_BOOKED . " or state=" . ST_SHAKEN . " or state=" . ST_PAID . " or state=" . ST_DELETED . ")";
-				$and = "and";
+				$cond .= "and (state=" . ST_BOOKED . " or state=" . ST_SHAKEN . " or state=" . ST_PAID . " or state=" . ST_DELETED . ") ";
 				break;
 			default: //  -ST_DELETED
-				$cond .= " $and (state=" . ST_BOOKED . " or state=" . ST_SHAKEN . " or state=" . ST_PAID . ")";
-				$and = "and";
+				$cond .= "and (state=" . ST_BOOKED . " or state=" . ST_SHAKEN . " or state=" . ST_PAID . ") ";
 		}
 		$orderby = (isset($_REQUEST['orderby']) ? $_REQUEST['orderby'] : 'id' ).' '. (isset($_REQUEST['order']) ? $_REQUEST['order'] : 'asc');
 		
@@ -344,82 +358,101 @@ function freeseat_render_list() {
 			case 'confirm':
 				bookinglist_confirm($_REQUEST['booking']);
 				break;
+			case 'pay':
+				bookinglist_pay($_REQUEST['booking']);
+				break;
 		}
 	}
 	// start the main page with select boxes for booking status and showid
 	$bookinglist_url = sprintf('?page=%s&action=%s',$_REQUEST['page'],'filter');
 	?>
 	<div class="wrap"><div id="freeseat-wide">
-		<h2>Manage Reservations</h2>        
+		<?php if (!admin_mode()) { ?>
+			<h2>
+				<?php echo $lang['login_recent_purchases']; ?>
+			</h2>
+			<p class="main">
+				<?php echo $lang['login_greeting']; ?>
+			</p>
+		<?php } else { ?>
+			<h2>Manage Reservations</h2>
+		<?php } ?>
 		<form action="<?php echo $bookinglist_url; ?>" method="POST" name="filterform">
 			<?php if (function_exists('wp_nonce_field')) wp_nonce_field('freeseat-bookinglist-filterform'); ?>
-			<p class="main"><?php echo $lang[ "filter" ]; ?>
-			<select name="st" onchange="filterform.submit();">
-	<?php
-	foreach ( array(
-		 -ST_DELETED => "st_notdeleted",
-		ST_BOOKED => "st_tobepaid",
-		ST_PAID => "st_paid",
-		ST_DELETED => "st_deleted",
-		ST_DISABLED => "st_disabled",
-		0 => "st_any" 
-	) as $opt => $lab ) {
-		echo '<option value="' . $opt . '" ';
-		if ( $filterst == $opt )
-			echo "selected ";
-		echo '>' . $lang[ $lab ] . '</option>';
-	}
-	?>
+			<p class="main"><?php if (admin_mode()) echo $lang[ "filter" ]; ?>
+			<select name="st" onchange="filterform.submit();"
+			<?php if (!admin_mode()) echo " style='display:none;' "; ?>
+			>
+				<?php
+				foreach ( array(
+					 -ST_DELETED => "st_notdeleted",
+					ST_BOOKED => "st_tobepaid",
+					ST_PAID => "st_paid",
+					ST_DELETED => "st_deleted",
+					ST_DISABLED => "st_disabled",
+					0 => "st_any" 
+				) as $opt => $lab ) {
+					echo '<option value="' . $opt . '" ';
+					if ( $filterst == $opt )
+						echo "selected ";
+					echo '>' . $lang[ $lab ] . '</option>';
+				}
+				?>
 			</select>
-	<?php
-	// limit this list to shows no more than a week ago
-	// it prevents trying to summarize the entire database 
-	$ss = get_shows( "date >= CURDATE() - INTERVAL 1 week" );
-	if ( $ss ) {
-		echo '<select name="showid" onchange="filterform.submit();">';
-		echo '<option value="">' . $lang[ "show_any" ] . '</option>';
-		$fulllist = $comma = '';
-		foreach ( $ss as $sh ) {
-			echo '<option value="' . $sh[ "id" ] . '"';
-			if ( $filtershow == $sh[ "id" ] )
-				echo 'selected >';
-			else
+			<?php
+			// limit this list to shows no more than a week ago
+			// it prevents trying to summarize the entire database 
+			$ss = get_shows( "date >= CURDATE() - INTERVAL 1 week" );
+			if ( $ss ) {
+				echo '<select name="showid" onchange="filterform.submit();"';
+				if (!admin_mode()) echo " style='display:none;' "; 
 				echo '>';
-			show_show_info( $sh, false );
-			echo '</option>';
-			$fulllist .= $comma . $sh[ 'id' ];
-			$comma = ', ';
-		}
-		echo '</select> ';
-	} else {
-		echo mysql_error();
-	}
-	echo ' <input class="button button-primary" type="submit" value="' . $lang[ "update" ] . '"></form>';
-	// now create the WP_List_Table object
-	$ListTable = new freeseat_list_table();
-		
-	//Fetch, prepare, sort, and filter our data...
-	if( isset($_POST['s']) ){
-		$ListTable->prepare_items($_POST['s']);
-	} else {
-		$ListTable->prepare_items();
-	}
-		
-	?>
-		<div id="icon-users" class="icon32"><br/></div>
-		<!-- Form to create a search box -->
-		<form method="post">
-			<?php $ListTable->search_box('Search by name', 'name'); ?>
-			<input type="hidden" name="page" value="<?php echo $_REQUEST['page'] ?>" />
-		</form>
-
-		<!-- Wrap the table in a form to use features like bulk actions -->
-		<form id="bookings-filter" method="get">
-			<?php do_hook( 'bookinglist_line' ); ?>
-			<!-- For plugins, we also need to ensure that the form posts back to our current page -->
-			<input type="hidden" name="page" value="<?php echo $_REQUEST['page'] ?>" />
-			<!-- Now we can render the completed list table -->
-			<?php $ListTable->display() ?>
+				echo '<option value="">' . $lang[ "show_any" ] . '</option>';
+				$fulllist = $comma = '';
+				foreach ( $ss as $sh ) {
+					echo '<option value="' . $sh[ "id" ] . '"';
+					if ( $filtershow == $sh[ "id" ] )
+						echo 'selected >';
+					else
+						echo '>';
+					show_show_info( $sh, false );
+					echo '</option>';
+					$fulllist .= $comma . $sh[ 'id' ];
+					$comma = ', ';
+				}
+				echo '</select> ';
+			} else {
+				echo mysql_error();
+			}
+			echo ' <input class="button button-primary" type="submit" value="'.$lang[ "update" ].'"';
+			if (!admin_mode()) echo ' style="display:none;" '; 
+			echo '></form>';
+			// now create the WP_List_Table object
+			$ListTable = new freeseat_list_table();
+				
+			//Fetch, prepare, sort, and filter our data...
+			if( isset($_POST['s']) ){
+				$ListTable->prepare_items($_POST['s']);
+			} else {
+				$ListTable->prepare_items();
+			}
+				
+			?>
+			<div id="icon-users" class="icon32"><br/></div>
+			<!-- Form to create a search box -->
+			<?php if (admin_mode()) { ?>
+				<form method="post">
+					<?php $ListTable->search_box('Search by name', 'name'); ?>
+					<input type="hidden" name="page" value="<?php echo $_REQUEST['page'] ?>" />
+				</form>
+			<?php } ?>
+			<!-- Wrap the table in a form to use features like bulk actions -->
+			<form id="bookings-filter" method="get">
+				<?php do_hook( 'bookinglist_line' ); ?>
+				<!-- For plugins, we also need to ensure that the form posts back to our current page -->
+				<input type="hidden" name="page" value="<?php echo $_REQUEST['page'] ?>" />
+				<!-- Now we can render the completed list table -->
+				<?php $ListTable->display() ?>
 		</form>
 	</div></div>
 	<?php
@@ -515,3 +548,62 @@ function bookinglist_confirm($list) {
 	send_notifs( ST_PAID );
 }
 
+function bookinglist_pay($list) {
+	// handle a request to confirm one or more reservation payments
+	global $lang, $page_url;
+	
+	$bookings = array();
+	if (!is_array($list)) { $list = array($list); }
+	foreach ($list as $bookid) {
+		$bookings[] = get_booking($bookid);
+	}
+
+	if ( isset($_SESSION["lastname"]) && !empty($_SESSION["lastname"]) && 
+	isset($_SESSION["firstname"]) && !empty($_SESSION["firstname"]) && 
+	isset($_SESSION["email"]) && !empty($_SESSION["email"]) && is_email_ok($_SESSION["email"])) {
+		// we are ready to confirm and go
+		$default_fsp = 4;
+	} else {
+		// need user details, go back 
+		$default_fsp =3;
+	}
+	$fsp = ( isset( $_REQUEST['fsp'] ) ? $_REQUEST['fsp'] : $default_fsp );
+	$page_url = ( (!admin_mode()) ? get_permalink() : $_SERVER['PHP_SELF'] );
+	$page_url = add_query_arg( array( 'page' => 'freeseat-user-menu' ), $page_url ); 
+	$page_url = replace_fsp( $page_url, $fsp );
+	bookinglist_setup_session( $bookings, $gid );
+	freeseat_switch( $fsp );
+	exit;
+
+}
+
+/** 
+ *  Set up SESSION vars based on an array of bookings from the database
+ */
+function bookinglist_setup_session( $bookings, $gid ) {
+	global $lockingtime;
+	$showid = $bookings[0]["showid"];	
+	$seats = array();
+	$ninvite = 0; 
+	$nreduced = 0;
+	$_SESSION["until"] = time()+$lockingtime;
+	foreach (array("firstname","lastname","phone","email", "payment", "address", "city", "us_state", "postalcode") as $n => $a) {
+		if (isset($bookings[0][$a])) $_SESSION[$a] = make_reasonable($bookings[0][$a]);
+	}
+	foreach ($bookings as $i => $data ) {
+		$seat = $data["seat"];
+		$seats[$seat] = array( "id" => $seat, "theatre" => $data["theatreid"], "cnt" => 1 );
+		foreach ( array("bookid", "row", "col", "extra", "zone", "class", "cat", "date", "time", "theatrename", "spectacleid", "showid", "x", "y" ) as $n => $a) {
+			if (isset($data[$a]))  $seats[$seat][$a] = $data[$a];
+		}
+		$seats[$seat]['cnt'] = 1;
+		if ($data['cat']==CAT_REDUCED) $nreduced++;
+		if ($data['cat']==CAT_FREE) $ninvite++; 
+	}
+	$_SESSION["seats"] = $seats;
+	$_SESSION["showid"] = $showid;
+	$_SESSION["groupid"] = $gid;
+	$_SESSION["ninvite"] = $ninvite;
+	$_SESSION["nreduced"] = $nreduced;
+	if (!isset($_SESSION["payment"])) $_SESSION["payment"]= PAY_CCARD;
+}

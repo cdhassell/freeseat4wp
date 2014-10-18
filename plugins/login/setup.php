@@ -5,6 +5,13 @@
  *  Add a new page to allow users to view their purchases, with a link on the main page.
  */
 
+add_action( 'wp_ajax_freeseat_namesearch_action', __NAMESPACE__ . '\\freeseat_namesearch' );
+add_action( 'wp_ajax_nopriv_freeseat_namesearch_action', __NAMESPACE__ . '\\freeseat_namesearch' );
+add_action( 'admin_menu', __NAMESPACE__ . '\\freeseat_user_tickets');
+add_action('admin_bar_menu', __NAMESPACE__ . '\\freeseat_customize_toolbar', 999); 
+add_action( 'init', __NAMESPACE__ . '\\freeseat_confirm_js' );
+
+
 function freeseat_plugin_init_login() {
 	global $freeseat_plugin_hooks;
 	
@@ -84,7 +91,7 @@ function login_setuserid( $bookid ) {
 /**
  *   Creates a user account lookup page 
  *   Generalized for either user or admin use
- */
+ *
 function freeseat_users() {
 	global $lang, $now, $pref_state_code, $pref_country_code, $currency, $post, $page_url;
 	
@@ -107,7 +114,6 @@ function freeseat_users() {
 		login_user_action( $_REQUEST['action'], $_REQUEST['item'] );
 	}
 	show_head();
-	db_connect();
 	if (!admin_mode()) {
 		$user = get_current_user_id();
 		$userlist_url = (( isset( $post ) ) ? get_permalink() : $_SERVER['PHP_SELF'].'?page=freeseat-users' );
@@ -166,12 +172,14 @@ function freeseat_users() {
 		$ab = get_bookings( "$cond user_id=$user and groupid is NULL and state in (2,3,4)", "bookid desc" );
 		if ( $ab ) {
 			$html  = ""; 
+			$row = 0;
 			foreach ( $ab as $b ) {
 				$id = $b[ 'bookid' ];
 				$st = $b[ 'state' ];
 				$showid = $b['showid'];
 				$spname = $spnames[ $showid ];
-				$html .= '<tr><td>';
+				$class = (($row % 2 == 1) ? "class = 'alternate'" : "");
+				$html .= "<tr $class><td>";
 				$total = 0;
 				$count = 0;
 				$group = get_bookings( "booking.groupid=$id or booking.id=$id", "bookid desc" );
@@ -183,12 +191,12 @@ function freeseat_users() {
 					$count++;
 					$description .= $sep . f_date($g['date']).' '.f_time($g['time']).' '.((strpos($g['extra'], 'Table')===false) ? "Row {$g['row']} Seat {$g['col']}" : "Table {$g['row']}-{$g['col']}" );
 					$sep = ', ';
-				}	
-				$html .= $id . "<td bgcolor='#ffffb0'>" . f_date($b['timestamp']).' '.f_time($b['timestamp']);
+				}
+				$html .= $id . "<td>" . f_date($b['timestamp']).' '.f_time($b['timestamp']);
 				$html .= '<td>' . wordwrap( htmlspecialchars( $spname ), 16, "<br />");
-				$html .= '<td bgcolor="#ffffb0">' . $currency . price_to_string( $total );
+				$html .= '<td>' . $currency . price_to_string( $total );
 				$html .= '<td>' . $count . ' '.$lang['tickets'] ;
-				$html .= '<td bgcolor="#ffffb0"> ' . f_state( $st ) . ' <td>';
+				$html .= '<td> ' . f_state( $st ) . ' <td>';
 				if ( ( $st == ST_BOOKED ) || ( $st == ST_SHAKEN ) ) {
 					if ( $b[ 'payment' ] == PAY_CCARD )
 						$exp = strtotime( $b[ 'timestamp' ] ) + 86400 * get_config( "paydelay_ccard" );
@@ -234,7 +242,7 @@ function freeseat_users() {
 
 /**
  *  Display action buttons on the user account page
- */
+ *
 function login_page_buttons( $id, $st, $user ) {
 	global $lang, $post;
 	// ordinary user can print or pay
@@ -276,9 +284,9 @@ function login_page_buttons( $id, $st, $user ) {
 
 /**
  *   Takes the action specified in $action for the ticket order $gid
- */
+ *
 function login_user_action( $action, $gid ) {
-	global $lang, $lockingtime, $page_url, $dompdf;
+	global $lang, $page_url;
 	$bookings = get_bookings("booking.id=$gid or booking.groupid=$gid","shows.date,shows.time,booking.id");
 	if (!count($bookings)) return;
 	 
@@ -336,7 +344,7 @@ function login_user_action( $action, $gid ) {
 
 /** 
  *  Set up SESSION vars based on an array of bookings from the database
- */
+ *
 function login_setup_session( $bookings, $gid ) {
 	global $lockingtime;
 	$showid = $bookings[0]["showid"];	
@@ -368,7 +376,7 @@ function login_setup_session( $bookings, $gid ) {
 function login_is_paid( $gid ) {
 	return ( m_eval( "SELECT state from booking where id=$gid" ) == ST_PAID );
 }
-
+*/
 
 /**
  *  AJAX callback function for user name lookup
@@ -391,19 +399,15 @@ function freeseat_namesearch() {
 	exit();
 }
 
-add_action( 'wp_ajax_freeseat_namesearch_action', __NAMESPACE__ . '\\freeseat_namesearch' );
-add_action( 'wp_ajax_nopriv_freeseat_namesearch_action', __NAMESPACE__ . '\\freeseat_namesearch' );
-
 /**
  *  Add a page for viewing the user account and bookings
  */
 function freeseat_user_tickets() {
 	$userid = get_current_user_id();
 	if ( 0 == $userid ) return;
-	add_users_page('My Tickets', 'My Tickets', 'read', 'freeseat-user-menu', __NAMESPACE__ . '\\freeseat_users');
+	// add_users_page('My Tickets', 'My Tickets', 'read', 'freeseat-user-menu', __NAMESPACE__ . '\\freeseat_users');
+	add_users_page('My Tickets', 'My Tickets', 'read', 'freeseat-user-menu', __NAMESPACE__ . '\\freeseat_render_list');
 }
-
-add_action( 'admin_menu', __NAMESPACE__ . '\\freeseat_user_tickets');
 
 /**
  *  Add a link to the user account page to the toolbar
@@ -419,10 +423,8 @@ function freeseat_customize_toolbar($wp_toolbar){
 	) );
 }
 
-add_action('admin_bar_menu', __NAMESPACE__ . '\\freeseat_customize_toolbar', 999); 
-
 function freeseat_confirm_js() {
 	wp_enqueue_script( 'confirm-script', plugins_url( 'confirm.js', __FILE__ ), array( 'jquery', 'jquery-ui-core', 'jquery-ui-dialog' ) );
 }
 
-add_action( 'init', __NAMESPACE__ . '\\freeseat_confirm_js' );
+
