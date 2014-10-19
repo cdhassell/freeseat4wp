@@ -79,6 +79,8 @@ add_action('wp_login', __NAMESPACE__ . '\\freeseat_kill_session');
 add_filter( 'plugin_action_links_' . plugin_basename(__FILE__), __NAMESPACE__ . '\\freeseat_sample_data_link' );
 add_filter( 'plugin_action_links_'. plugin_basename(__FILE__), __NAMESPACE__ . '\\freeseat_plugin_settings_link', 10, 2 );
 add_action( 'activated_plugin', __NAMESPACE__ . '\\save_error');
+remove_action( "admin_color_scheme_picker", "admin_color_scheme_picker");
+
 
 function freeseat_start_session() {
 	session_name("freeseat4wp");

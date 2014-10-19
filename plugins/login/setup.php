@@ -5,8 +5,8 @@
  *  Add a new page to allow users to view their purchases, with a link on the main page.
  */
 
-add_action( 'wp_ajax_freeseat_namesearch_action', __NAMESPACE__ . '\\freeseat_namesearch' );
-add_action( 'wp_ajax_nopriv_freeseat_namesearch_action', __NAMESPACE__ . '\\freeseat_namesearch' );
+// add_action( 'wp_ajax_freeseat_namesearch_action', __NAMESPACE__ . '\\freeseat_namesearch' );
+// add_action( 'wp_ajax_nopriv_freeseat_namesearch_action', __NAMESPACE__ . '\\freeseat_namesearch' );
 add_action( 'admin_menu', __NAMESPACE__ . '\\freeseat_user_tickets');
 add_action( 'admin_bar_menu', __NAMESPACE__ . '\\freeseat_customize_toolbar', 999); 
 add_action( 'init', __NAMESPACE__ . '\\freeseat_confirm_js' );
