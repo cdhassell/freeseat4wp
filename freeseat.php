@@ -84,12 +84,14 @@ function freeseat_start_session() {
 	session_name("freeseat4wp");
 	if (isset($_COOKIE['PHPSESSID'])) {
 		$sessid = $_COOKIE['PHPSESSID'];
+		session_id($sessid);
 	} else if (isset($_GET['PHPSESSID'])) {
 		$sessid = $_GET['PHPSESSID'];
+		session_id($sessid);
 	} else {
-		session_start();
+		if(!isset($_SESSION)) session_start();
 	}
-	// sys_log("session id = ".session_id());
+	sys_log("session id = ".session_id());
 }
 
 function freeseat_kill_session() {

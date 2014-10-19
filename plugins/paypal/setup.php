@@ -58,7 +58,17 @@ $Id: confirm.php 279 2010-10-30 16:38:43Z tendays $
 
 */
 
-add_action( 'init', __NAMESPACE__ . '\\freeseat_paypal_ipn_listener' );
+// add_action( 'init', __NAMESPACE__ . '\\freeseat_ipn_listener' );
+add_action( 'wp_ajax_nopriv_freeseat_ipn_action', __NAMESPACE__ . '\\freeseat_ipn_listener' );
+add_filter( 'query_vars', __NAMESPACE__ . '\\freeseat_query_vars' );
+
+
+function freeseat_query_vars($vars) {
+	// add to the valid list of variables
+	$new_vars = array('freeseat-ipn', 'freeseat-return', 'tx', 'st', 'cc', 'item_number', 'amt', 'cm', 'txn_id', 'mc_gross');
+	$vars = $new_vars + $vars;
+    return $vars;
+}
 
 function freeseat_plugin_init_paypal() {
     global $freeseat_plugin_hooks, $paypal, $paypal_sandbox;
@@ -68,7 +78,7 @@ function freeseat_plugin_init_paypal() {
 	$freeseat_plugin_hooks['ccard_partner']['paypal'] = 'paypal_partner';
 	$freeseat_plugin_hooks['ccard_paymentform']['paypal'] = 'paypal_paymentform';
 	$freeseat_plugin_hooks['check_session']['paypal'] = 'paypal_checksession';
-	$freeseat_plugin_hooks['finish_post_booking']['paypal'] = 'paypal_pdt_check';
+	// $freeseat_plugin_hooks['finish_post_booking']['paypal'] = 'paypal_pdt_check';
 	$freeseat_plugin_hooks['params_post']['paypal'] = 'paypal_postedit';
 	$freeseat_plugin_hooks['params_edit_ccard']['paypal'] = 'paypal_editparams';    
 	init_language('paypal');
@@ -141,8 +151,8 @@ function get_memo() {
 	$group = $_SESSION["groupid"];
 	$memo = $sender_name; 
 	$memo .= ' ' . $spec['name'];
-	$memo .= " REF:$group: ";
-    $memo .= price_to_string(get_total());
+	$memo .= " REF:$group ";
+    // $memo .= price_to_string(get_total());
 	return $memo;
 }
 
@@ -166,9 +176,10 @@ function paypal_paymentform() {
     $sid = '?' . htmlspecialchars(SID);
     $url = (( isset( $post ) ) ? get_permalink().$sid : get_bloginfo('url')."$sid&page=freeseat-admin" );
     $url = replace_fsp( $url, PAGE_FINISH );
-    $paypal["cancel_url" ] = $url;
-    $paypal["success_url"] = add_query_arg( 'ok', 'yes', $url );     
-    $paypal["notify_url" ] = add_query_arg( 'freeseat-ipn', '1', get_bloginfo('url') ); // to IPN handler
+    $paypal["cancel_url" ] = add_query_arg( 'freeseat-return', 'ausfall', $url );
+    $paypal["success_url"] = add_query_arg( 'freeseat-return', 'erfolg', $url );
+    $vars = array( 'freeseat-ipn' => 'erfolg', 'action' => 'freeseat_ipn_action' );
+    $paypal["notify_url" ] = add_query_arg( $vars, admin_url('admin-ajax.php') );
     $paypal["return_method"] = "2"; //1=GET 2=POST
     $paypal["bn"] = "toolkit-php";
     $paypal["cmd"] = "_xclick";
@@ -428,7 +439,10 @@ function paypal_checkamount($transid) {
 	return FALSE;  
 }
 
-function freeseat_paypal_ipn_listener() {
+/**
+ *  AJAX callback function for paypal IPN 
+ */
+function freeseat_ipn_listener() {
 	global $lang, $transid, $unsafeamount, $groupid;
 
 	if (!isset($_REQUEST['freeseat-ipn'])) return;

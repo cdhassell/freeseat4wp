@@ -8,7 +8,7 @@
 add_action( 'wp_ajax_freeseat_namesearch_action', __NAMESPACE__ . '\\freeseat_namesearch' );
 add_action( 'wp_ajax_nopriv_freeseat_namesearch_action', __NAMESPACE__ . '\\freeseat_namesearch' );
 add_action( 'admin_menu', __NAMESPACE__ . '\\freeseat_user_tickets');
-add_action('admin_bar_menu', __NAMESPACE__ . '\\freeseat_customize_toolbar', 999); 
+add_action( 'admin_bar_menu', __NAMESPACE__ . '\\freeseat_customize_toolbar', 999); 
 add_action( 'init', __NAMESPACE__ . '\\freeseat_confirm_js' );
 
 
@@ -376,11 +376,11 @@ function login_setup_session( $bookings, $gid ) {
 function login_is_paid( $gid ) {
 	return ( m_eval( "SELECT state from booking where id=$gid" ) == ST_PAID );
 }
-*/
+
 
 /**
  *  AJAX callback function for user name lookup
- */
+ *
 function freeseat_namesearch() {
 	$x = $_REQUEST['term'];
 	sys_log( "Name search called with $x" );
@@ -397,7 +397,7 @@ function freeseat_namesearch() {
 	$response = $_GET["callback"] . "(" . json_encode($data2) . ")";
     echo $response;
 	exit();
-}
+} */
 
 /**
  *  Add a page for viewing the user account and bookings
