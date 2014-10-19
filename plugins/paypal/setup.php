@@ -203,7 +203,7 @@ function paypal_paymentform() {
 	$paypal['item_number'] = $_SESSION['groupid'];
 	$paypal['item_name'] = get_memo();		// construct memo field with summary
 	$paypal['amount'] = price_to_string(get_total());
-	sys_log( "paypal vars = " . print_r($paypal,1) );
+	// sys_log( "paypal vars = " . print_r($paypal,1) );
 	echo '<body onload="document.gopaypal.submit()">';
 	echo '<form method="post" name="gopaypal" action="'.$paypal["url"].'">';
 	// if (function_exists('wp_nonce_field')) wp_nonce_field('freeseat-paypal-paymentform');
@@ -406,35 +406,26 @@ function paypal_checkamount($transid) {
 	$repost = array();
 	if (!isset($_POST["txn_id"])) return FALSE;
 
-	/* Cancel magic quotes before resending the query... */
-	$cmd = "cmd=_notify-validate";
-	foreach ( $_POST as $key => $value ) {
-		$repost[$key] = nogpc($value);
-		$cmd .= '&' . $key . "=" . urlencode( nogpc($value) );
-	}
+	$cmd = "cmd=_notify-validate&".build_query($_POST);
 	$reply = fsockPost( $paypal["url"], $cmd );
-	$reply = implode( ",", $reply );
-	if ( strpos( $reply, "VERIFIED" )!==FALSE )  {
-		if (($repost["payment_status"]=="Completed") &&
-			($repost["txn_id"]==$transid )  &&
-			($repost["receiver_email"]== $paypal["business"] )) {
+	$replystr = implode( ",", $reply );
+	if ( stripos( $replystr, "VERIFIED" )!==FALSE )  {
+		if (($reply["payment_status"]=="Completed") &&
+			($reply["txn_id"]==$transid )  &&
+			($reply["receiver_email"]== $paypal["business"] )) {
 			//ok it checks out
 			return string_to_price($repost["mc_gross"]);
 		} elseif ($repost["payment_status"]=="Pending") {
 			// ok but status is still pending
-			kaboom(sprintf($lang["err_scriptstatus"],"Pending"));
+			sys_log(sprintf($lang["err_scriptstatus"],"Pending"));
 			return TRUE;
 		} else {
-			kaboom(sprintf($lang["err_scriptauth"],'Paypal IPN verified'));
-			kaboom("Reply: ".$reply);
-			kaboom("Payment status: ".$repost["payment_status"]);
-			kaboom("Txn_id: ".$repost["txn_id"]." $transid");
-			kaboom("Receiver: ".$repost["receiver_email"]." ".$paypal["business"]);
+			sys_log(sprintf($lang["err_scriptauth"],'Paypal IPN verified'));
+			sys_log("Reply: ".print_r($reply,1));
 		}
 	} else {
-		kaboom(sprintf($lang["err_scriptauth"],'Paypal IPN invalid'));
-		kaboom("Reply: ".$reply);
-		kaboom("URL: ".$paypal["url"]);
+		sys_log(sprintf($lang["err_scriptauth"],'Paypal IPN invalid'));
+		sys_log("Reply: ".print_r($reply,1));
 	}
 	return FALSE;  
 }
