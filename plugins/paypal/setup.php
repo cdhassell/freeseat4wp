@@ -173,8 +173,7 @@ function paypal_paymentform() {
     //Configuration Settings
     $paypal["business"] = $freeseat_vars['paypal_account'];
     // paypal is picky about the urls passed here
-    $sid = '?' . htmlspecialchars(SID);
-    $url = (( isset( $post ) ) ? get_permalink().$sid : get_bloginfo('url')."$sid&page=freeseat-admin" );
+    $url = (( isset( $post ) ) ? get_permalink() : get_bloginfo('url')."?page=freeseat-admin" );
     $url = replace_fsp( $url, PAGE_FINISH );
     $paypal["cancel_url" ] = add_query_arg( 'freeseat-return', 'ausfall', $url );
     $paypal["success_url"] = add_query_arg( 'freeseat-return', 'erfolg', $url );
@@ -241,7 +240,7 @@ function fsockPost($url,$postdata) {
 		fputs($fp, "Connection: close\r\n\r\n");
 		fputs($fp, $postdata . "\r\n\r\n");
 		while(!feof($fp)) {    	//loop through the response from the server
-			$info[] = @fgets($fp, 1024);
+			$info[] = trim( fgets($fp, 1024) );
 		}
 		fclose($fp);            //close fp - we are done with it
 	}
@@ -318,13 +317,11 @@ function paypal_pdt_check($groupid) {
 	
 	// Did we get the IPN? If so nothing further is needed
 	$sql = "SELECT count(numxkp) FROM ccard_transactions WHERE groupid=$groupid";
-	sys_log("Entered PDT check");
 	if ( m_eval($sql) ) return TRUE;
 	sys_log("No IPN record found");
 	// If not, make a call to paypal to verify sale
 	$success = FALSE;
 	$paypal_auth_token = $freeseat_vars['paypal_auth_token'];
-	// sys_log("paypal auth token = $paypal_auth_token");
 	if (!isset($paypal_auth_token)) return FALSE; // nothing to check
 	if (isset($_GET['tx'])) {
 		$tx_token = $_GET['tx'];
@@ -332,7 +329,7 @@ function paypal_pdt_check($groupid) {
 		$reply = fsockPost( $paypal["url"], $cmd );	// returns an array of strings
  		$keyarray = array();		
 		foreach ($reply as $line) {
-			$line = str_replace( array("\r","\n"), "", $line );
+			$line = trim( $line );
 			if (strcmp ($line, "SUCCESS") == 0) {
 				$success = TRUE;
 			}
@@ -378,89 +375,55 @@ function paypal_extend($groupid) {
 	if (!freeseat_query( $q )) sys_log(freeseat_mysql_error());
 }
 
-function paypal_readparams() {
-	// get data back from transaction if it worked, or false if not
-	global $transid, $unsafeamount, $groupid;
-
-	if (isset($_POST["item_number"])) {
-		$groupid = (int)($_POST["item_number"]);
-		if (isset($_POST["txn_id"]) && (strlen($_POST["txn_id"])==17)) {
-		    $transid  = nogpc($_POST["txn_id"]); 
-			if (isset($_POST["mc_gross"]))  {
-				$unsafeamount = string_to_price($_POST["mc_gross"]);
-				return true;
-			}
-		}
-	}
-	return false;
-}
-
-/** 
- *  Requests and returns the amount of given transaction id,
- *  TRUE if the transaction is still pending, FALSE
- *  in case there was a problem 
- */
-function paypal_checkamount($transid) {
-	global $lang, $transid, $paypal;
-	
-	$repost = array();
-	if (!isset($_POST["txn_id"])) return FALSE;
-
-	$cmd = "cmd=_notify-validate&".build_query($_POST);
-	$reply = fsockPost( $paypal["url"], $cmd );
-	$replystr = implode( ",", $reply );
-	if ( stripos( $replystr, "VERIFIED" )!==FALSE )  {
-		if (($reply["payment_status"]=="Completed") &&
-			($reply["txn_id"]==$transid )  &&
-			($reply["receiver_email"]== $paypal["business"] )) {
-			//ok it checks out
-			return string_to_price($repost["mc_gross"]);
-		} elseif ($repost["payment_status"]=="Pending") {
-			// ok but status is still pending
-			sys_log(sprintf($lang["err_scriptstatus"],"Pending"));
-			return TRUE;
-		} else {
-			sys_log(sprintf($lang["err_scriptauth"],'Paypal IPN verified'));
-			sys_log("Reply: ".print_r($reply,1));
-		}
-	} else {
-		sys_log(sprintf($lang["err_scriptauth"],'Paypal IPN invalid'));
-		sys_log("Reply: ".print_r($reply,1));
-	}
-	return FALSE;  
-}
-
 /**
  *  AJAX callback function for paypal IPN 
  */
 function freeseat_ipn_listener() {
-	global $lang, $transid, $unsafeamount, $groupid;
+	global $lang, $transid, $unsafeamount, $groupid, $paypal;
 
 	if (!isset($_REQUEST['freeseat-ipn'])) return;
 	prepare_log("ccard_ipn");
-	sys_log("paypal listener called with ".print_r($_POST,1));	
-	ob_start();
-	if (paypal_readparams()) {
-		$amount = paypal_checkamount( $transid );
-		if ($amount===TRUE) {
-			sys_log("Pending payment GID=$groupid  TID=$transid  Amt=$unsafeamount ");
-			paypal_extend( $groupid );
-		} elseif ($amount===FALSE) {  
-			sys_log("Failed payment GID=$groupid  TID=$transid  Amt=$unsafeamount ");
-			ob_end_clean();
-			exit();
-		} elseif ($unsafeamount!=$amount) {
-			// user provided incorrect amount but transaction id is valid.
-			// We'll use the (safe) $amount. 
-			sys_log("Incorrect payment GID=$groupid  TID=$transid  Amt=$unsafeamount ");
-			kaboom(sprintf($lang["err_ccard_nomatch"],
-				"unsafeamount=".price_to_string($unsafeamount).
-				", amount=". price_to_string($amount)));
-		} 
-		/* Thank You email will be sent at this point if things work well. */
-		$success = process_ccard_transaction($groupid,$transid,$amount);
+	sys_log("paypal listener called with ".print_r($_POST,1));
+	$repost = stripslashes_deep($_POST);
+	$cmd = "cmd=_notify-validate";
+	foreach ($repost as $i=>$v) { 	//build post string
+		$cmd .= '&' . $i . "=" . urlencode($v);
+	}
+	$ok = false;
+	if (isset($repost["item_number"])) {
+		$groupid = (int)($repost["item_number"]);
+		if (isset($repost["txn_id"]) && (strlen($repost["txn_id"])==17)) {
+		    $transid  = $repost["txn_id"]; 
+			if (isset($repost["mc_gross"]))  {
+				$unsafeamount = string_to_price($repost["mc_gross"]);
+				$ok = true;
+			}
+		}
+	}
+	if ($ok) {
+		sys_log("paypal command = ".$cmd);
+		$reply = fsockPost( $paypal["url"], $cmd );
+		$replystr = implode( ", ", $reply );
+		sys_log("paypal reply string = ".$replystr);
+		if ( preg_match( '/VERIFIED/i', $replystr ) )  {
+			if (($repost["payment_status"]=="Completed") &&
+				($repost["txn_id"]==$transid )  &&
+				($repost["receiver_email"]== $paypal["business"] )) {
+				//ok it checks out
+				$amount = string_to_price($repost["mc_gross"]);
+				/* Thank You email will be sent at this point if things work well. */
+				$success = process_ccard_transaction($groupid,$transid,$amount);
+			} elseif ($repost["payment_status"]=="Pending") {
+				// ok but status is still pending
+				sys_log("Paypal IPN verified with status Pending GID=$groupid  TID=$transid  Amt=$unsafeamount ");
+				paypal_extend( $groupid );
+			} else {
+				sys_log("Paypal IPN verified but bad status GID=$groupid  TID=$transid  Amt=$unsafeamount ");
+			}
+		} else {
+			sys_log(sprintf($lang["err_scriptauth"],'Paypal IPN')." Reply: ".print_r($reply,1));
+		}
 	}
 	log_done();	
-	ob_end_clean();
 	exit();
 }
