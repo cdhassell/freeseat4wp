@@ -168,27 +168,27 @@ function paypal_confirm_button() {
 /** Displays a button/link (a form with hidden fields from _SESSION)
 that will redirect the user to the ccard provider's payment form **/
 function paypal_paymentform() {
-	global $paypal, $lang, $freeseat_vars, $post;
+	global $paypal, $lang, $paypal_account, $ticket_logo, $post;
 	
     //Configuration Settings
-    $paypal["business"] = $freeseat_vars['paypal_account'];
+    $paypal["business"] = $paypal_account;
     // paypal is picky about the urls passed here
     $url = (( isset( $post ) ) ? get_permalink() : get_bloginfo('url')."?page=freeseat-admin" );
     $url = replace_fsp( $url, PAGE_FINISH );
-    $paypal["cancel_url" ] = add_query_arg( 'freeseat-return', 'ausfall', $url );
-    $paypal["success_url"] = add_query_arg( 'freeseat-return', 'erfolg', $url );
+    $paypal["cancel_return" ] = add_query_arg( 'freeseat-return', 'ausfall', $url );
+    $paypal["return"] = add_query_arg( 'freeseat-return', 'erfolg', $url );
     $vars = array( 'freeseat-ipn' => 'erfolg', 'action' => 'freeseat_ipn_action' );
-    $paypal["notify_url" ] = add_query_arg( $vars, admin_url('admin-ajax.php') );
-    $paypal["return_method"] = "2"; //1=GET 2=POST
+    $paypal["notify_url"] = add_query_arg( $vars, admin_url('admin-ajax.php') );
+    $paypal["rm"] = "2"; 						//return method 1=GET 2=POST
     $paypal["bn"] = "toolkit-php";
     $paypal["cmd"] = "_xclick";
 
     //Payment Page Settings
-    $paypal["display_comment"]="1"; //0=yes 1=no
-    $paypal["comment_header"]="Comments";
-    $paypal["continue_button_text"]=$lang['paypal_button_text'];
-    $paypal["background_color"]=""; //""=white 1=black
-    $paypal["display_shipping_address"]="1"; //""=yes 1=no
+    $paypal["no_note"]="1"; 					//display comments 0=yes 1=no
+    $paypal["cn"]="";							//comment header
+    $paypal["cbt"]=$lang['paypal_button_text'];	//continue button text
+    $paypal["cs"]=""; 							//background colour ""=white 1=black
+    $paypal["no_shipping"]="1";					//display shipping address ""=yes 1=no
 
 	// fill in paypal variables
 	$paypal['first_name'] = $_SESSION['firstname'];
@@ -202,17 +202,20 @@ function paypal_paymentform() {
 	$paypal['item_number'] = $_SESSION['groupid'];
 	$paypal['item_name'] = get_memo();		// construct memo field with summary
 	$paypal['amount'] = price_to_string(get_total());
-	// sys_log( "paypal vars = " . print_r($paypal,1) );
-	echo '<body onload="document.gopaypal.submit()">';
+	$paypal['image_url'] = $ticket_logo;
+	// echo '<body onload="document.gopaypal.submit()">';
 	echo '<form method="post" name="gopaypal" action="'.$paypal["url"].'">';
 	// if (function_exists('wp_nonce_field')) wp_nonce_field('freeseat-paypal-paymentform');
 	// show paypal hidden variables
 	// don't require another click, just go
-	paypal_show_variables(); 
-	// echo '<p class="main">';
-	// printf($lang["paybutton"],'<input type="submit" value="','">');
-	// echo '<input type="submit" value=" Pay ">';
-	// echo '</p>';
+	foreach ($paypal as $key=>$value) {
+		echo "<input type='hidden' name='$key' value='$value'>";
+	}
+	// paypal_show_variables(); 
+	echo '<p class="main">';
+	printf($lang["paybutton"],'<input type="submit" value="','">');
+	echo '<input type="submit" value=" Pay ">';
+	echo '</p>';
 	echo '</form>';
 }
 
@@ -242,12 +245,12 @@ function fsockPost($url,$postdata) {
 		while(!feof($fp)) {    	//loop through the response from the server
 			$info[] = trim( fgets($fp, 1024) );
 		}
-		fclose($fp);            //close fp - we are done with it
+		fclose($fp);  //close fp - we are done with it
 	}
 	return $info;
 }
 
-function paypal_show_variables() {
+/*function paypal_show_variables() {
 //Display Paypal Hidden Variables
     global $paypal;
 ?>
@@ -255,20 +258,20 @@ function paypal_show_variables() {
 <!-- PayPal Configuration -->
 <input type="hidden" name="business" value="<?php echo $paypal["business"];?>">
 <input type="hidden" name="cmd" value="<?php echo $paypal["cmd"];?>">
-<input type="hidden" name="return" value="<?php echo $paypal['success_url']; ?>">
-<input type="hidden" name="cancel_return" value="<?php echo $paypal['cancel_url']; ?>">
+<input type="hidden" name="return" value="<?php echo $paypal['return']; ?>">
+<input type="hidden" name="cancel_return" value="<?php echo $paypal['cancel_return']; ?>">
 <input type="hidden" name="notify_url" value="<?php echo $paypal['notify_url']; ?>">
-<input type="hidden" name="rm" value="<?php echo $paypal["return_method"];?>">
+<input type="hidden" name="rm" value="<?php echo $paypal["rm"];?>">
 <input type="hidden" name="currency_code" value="<?php echo $paypal["currency_code"];?>">
 <input type="hidden" name="lc" value="<?php echo $paypal["lc"];?>">
 <input type="hidden" name="bn" value="<?php echo $paypal["bn"];?>">
-<input type="hidden" name="cbt" value="<?php echo $paypal["continue_button_text"];?>">
+<input type="hidden" name="cbt" value="<?php echo $paypal["cbt"];?>">
 
 <!-- Payment Page Information -->
-<input type="hidden" name="no_shipping" value="<?php echo $paypal["display_shipping_address"];?>">
-<input type="hidden" name="no_note" value="<?php echo $paypal["display_comment"];?>">
-<input type="hidden" name="cn" value="<?php echo $paypal["comment_header"];?>">
-<input type="hidden" name="cs" value="<?php echo $paypal["background_color"];?>">
+<input type="hidden" name="no_shipping" value="<?php echo $paypal["no_shipping"];?>">
+<input type="hidden" name="no_note" value="<?php echo $paypal["no_note"];?>">
+<input type="hidden" name="cn" value="<?php echo $paypal["cn"];?>">
+<input type="hidden" name="cs" value="<?php echo $paypal["cs"];?>">
 
 <!-- Product Information -->
 <input type="hidden" name="item_name" value="<?php echo $paypal["item_name"];?>">
@@ -286,7 +289,7 @@ function paypal_show_variables() {
 <?php 
 if (isset($paypal["image_url"]))
   echo '<input type="hidden" name="image_url" value="' . freeseat_url($paypal['image_url']) . '">'; 
- } 
+ } */
 
 function paypal_checksession($level) {
   global $lang;
@@ -407,7 +410,7 @@ function freeseat_ipn_listener() {
 		sys_log("paypal reply string = ".$replystr);
 		if ( preg_match( '/VERIFIED/i', $replystr ) )  {
 			if (($repost["payment_status"]=="Completed") &&
-				($repost["txn_id"]==$transid )  &&
+				// ($repost["txn_id"]==$transid )  &&
 				($repost["receiver_email"]== $paypal["business"] )) {
 				//ok it checks out
 				$amount = string_to_price($repost["mc_gross"]);
@@ -418,7 +421,8 @@ function freeseat_ipn_listener() {
 				sys_log("Paypal IPN verified with status Pending GID=$groupid  TID=$transid  Amt=$unsafeamount ");
 				paypal_extend( $groupid );
 			} else {
-				sys_log("Paypal IPN verified but bad status GID=$groupid  TID=$transid  Amt=$unsafeamount ");
+				// sys_log("Paypal IPN verified but bad status GID=$groupid  TID=$transid  Amt=$unsafeamount ");
+				sys_log("Paypal IPN verified but acct = ".$repost["receiver_email"]." vs. ".$paypal["business"]);
 			}
 		} else {
 			sys_log(sprintf($lang["err_scriptauth"],'Paypal IPN')." Reply: ".print_r($reply,1));
