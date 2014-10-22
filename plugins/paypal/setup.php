@@ -71,7 +71,7 @@ function freeseat_query_vars($vars) {
 }
 
 function freeseat_plugin_init_paypal() {
-    global $freeseat_plugin_hooks, $paypal, $paypal_sandbox;
+    global $freeseat_plugin_hooks, $paypal, $paypal_sandbox, $paypal_account;
 
 	$freeseat_plugin_hooks['ccard_confirm_button']['paypal'] = 'paypal_confirm_button';
 	$freeseat_plugin_hooks['ccard_exists']['paypal'] = 'paypal_true';
@@ -83,12 +83,13 @@ function freeseat_plugin_init_paypal() {
 	$freeseat_plugin_hooks['params_edit_ccard']['paypal'] = 'paypal_editparams';    
 	init_language('paypal');
 	$paypal = array();
-	$paypal["currency_code"]="USD"; // [USD,GBP,JPY,CAD,EUR]
+	$paypal["currency_code"]="USD"; // FIXME should be configurable [USD,GBP,JPY,CAD,EUR]
 	$paypal["lc"]="US";
 	$paypal["url"] = ( $paypal_sandbox ? 
 		"https://www.sandbox.paypal.com/cgi-bin/webscr" :	// for the sandbox
 		"https://www.paypal.com/cgi-bin/webscr"				// for the real thing
 	);
+	$paypal["business"] = $paypal_account;
 }
 
 function paypal_true($void) {
@@ -158,10 +159,6 @@ function get_memo() {
 
 /* print the submit (or image) button to be displayed in confirm.php */
 function paypal_confirm_button() {
-  /* echo '<div align="center"><input type="image" ' . 
-    'src="https://www.paypal.com/en_US/i/btn/x-click-but03.gif" border="0" ' . 
-    'name="submit" alt="Make payments with PayPal - it\'s fast, free and secure!">' .
-    '</div>'; */
     echo '<div align="center"><input type="image" src="'.plugins_url("express-checkout-hero.png", __FILE__).'" border="0" name="submit" alt="Make payments with PayPal - it\'s fast, free and secure!"></div>';
 }
 
@@ -211,10 +208,9 @@ function paypal_paymentform() {
 	foreach ($paypal as $key=>$value) {
 		echo "<input type='hidden' name='$key' value='$value'>";
 	}
-	// paypal_show_variables(); 
 	echo '<p class="main">';
 	printf($lang["paybutton"],'<input type="submit" value="','">');
-	echo '<input type="submit" value=" Pay ">';
+	// echo '<input type="submit" value=" Pay ">';
 	echo '</p>';
 	echo '</form>';
 }
@@ -249,47 +245,6 @@ function fsockPost($url,$postdata) {
 	}
 	return $info;
 }
-
-/*function paypal_show_variables() {
-//Display Paypal Hidden Variables
-    global $paypal;
-?>
-
-<!-- PayPal Configuration -->
-<input type="hidden" name="business" value="<?php echo $paypal["business"];?>">
-<input type="hidden" name="cmd" value="<?php echo $paypal["cmd"];?>">
-<input type="hidden" name="return" value="<?php echo $paypal['return']; ?>">
-<input type="hidden" name="cancel_return" value="<?php echo $paypal['cancel_return']; ?>">
-<input type="hidden" name="notify_url" value="<?php echo $paypal['notify_url']; ?>">
-<input type="hidden" name="rm" value="<?php echo $paypal["rm"];?>">
-<input type="hidden" name="currency_code" value="<?php echo $paypal["currency_code"];?>">
-<input type="hidden" name="lc" value="<?php echo $paypal["lc"];?>">
-<input type="hidden" name="bn" value="<?php echo $paypal["bn"];?>">
-<input type="hidden" name="cbt" value="<?php echo $paypal["cbt"];?>">
-
-<!-- Payment Page Information -->
-<input type="hidden" name="no_shipping" value="<?php echo $paypal["no_shipping"];?>">
-<input type="hidden" name="no_note" value="<?php echo $paypal["no_note"];?>">
-<input type="hidden" name="cn" value="<?php echo $paypal["cn"];?>">
-<input type="hidden" name="cs" value="<?php echo $paypal["cs"];?>">
-
-<!-- Product Information -->
-<input type="hidden" name="item_name" value="<?php echo $paypal["item_name"];?>">
-<input type="hidden" name="amount" value="<?php echo $paypal["amount"];?>">
-<input type="hidden" name="item_number" value="<?php echo $paypal["item_number"];?>">
-
-<!-- Customer Information -->
-<input type="hidden" name="first_name" value="<?php echo $paypal["first_name"];?>">
-<input type="hidden" name="last_name" value="<?php echo $paypal["last_name"];?>">
-<input type="hidden" name="address1" value="<?php echo $paypal["address1"];?>">
-<input type="hidden" name="city" value="<?php echo $paypal["city"];?>">
-<input type="hidden" name="state" value="<?php echo $paypal["state"];?>">
-<input type="hidden" name="zip" value="<?php echo $paypal["zip"];?>">
-<input type="hidden" name="email" value="<?php echo $paypal["email"];?>">
-<?php 
-if (isset($paypal["image_url"]))
-  echo '<input type="hidden" name="image_url" value="' . freeseat_url($paypal['image_url']) . '">'; 
- } */
 
 function paypal_checksession($level) {
   global $lang;
@@ -399,32 +354,34 @@ function freeseat_ipn_listener() {
 		    $transid  = $repost["txn_id"]; 
 			if (isset($repost["mc_gross"]))  {
 				$unsafeamount = string_to_price($repost["mc_gross"]);
-				$ok = true;
+				if (isset($repost["receiver_email"]) && ($repost["receiver_email"]== $paypal["business"] )) {
+					$ok = true;
+				}
 			}
 		}
 	}
 	if ($ok) {
-		sys_log("paypal command = ".$cmd);
 		$reply = fsockPost( $paypal["url"], $cmd );
 		$replystr = implode( ", ", $reply );
 		sys_log("paypal reply string = ".$replystr);
 		if ( preg_match( '/VERIFIED/i', $replystr ) )  {
-			if (($repost["payment_status"]=="Completed") &&
-				// ($repost["txn_id"]==$transid )  &&
-				($repost["receiver_email"]== $paypal["business"] )) {
-				//ok it checks out
-				$amount = string_to_price($repost["mc_gross"]);
-				/* Thank You email will be sent at this point if things work well. */
-				$success = process_ccard_transaction($groupid,$transid,$amount);
-			} elseif ($repost["payment_status"]=="Pending") {
-				// ok but status is still pending
-				sys_log("Paypal IPN verified with status Pending GID=$groupid  TID=$transid  Amt=$unsafeamount ");
-				paypal_extend( $groupid );
-			} else {
-				// sys_log("Paypal IPN verified but bad status GID=$groupid  TID=$transid  Amt=$unsafeamount ");
-				sys_log("Paypal IPN verified but acct = ".$repost["receiver_email"]." vs. ".$paypal["business"]);
+			switch ($repost["payment_status"]) {
+				case "Completed":
+					// ok
+					$amount = string_to_price($repost["mc_gross"]);
+					$success = process_ccard_transaction($groupid,$transid,$amount);
+					break;
+				case "Pending": 
+					// ok but status is pending, don't record it yet
+					sys_log("Paypal IPN verified with status Pending GID=$groupid Amt=$unsafeamount ");
+					paypal_extend( $groupid );
+					break;
+				default: 
+					// wtf?
+					sys_log("Paypal IPN verified but bad status GID=$groupid Status = ".$repost["payment_status"]);
 			}
 		} else {
+			// payment failed
 			sys_log(sprintf($lang["err_scriptauth"],'Paypal IPN')." Reply: ".print_r($reply,1));
 		}
 	}
