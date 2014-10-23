@@ -65,7 +65,7 @@ add_filter( 'query_vars', __NAMESPACE__ . '\\freeseat_query_vars' );
 
 function freeseat_query_vars($vars) {
 	// add to the valid list of variables
-	$new_vars = array('freeseat-ipn', 'freeseat-return', 'tx', 'st', 'cc', 'item_number', 'amt', 'cm', 'txn_id', 'mc_gross');
+	$new_vars = array('freeseat-ipn', 'freeseat-return');
 	$vars = $new_vars + $vars;
     return $vars;
 }
@@ -80,7 +80,8 @@ function freeseat_plugin_init_paypal() {
 	$freeseat_plugin_hooks['check_session']['paypal'] = 'paypal_checksession';
 	// $freeseat_plugin_hooks['finish_post_booking']['paypal'] = 'paypal_pdt_check';
 	$freeseat_plugin_hooks['params_post']['paypal'] = 'paypal_postedit';
-	$freeseat_plugin_hooks['params_edit_ccard']['paypal'] = 'paypal_editparams';    
+	$freeseat_plugin_hooks['params_edit_ccard']['paypal'] = 'paypal_editparams';
+	$freeseat_plugin_hooks['finish_ccard_failure']['paypal'] = 'paypal_failure';  
 	init_language('paypal');
 	$paypal = array();
 	$paypal["currency_code"]="USD"; // FIXME should be configurable [USD,GBP,JPY,CAD,EUR]
@@ -144,6 +145,13 @@ function paypal_partner() {
 
 }
 
+function paypal_failure() {
+	global $lang;
+	show_head();
+	printf($lang["paypal_failure_page"], replace_fsp(get_permalink(), PAGE_FINISH ));
+	show_foot();
+}
+
 function get_memo() {
 	global $sender_name;
 	
@@ -172,7 +180,7 @@ function paypal_paymentform() {
     // paypal is picky about the urls passed here
     $url = (( isset( $post ) ) ? get_permalink() : get_bloginfo('url')."?page=freeseat-admin" );
     $url = replace_fsp( $url, PAGE_FINISH );
-    $paypal["cancel_return" ] = add_query_arg( 'freeseat-return', 'ausfall', $url );
+    $paypal["cancel_return" ] = $url;
     $paypal["return"] = add_query_arg( 'freeseat-return', 'erfolg', $url );
     $vars = array( 'freeseat-ipn' => 'erfolg', 'action' => 'freeseat_ipn_action' );
     $paypal["notify_url"] = add_query_arg( $vars, admin_url('admin-ajax.php') );
@@ -200,6 +208,7 @@ function paypal_paymentform() {
 	$paypal['item_name'] = get_memo();		// construct memo field with summary
 	$paypal['amount'] = price_to_string(get_total());
 	$paypal['image_url'] = $ticket_logo;
+	
 	// echo '<body onload="document.gopaypal.submit()">';
 	echo '<form method="post" name="gopaypal" action="'.$paypal["url"].'">';
 	// if (function_exists('wp_nonce_field')) wp_nonce_field('freeseat-paypal-paymentform');
@@ -213,37 +222,6 @@ function paypal_paymentform() {
 	// echo '<input type="submit" value=" Pay ">';
 	echo '</p>';
 	echo '</form>';
-}
-
-function fsockPost($url,$postdata) {
-	// Posts transaction data using fsockopen back to Paypal
-	// Either freeseat_paypal_ipn_handler() or paypal_pdt_check() will check the response
-	$web = parse_url($url);
-	$info = array();
-
-	if ($web["scheme"] == "https") { 		//set the port number
-		$web["port"]="443";  
-		$ssl="ssl://"; 
-	} else { 
-		$web["port"]="80";  
-		$ssl=""; 
-	}
-	$fp=@fsockopen($ssl . $web["host"],$web["port"],$errnum,$errstr,30);
-	if(!$fp) { 
-		kaboom("$errnum: $errstr at $url ");
-	} else {
-		fputs($fp, "POST ".$web["path"]." HTTP/1.1\r\n");
-		fputs($fp, "Host: ".$web["host"]."\r\n");
-		fputs($fp, "Content-type: application/x-www-form-urlencoded\r\n");
-		fputs($fp, "Content-length: ".strlen($postdata)."\r\n");
-		fputs($fp, "Connection: close\r\n\r\n");
-		fputs($fp, $postdata . "\r\n\r\n");
-		while(!feof($fp)) {    	//loop through the response from the server
-			$info[] = trim( fgets($fp, 1024) );
-		}
-		fclose($fp);  //close fp - we are done with it
-	}
-	return $info;
 }
 
 function paypal_checksession($level) {
@@ -333,6 +311,37 @@ function paypal_extend($groupid) {
 	if (!freeseat_query( $q )) sys_log(freeseat_mysql_error());
 }
 
+function fsockPost($url,$postdata) {
+	// Posts transaction data using fsockopen back to Paypal
+	// Either freeseat_paypal_ipn_handler() or paypal_pdt_check() will check the response
+	$web = parse_url($url);
+	$info = array();
+
+	if ($web["scheme"] == "https") { 		//set the port number
+		$web["port"]="443";  
+		$ssl="ssl://"; 
+	} else { 
+		$web["port"]="80";  
+		$ssl=""; 
+	}
+	$fp=@fsockopen($ssl . $web["host"],$web["port"],$errnum,$errstr,30);
+	if(!$fp) { 
+		kaboom("$errnum: $errstr at $url ");
+	} else {
+		fputs($fp, "POST ".$web["path"]." HTTP/1.1\r\n");
+		fputs($fp, "Host: ".$web["host"]."\r\n");
+		fputs($fp, "Content-type: application/x-www-form-urlencoded\r\n");
+		fputs($fp, "Content-length: ".strlen($postdata)."\r\n");
+		fputs($fp, "Connection: close\r\n\r\n");
+		fputs($fp, $postdata . "\r\n\r\n");
+		while(!feof($fp)) {    	//loop through the response from the server
+			$info[] = trim( fgets($fp, 1024) );
+		}
+		fclose($fp);  //close fp - we are done with it
+	}
+	return $info;
+}
+
 /**
  *  AJAX callback function for paypal IPN 
  */
@@ -341,7 +350,6 @@ function freeseat_ipn_listener() {
 
 	if (!isset($_REQUEST['freeseat-ipn'])) return;
 	prepare_log("ccard_ipn");
-	sys_log("paypal listener called with ".print_r($_POST,1));
 	$repost = stripslashes_deep($_POST);
 	$cmd = "cmd=_notify-validate";
 	foreach ($repost as $i=>$v) { 	//build post string
@@ -363,7 +371,6 @@ function freeseat_ipn_listener() {
 	if ($ok) {
 		$reply = fsockPost( $paypal["url"], $cmd );
 		$replystr = implode( ", ", $reply );
-		sys_log("paypal reply string = ".$replystr);
 		if ( preg_match( '/VERIFIED/i', $replystr ) )  {
 			switch ($repost["payment_status"]) {
 				case "Completed":

@@ -120,7 +120,7 @@ define( 'PAGE_FINISH',	5 );
 // rather than by global code so we have to include them
 require_once( FS_PATH . "install.php" );
 require_once( FS_PATH . "frontpage.php" );
-require_once( FS_PATH . "repr.php" );
+// require_once( FS_PATH . "repr.php" );
 require_once( FS_PATH . "seats.php" );
 require_once( FS_PATH . "pay.php" );
 require_once( FS_PATH . "confirm.php" );

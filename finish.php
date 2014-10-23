@@ -61,10 +61,9 @@ function freeseat_finish( $page_url ) {
 	
 	if (($_SESSION["payment"]==PAY_CCARD) && ($_SESSION["booking_done"]!=ST_PAID)
 		&& (get_total()>0)) {
-		// expecting credit card payment but it failed. let them try again.
-		show_head();
-		echo $lang["intro_ccard"];
-		do_hook('ccard_paymentform');
+		// expecting credit card payment but it failed
+		do_hook('finish_ccard_failure');
+		exit();
 	} else { 
 		// not a credit card sale, or coming back from credit card processor
 		$config = get_config();
