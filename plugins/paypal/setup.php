@@ -148,7 +148,7 @@ function paypal_partner() {
 function paypal_failure() {
 	global $lang;
 	show_head();
-	printf($lang["paypal_failure_page"], replace_fsp(get_permalink(), PAGE_FINISH ));
+	printf($lang["paypal_failure_page"], replace_fsp(get_permalink(), PAGE_PAY ));
 	show_foot();
 }
 
@@ -184,7 +184,12 @@ function paypal_paymentform() {
     $paypal["return"] = add_query_arg( 'freeseat-return', 'erfolg', $url );
     $vars = array( 'freeseat-ipn' => 'erfolg', 'action' => 'freeseat_ipn_action' );
     $paypal["notify_url"] = add_query_arg( $vars, admin_url('admin-ajax.php') );
-    $paypal["rm"] = "2"; 						//return method 1=GET 2=POST
+    // $paypal["rm"] = "2"; 						//return method 1=GET 2=POST
+	/* Return method. The FORM METHOD used to send data to the URL specified by the return variable.
+		Allowable values are:
+		0 – all shopping cart payments use the GET method (default)
+		1 – the buyer's browser is redirected to the return URL by using the GET method, but no payment variables are included
+		2 – the buyer's browser is redirected to the return URL by using the POST method, and all payment variables are included */
     $paypal["bn"] = "toolkit-php";
     $paypal["cmd"] = "_xclick";
 

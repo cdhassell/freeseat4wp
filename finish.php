@@ -47,7 +47,7 @@ function freeseat_finish( $page_url ) {
 	} else check_session(4); // a valid user name and payment method must exist at this point
 	
 	// did we get a payment? record it in session	
-	if (isset($_GET["freeseat-return"]) && $_GET["freeseat-return"]=="erfolg") { 
+	if (isset($_REQUEST["freeseat-return"]) && $_REQUEST["freeseat-return"]=="erfolg") { 
 		if ( $_SESSION["payment"]==PAY_CCARD) {
 			if (do_hook_exists('finish_post_booking', $_SESSION['groupid'])) {
 				$_SESSION["booking_done"] = ST_PAID;
