@@ -21,7 +21,7 @@ function freeseat_confirm( $page_url )
 	
 	// capture the user data from the pay form
 	foreach (array("firstname","lastname","phone","email","address","postalcode","city","us_state","country") as $n => $a) {
-		if (isset($_POST[$a])) $_SESSION[$a] = make_reasonable(nogpc($_POST[$a]));
+		if (isset($_POST[$a])) $_SESSION[$a] = sanitize_text_field(nogpc($_POST[$a]));
 	}
 
 	// remove any seats checked by the user for removal

@@ -25,12 +25,13 @@ function apply_fspath($path) {
   }
 }
 
-/** Replace strange chars by underscores in $s.**/
+/** Replace strange chars by underscores in $s.*
 function make_reasonable($s) {
   return just_keep($s," -+.,@0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZÀÁÃÂÄÅÆÇÈÉÊËÌÍÎÏĞÑÒÓÔÕÖ×ØÙÚÛÜİŞßàáâãäåæçèéêëìíîïğñòôõö÷øùúûüışÿ");
+
 }
 
-/** replace all chars of $x that are NOT in $ok by underscores **/
+/** replace all chars of $x that are NOT in $ok by underscores *
 function just_keep($x,$ok) {
 
   for ($p=0 ; $p<strlen($x) ; $p++ ) {
@@ -40,7 +41,7 @@ function just_keep($x,$ok) {
   }
   return $x;
   
-}
+}  */
 
 /** cancel magic quotes on the given data if needed. YAY for PHP's
     worst design decision ever. 

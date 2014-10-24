@@ -588,7 +588,7 @@ function bookinglist_setup_session( $bookings, $gid ) {
 	$nreduced = 0;
 	$_SESSION["until"] = time()+$lockingtime;
 	foreach (array("firstname","lastname","phone","email", "payment", "address", "city", "us_state", "postalcode") as $n => $a) {
-		if (isset($bookings[0][$a])) $_SESSION[$a] = make_reasonable($bookings[0][$a]);
+		if (isset($bookings[0][$a])) $_SESSION[$a] = sanitize_text_field($bookings[0][$a]);
 	}
 	foreach ($bookings as $i => $data ) {
 		$seat = $data["seat"];

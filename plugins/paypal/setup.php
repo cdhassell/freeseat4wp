@@ -212,8 +212,9 @@ function paypal_paymentform() {
 	$paypal['item_number'] = $_SESSION['groupid'];
 	$paypal['item_name'] = get_memo();		// construct memo field with summary
 	$paypal['amount'] = price_to_string(get_total());
-	$paypal['image_url'] = $ticket_logo;
-	
+	// $paypal['image_url'] = $ticket_logo;
+	sys_log("paypal return = {$paypal['return']}");
+	sys_log("paypal cancel = {$paypal['cancel_return']}");
 	// echo '<body onload="document.gopaypal.submit()">';
 	echo '<form method="post" name="gopaypal" action="'.$paypal["url"].'">';
 	// if (function_exists('wp_nonce_field')) wp_nonce_field('freeseat-paypal-paymentform');
@@ -224,7 +225,6 @@ function paypal_paymentform() {
 	}
 	echo '<p class="main">';
 	printf($lang["paybutton"],'<input type="submit" value="','">');
-	// echo '<input type="submit" value=" Pay ">';
 	echo '</p>';
 	echo '</form>';
 }
