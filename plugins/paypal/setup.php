@@ -58,10 +58,10 @@ $Id: confirm.php 279 2010-10-30 16:38:43Z tendays $
 
 */
 
-// add_action( 'init', __NAMESPACE__ . '\\freeseat_ipn_listener' );
+
 add_action( 'wp_ajax_nopriv_freeseat_ipn_action', __NAMESPACE__ . '\\freeseat_ipn_listener' );
 add_filter( 'query_vars', __NAMESPACE__ . '\\freeseat_query_vars' );
-
+add_action( 'wp_loaded', __NAMESPACE__ . '\\freeseat_paypal_return');
 
 function freeseat_query_vars($vars) {
 	// add to the valid list of variables
@@ -145,6 +145,35 @@ function paypal_partner() {
 
 }
 
+/**
+ *  Creates a page for the return jump from paypal.
+ *  This is only for regular users, the admin should never get here
+ */
+function freeseat_paypal_return() {
+	global $lang;
+	$args=array(
+		'name' => 'freeseat_paypal_return',
+		'post_type' => 'page',
+		'post_status' => 'publish',
+		'numberposts' => 1
+	);
+	if(!get_posts($args)) {
+		$content = "[freeseat-finish]";
+		$title = $lang['paypal_thanks'];
+		$post = array(
+			'ID'             => '',
+			'post_content'   => $content,
+			'post_name'      => 'freeseat_paypal_return', // The slug
+			'post_title'     => $title,
+			'post_status'    => 'publish', // or 'private' 
+			'post_type'      => 'page',
+	  		'ping_status'    => 'closed',
+			'comment_status' => 'closed',
+		);
+		wp_insert_post( $post );
+	}	
+}
+
 function paypal_failure() {
 	global $lang;
 	show_head();
@@ -173,32 +202,33 @@ function paypal_confirm_button() {
 /** Displays a button/link (a form with hidden fields from _SESSION)
 that will redirect the user to the ccard provider's payment form **/
 function paypal_paymentform() {
-	global $paypal, $lang, $paypal_account, $ticket_logo, $post;
+	global $paypal, $lang, $paypal_account, $ticket_logo;
 	
-    //Configuration Settings
-    $paypal["business"] = $paypal_account;
-    // paypal is picky about the urls passed here
-    $url = (( isset( $post ) ) ? get_permalink() : get_bloginfo('url')."?page=freeseat-admin" );
-    $url = replace_fsp( $url, PAGE_FINISH );
-    $paypal["cancel_return" ] = $url;
-    $paypal["return"] = add_query_arg( 'freeseat-return', 'erfolg', $url );
-    $vars = array( 'freeseat-ipn' => 'erfolg', 'action' => 'freeseat_ipn_action' );
-    $paypal["notify_url"] = add_query_arg( $vars, admin_url('admin-ajax.php') );
-    // $paypal["rm"] = "2"; 						//return method 1=GET 2=POST
+	//Configuration Settings
+	$paypal["business"] = $paypal_account;
+	// details will be determined by the freeseat_paypal_return() function
+	$url = home_url('/freeseat-paypal-return');
+	$paypal["cancel_return" ] = $url;
+	$paypal["return"] = $url;
+	
+	$vars = array( 'freeseat-ipn' => 'erfolg', 'action' => 'freeseat_ipn_action' );
+	$paypal["notify_url"] = add_query_arg( $vars, admin_url('admin-ajax.php') );
+	$paypal["custom"] = $_SESSION['groupid'];
+	$paypal["rm"] = "2"; 						//return method 1=GET 2=POST
 	/* Return method. The FORM METHOD used to send data to the URL specified by the return variable.
 		Allowable values are:
 		0 – all shopping cart payments use the GET method (default)
 		1 – the buyer's browser is redirected to the return URL by using the GET method, but no payment variables are included
 		2 – the buyer's browser is redirected to the return URL by using the POST method, and all payment variables are included */
-    $paypal["bn"] = "toolkit-php";
-    $paypal["cmd"] = "_xclick";
+	$paypal["bn"] = "toolkit-php";
+	$paypal["cmd"] = "_xclick";
 
-    //Payment Page Settings
-    $paypal["no_note"]="1"; 					//display comments 0=yes 1=no
-    $paypal["cn"]="";							//comment header
-    $paypal["cbt"]=$lang['paypal_button_text'];	//continue button text
-    $paypal["cs"]=""; 							//background colour ""=white 1=black
-    $paypal["no_shipping"]="1";					//display shipping address ""=yes 1=no
+	//Payment Page Settings
+	$paypal["no_note"]="1"; 					//display comments 0=yes 1=no
+	$paypal["cn"]="";							//comment header
+	$paypal["cbt"]=$lang['paypal_button_text'];	//continue button text
+	$paypal["cs"]=""; 							//background colour ""=white 1=black
+	$paypal["no_shipping"]="1";					//display shipping address ""=yes 1=no
 
 	// fill in paypal variables
 	$paypal['first_name'] = $_SESSION['firstname'];

@@ -17,15 +17,25 @@ function freeseat_finish( $page_url ) {
 	global $lang, $messages, $sh, $auto_mail_signature, $smtp_sender, $admin_mail;
 	prepare_log((admin_mode()?"admin":"user")." buying from ".$_SERVER["REMOTE_ADDR"]);
 	
+	if (isset($_REQUEST['custom']) && (!isset($_SESSION['showid']))) {
+		// we are returning from the credit card site and lost the session
+		// try to retrieve the data from the DB
+		$groupid = $_REQUEST['custom'];
+		$sql = "SELECT id FROM booking WHERE groupid=$groupid OR id=$groupid";
+		$bookings = fetch_all($sql);
+		bookinglist_setup_session( $bookings, $groupid );
+	}
+	
 	$sh = get_show($_SESSION["showid"]);
 	$spec = get_spectacle($sh["spectacleid"]);
 
 	if ((!isset($_SESSION["booking_done"])) || ($_SESSION["booking_done"]===false)) {
+		// first trip through finish.php
 		$_SESSION["groupid"] = 0;
 		do_hook('confirm_process'); // process any extra parameters from confirm.php
 		check_session(4,true); 
 		foreach ($_SESSION["seats"] as $n => $s) {
-			/* $_GET["panic"] is for debugging purposes */
+			// book each seat here with status ST_BOOKED
 			if (($bookid = book($_SESSION,$s))===false) { // || $_GET["panic"]=="NOW") {
 				// booking failed so send message to admin and bail
 				$body = " \$_SESSION = \n".print_r($_SESSION,true)." \$messages = \n";
@@ -44,23 +54,19 @@ function freeseat_finish( $page_url ) {
 			}
 		}
 		$_SESSION["booking_done"] = ST_BOOKED;
-	} else check_session(4); // a valid user name and payment method must exist at this point
-	
-	// did we get a payment? record it in session	
-	if (isset($_REQUEST["freeseat-return"]) && $_REQUEST["freeseat-return"]=="erfolg") { 
+	} else {
 		if ( $_SESSION["payment"]==PAY_CCARD) {
-			if (do_hook_exists('finish_post_booking', $_SESSION['groupid'])) {
-				$_SESSION["booking_done"] = ST_PAID;
-			} else {
-				kaboom(sprintf($lang["err_ccard_user"],$smtp_sender));
-			}
+			// returning from credit card site, check for payment
+			$sql = "SELECT count(numxkp) FROM ccard_transactions WHERE groupid=$groupid";	
+			if (m_eval($sql)) $_SESSION['booking_done'] = ST_PAID;
+			// else kaboom(sprintf($lang["err_ccard_user"],$smtp_sender));
+			check_session(4); // a valid user name and payment method must exist at this point
 		} else {
 			$_SESSION["booking_done"] = ST_PAID;
 		}
 	}
-	
-	if (($_SESSION["payment"]==PAY_CCARD) && ($_SESSION["booking_done"]!=ST_PAID)
-		&& (get_total()>0)) {
+		
+	if (($_SESSION["payment"]==PAY_CCARD) && ($_SESSION["booking_done"]!=ST_PAID) && (get_total()>0)) {
 		// expecting credit card payment but it failed
 		do_hook('finish_ccard_failure');
 		exit();

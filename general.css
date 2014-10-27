@@ -431,6 +431,7 @@ div.highlight {
 	-moz-border-radius: 5px;
 	border-radius: 5px;
 	border: 1px solid #AAAAAA;
+	max-width: 600px;
 } 
 
 #freeseat-narrow div.paymentblock {

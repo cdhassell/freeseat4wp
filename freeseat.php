@@ -69,6 +69,7 @@ add_action( 'plugins_loaded', __NAMESPACE__ . '\\freeseat_update_db_check' );
 add_shortcode( 'freeseat-shows', __NAMESPACE__ . '\\freeseat_front' );
 add_shortcode( 'freeseat-single', __NAMESPACE__ . '\\freeseat_single' );
 add_shortcode( 'freeseat-direct', __NAMESPACE__ . '\\freeseat_direct' );
+add_shortcode( 'freeseat-finish', __NAMESPACE__ . '\\freeseat_return' );
 add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\\freeseat_user_styles' );
 add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\\freeseat_admin_styles' );
 
@@ -235,6 +236,20 @@ function freeseat_admin_menu() {
 	add_submenu_page( 'freeseat-admin', 'Seatmaps', 'Seatmaps', 'manage_freeseat', 'freeseat-upload', __NAMESPACE__ . '\\freeseat_upload' );
 	// add_options_page( $page_title, $menu_title, $capability, $menu_slug, $function);
 	add_options_page('Settings', 'FreeSeat', 'administer_freeseat', 'freeseat-system', __NAMESPACE__ . '\\freeseat_params');
+}
+
+/*
+ *  Handler for the shortcode call freeseat-finish
+ *  Must return output rather than echo it
+ */
+function freeseat_return( $atts ) {
+	extract( shortcode_atts( array(
+		'groupid'  => '0',
+	), $atts ) );
+	ob_start();
+	$_SESSION['groupid'] = $groupid;
+	freeseat_switch('5');
+	return ob_get_clean();
 }
 
 /*
