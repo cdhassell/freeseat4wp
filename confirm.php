@@ -132,7 +132,6 @@ function freeseat_confirm( $page_url )
 	// let's check that the user actually owes us something
 	if ( $_SESSION[ "payment" ] == PAY_CCARD && get_total() > 0 ) {
 		echo '<h2>'.$lang["make_payment"].'</h2>';
-		echo '<p class="emph">' . $lang['paypal_lastchance'] . '</p>';
 		do_hook( 'ccard_confirm_button' );
 	} else {
 		echo '<input class="button button-primary" type="submit" value="'.$lang["book_submit"].'">';

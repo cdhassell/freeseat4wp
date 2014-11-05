@@ -61,7 +61,8 @@ $Id: confirm.php 279 2010-10-30 16:38:43Z tendays $
 
 add_action( 'wp_ajax_nopriv_freeseat_ipn_action', __NAMESPACE__ . '\\freeseat_ipn_listener' );
 add_filter( 'query_vars', __NAMESPACE__ . '\\freeseat_query_vars' );
-add_action( 'wp_loaded', __NAMESPACE__ . '\\freeseat_paypal_return');
+// add_action( 'wp_loaded', __NAMESPACE__ . '\\freeseat_paypal_return' );
+
 
 function freeseat_query_vars($vars) {
 	// add to the valid list of variables
@@ -91,6 +92,7 @@ function freeseat_plugin_init_paypal() {
 		"https://www.paypal.com/cgi-bin/webscr"				// for the real thing
 	);
 	$paypal["business"] = $paypal_account;
+	// freeseat_paypal_return();
 }
 
 function paypal_true($void) {
@@ -145,35 +147,6 @@ function paypal_partner() {
 
 }
 
-/**
- *  Creates a page for the return jump from paypal.
- *  This is only for regular users, the admin should never get here
- */
-function freeseat_paypal_return() {
-	global $lang;
-	$args=array(
-		'name' => 'freeseat_paypal_return',
-		'post_type' => 'page',
-		'post_status' => 'publish',
-		'numberposts' => 1
-	);
-	if(!get_posts($args)) {
-		$content = "[freeseat-finish]";
-		$title = $lang['paypal_thanks'];
-		$post = array(
-			'ID'             => '',
-			'post_content'   => $content,
-			'post_name'      => 'freeseat_paypal_return', // The slug
-			'post_title'     => $title,
-			'post_status'    => 'publish', // or 'private' 
-			'post_type'      => 'page',
-	  		'ping_status'    => 'closed',
-			'comment_status' => 'closed',
-		);
-		wp_insert_post( $post );
-	}	
-}
-
 function paypal_failure() {
 	global $lang;
 	show_head();
@@ -196,6 +169,8 @@ function get_memo() {
 
 /* print the submit (or image) button to be displayed in confirm.php */
 function paypal_confirm_button() {
+	global $lang;
+	echo '<p class="emph">' . $lang['paypal_lastchance'] . '</p>';
     echo '<div align="center"><input type="image" src="'.plugins_url("express-checkout-hero.png", __FILE__).'" border="0" name="submit" alt="Make payments with PayPal - it\'s fast, free and secure!"></div>';
 }
 
@@ -207,7 +182,7 @@ function paypal_paymentform() {
 	//Configuration Settings
 	$paypal["business"] = $paypal_account;
 	// details will be determined by the freeseat_paypal_return() function
-	$url = home_url('/freeseat-paypal-return');
+	$url = home_url('/?page=freeseat-paypal-return');
 	$paypal["cancel_return" ] = $url;
 	$paypal["return"] = $url;
 	
@@ -311,7 +286,7 @@ function paypal_pdt_check($groupid) {
 		}
 		if ($success) {
 			$amount = string_to_price($keyarray["mc_gross"]);
-			$transid  = $tx_token;  // FIXME are these the same?? nogpc($keyarray["txn_id"]);
+			$transid  = nogpc($keyarray["txn_id"]);
 			if ((strcmp("Completed",$keyarray["payment_status"]) == 0) &&
 				strcmp($keyarray["receiver_email"],$paypal["business"]) == 0) {
 				$ok = process_ccard_transaction( $groupid, $transid, $amount );

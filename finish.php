@@ -17,14 +17,14 @@ function freeseat_finish( $page_url ) {
 	global $lang, $messages, $sh, $auto_mail_signature, $smtp_sender, $admin_mail;
 	prepare_log((admin_mode()?"admin":"user")." buying from ".$_SERVER["REMOTE_ADDR"]);
 	
-	if (isset($_REQUEST['custom']) && (!isset($_SESSION['showid']))) {
+	/* if (isset($_REQUEST['custom']) && (!isset($_SESSION['showid']))) {
 		// we are returning from the credit card site and lost the session
 		// try to retrieve the data from the DB
 		$groupid = $_REQUEST['custom'];
 		$sql = "SELECT id FROM booking WHERE groupid=$groupid OR id=$groupid";
 		$bookings = fetch_all($sql);
 		bookinglist_setup_session( $bookings, $groupid );
-	}
+	} */
 	
 	$sh = get_show($_SESSION["showid"]);
 	$spec = get_spectacle($sh["spectacleid"]);
@@ -54,6 +54,7 @@ function freeseat_finish( $page_url ) {
 			}
 		}
 		$_SESSION["booking_done"] = ST_BOOKED;
+		if (do_hook_function('finish_ccard')) $_SESSION["booking_done"] = ST_PAID;
 	} else {
 		if ( $_SESSION["payment"]==PAY_CCARD) {
 			// returning from credit card site, check for payment
