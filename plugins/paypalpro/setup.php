@@ -17,10 +17,15 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-add_action('paypal-ipn', __NAMESPACE__ . '\\freeseat_ipn');
-add_action('paypal-web_accept', __NAMESPACE__ . '\\freeseat_web_accept');
-add_action('paypal-express_checkout', __NAMESPACE__ . '\\freeseat_express_checkout');
+add_action( 'paypal-ipn', __NAMESPACE__ . '\\freeseat_ipn');
+add_action( 'template_redirect', __NAMESPACE__ . '\\freeseat_express_checkout' );
+add_filter( 'query_vars', __NAMESPACE__ . '\\freeseat_express_checkout_query' );
 
+
+function freeseat_express_checkout_query($vars) {
+	$vars[] = 'freeseat-return';
+	return $vars;
+}
 
 function freeseat_ipn( $repost ) {
 	// $repost is the $_POST response from IPN 
@@ -30,47 +35,52 @@ function freeseat_ipn( $repost ) {
 		$groupid = (int)($repost["item_number"]);
 		if (isset($repost["txn_id"]) && (strlen($repost["txn_id"])==17)) {
 		    $transid = $repost["txn_id"]; 
-			if (isset($repost["mc_gross"]))  {
+			if (isset($repost["mc_gross"])) {
 				$amount = string_to_price($repost["mc_gross"]);
 				$ok = TRUE;
 			}
 		}
 	}
 	if ($ok) {
-		$replystr = implode( ", ", $repost );
-		if ( preg_match( '/VERIFIED/i', $replystr ) ) {
-			switch ($repost["payment_status"]) {
-				case "Completed":
-					// ok
-					$success = process_ccard_transaction($groupid,$transid,$amount);
-					break;
-				case "Pending": 
-					// ok but status is pending, don't record it yet
-					sys_log("Paypal IPN verified with status Pending GID=$groupid Amt=$unsafeamount ");
-					paypal_extend( $groupid );
-					break;
-				default: 
-					// wtf?
-					sys_log("Paypal IPN verified but bad status GID=$groupid Status = ".$repost["payment_status"]);
-			}
-		} else {
-			// payment failed
-			sys_log(sprintf($lang["err_scriptauth"],'Paypal IPN')." Reply: ".$replystr);
+		switch ($repost["payment_status"]) {
+			case "Completed":
+				// ok
+				$success = process_ccard_transaction($groupid,$transid,$amount);
+				break;
+			case "Pending": 
+				// ok but status is pending, don't record it yet
+				sys_log("Paypal IPN verified with status Pending GID=$groupid Amt=$unsafeamount ");
+				paypal_extend( $groupid );
+				break;
+			default: 
+				// wtf?
+				sys_log("Paypal IPN verified but bad status GID=$groupid Status = ".$repost["payment_status"]);
 		}
 	}
 	log_done();	
 }
 
-function freeseat_web_accept( $data ) {
-	// $data is the $_POST response from IPN after PP Direct
-	
-}
-
 function freeseat_express_checkout( $data ) {
-	// $data is the $_POST response from IPN after PP Express
-
+	global $lang;
+	// check to see if we are returning from paypal on express checkout
+	$qv = get_query_var( 'freeseat-return' );
+	if ( empty($qv) ) return;
+	switch ( $qv ) {
+		case 1:
+			// payment successful
+			
+			break;
+		case 2:
+			// user cancelled payment
+			show_head();
+			printf($lang["paypalpro_failure_page"], replace_fsp(get_permalink(), PAGE_PAY ));
+			show_foot();
+			break;
+		default:
+			// wtf?
+			sys_log("Express checkout return value unknown: ".$qv);
+	}
 }
-
 
 function freeseat_plugin_init_paypalpro() {
     global $freeseat_plugin_hooks;
@@ -197,21 +207,9 @@ function paypalpro_process() {
 	$_SESSION['paypalpro_exp'] = $_SESSION['paypalpro_expmonth'].$_SESSION['paypalpro_expyear'];
 }
 
-/*
-USER=<callerID>                         # User ID of the PayPal caller account
-&PWD=<callerPswd>                        # Password of the caller account
-&SIGNATURE=<callerSig>                   # Signature of the caller account
-&METHOD=SetExpressCheckout
-&VERSION=93
-&PAYMENTREQUEST_0_PAYMENTACTION=SALE     # type of payment
-&PAYMENTREQUEST_0_AMT=19.95              # amount of transaction
-&PAYMENTREQUEST_0_CURRENCYCODE=USD       # currency of transaction
-&RETURNURL=http://www.example.com/success.html  # URL of your payment confirmation page
-&CANCELURL=http://www.example.com/cancel.html"  # URL redirect if customer cancels payment
-*/
-
 function paypalpro_paymentform() {
 	global $lang;
+
 	$ppParams = array(
 		'METHOD'		=> 'SetExpressCheckout',
 		'DESC'			=> paypalpro_get_memo(),
@@ -225,16 +223,24 @@ function paypalpro_paymentform() {
 		'ZIP'			=> $_SESSION['postalcode'],
 		'COUNTRYCODE'	=> $_SESSION['country'],
 		'INVNUM'		=> $_SESSION['groupid'],
-		'RETURNURL'		=> home_url('/?page=freeseat-paypal-return'),
-		'CANCELURL'		=> home_url('/?page=freeseat-paypal-return'),
+		'RETURNURL'		=> add_query_arg( array( 'freeseat-return' => 1 ), get_permalink() ),
+		'CANCELURL'		=> add_query_arg( array( 'freeseat-return' => 2 ), get_permalink() ),
 		'PAYMENTREQUEST_0_AMT' => price_to_string(get_total()),
 		'PAYMENTREQUEST_0_CURRENCYCODE' => $lang['paypalpro_currency'],
 		'PAYMENTREQUEST_0_PAYMENTACTION' => 'Sale',
+		'VERSION'		=> '109.0',
 	);
-	$wpPayPalFramework -> sendToExpressCheckout($ppParams);
+	$response = hashCall($ppParams);
+	if (isset($response['ACK']) && $response['ACK']=='Success') {
+		$token = array( 'token' => $response['token'] );
+		$wpPayPalFramework -> sendToExpressCheckout($token);
+	} else {
+		return $response;
+	} 
 }
 
 function paypalpro_call() {
+	global $lang;
 	$ppParams = array(
 		'METHOD'		=> 'doDirectPayment',
 		'PAYMENTACTION'	=> 'Sale',
@@ -255,6 +261,7 @@ function paypalpro_call() {
 		'ZIP'			=> $_SESSION['postalcode'],
 		'COUNTRYCODE'	=> $_SESSION['country'],
 		'INVNUM'		=> $_SESSION['groupid'],
+		'CURRENCYCODE'	=> $lang['paypalpro_currency'],
 	);
 	$response = hashCall($ppParams);
 	/*  expecting a response like this
@@ -436,7 +443,7 @@ class wpPayPalFramework
 			'password-live'		=> get_config("paypalpro_password"),
 			'signature-live'	=> get_config("paypalpro_signature"),
 			'version'			=> '58.0',
-			'currency'			=> $lang['paypalpro_currency'],
+			'currency'			=> '',
 			'debugging'			=> 'on',
 			'debugging_email'	=> '',
 			'legacy_support'	=> 'off',
@@ -476,7 +483,7 @@ class wpPayPalFramework
 			'USER'			=> $this->_settings["username-{$this->_settings['sandbox']}"],
 			'SIGNATURE'		=> $this->_settings["signature-{$this->_settings['sandbox']}"],
 			'CURRENCYCODE'	=> $this->_settings['currency'],
-			'NOTIFYURL'		=> add_query_arg( $vars, admin_url('admin-ajax.php') );
+			'NOTIFYURL'		=> add_query_arg( $vars, admin_url('admin-ajax.php') ),
 		);
 		return wp_parse_args( $req, $defaults );
 	}

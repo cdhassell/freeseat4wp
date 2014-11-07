@@ -14,4 +14,7 @@ $lang["paypalpro_message"] = "If you have a PayPal account, you can click the Pa
 $lang["paypalpro_nameoncard"] = 'Name On Card:  ';
 $lang["paypalpro_title"] = 'Credit Card Information';
 $lang["paypalpro_err"] = 'Please fill in all of the requested information';
-
+$lang["paypalpro_failure_page"] = "<h3>We're sorry, but your payment was not completed.</h3>
+<p class='main'>You may try again, or contact the office for assistance.</p>
+<p class='main'>Thank you for your patience.</p><br>
+<a href='%s'>Click here to try again</a>"; 
