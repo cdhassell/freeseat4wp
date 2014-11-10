@@ -31,7 +31,7 @@ function freeseat_plugin_init_paypalpro() {
 	$freeseat_plugin_hooks['ccard_exists']['paypalpro'] = 'paypalpro_true';
 	$freeseat_plugin_hooks['ccard_confirm_button']['paypalpro'] = 'paypalpro_form';
 	// $freeseat_plugin_hooks['check_session']['paypalpro'] = 'paypalpro_checksession';
-	$freeseat_plugin_hooks['ccard_paymentform']['paypal'] = 'paypalpro_sendtoexpress';
+	$freeseat_plugin_hooks['ccard_paymentform']['paypalpro'] = 'paypalpro_sendtoexpress';
 	
 	$freeseat_plugin_hooks['confirm_process']['paypalpro'] = 'paypalpro_process'; 
 	$freeseat_plugin_hooks['finish_ccard']['paypalpro'] = 'paypalpro_calldirect'; 
@@ -82,114 +82,42 @@ function freeseat_ipn( $repost ) {
 	log_done();	
 }
 
-function getset($name) {
-/*	
-		$defaults = array(
-			'sandbox'			=> get_config("paypalpro_sandbox") ? "sandbox" : "live",
-			'username-sandbox'	=> get_config("paypalpro_sandbox_username"),
-			'password-sandbox'	=> get_config("paypalpro_sandbox_password"),
-			'signature-sandbox'	=> get_config("paypalpro_sandbox_signature"),
-			'username-live'		=> get_config("paypalpro_username"),
-			'password-live'		=> get_config("paypalpro_password"),
-			'signature-live'	=> get_config("paypalpro_signature"),
-			'version'			=> '58.0',
-			'currency'			=> '',
-			'debugging'			=> 'on',
-			'debugging_email'	=> '',
-			'legacy_support'	=> 'off',
-		);
- */
-	$s = $wpPayPalFramework->getSetting( 'sandbox' ); 
-	return $wpPayPalFramework->getSetting( $name.$s );
-}
-
 function freeseat_express_checkout( $data ) {
 	global $lang;
 	// check to see if we are returning from paypal on express checkout
+	// go through all of the steps to confirm the payment in this function
 	$qv = get_query_var( 'freeseat-return' );
 	if ( empty($qv) ) return;
 	switch ( $qv ) {
 		case 1:
 			// payment successful
-			$token = urldecode($_GET['token']);
-			$payerid = urldecode($_GET['PayerID']);
-			$args = array( 'token' => $token, 'PayerID' => $payerid, 'METHOD' => "GetExpressCheckoutDetails" );
-			show_head();
-			?>
-			<h2><?php echo $lang[ "confirmation" ]; ?></h2>
-			<p class="main"><?php echo $lang[ "intro_confirm" ]; ?></p>	
-			<?php echo print_booked_seats(null,FMT_PRICE|FMT_SHOWINFO); ?> 
-			
-			<div class="user-info"><?php echo $lang['paypalpro_confirm']; ?>
-				<?php if (sendMessage($args))  ?>
-				<!-- form method="post" action="https://api-3t.sandbox.paypal.com/nvp" >
-					<input type="hidden" name="USER" value="<?php echo getset("username-"); ?>">
-					<input type="hidden" name="PWD" value="<?php echo getset("password-"); ?>">
-					<input type="hidden" name="SIGNATURE" value="<?php echo getset("signature-"); ?>">
-					<input type="hidden" name="VERSION" value="109.0">
-					<input type="hidden" name="TOKEN" value="<?php echo $token; ?>">
-					<input type="submit" class="button button-primary" name="METHOD" value=>
-				</form -->
-			</div>
-			<?php show_foot();
-			
-			/*
-			
-			
-			TIMESTAMP=2007%2d04%2d05T23%3a44%3a11Z
-			&CORRELATIONID=6b174e9bac3b3
-			&ACK=Success
-			&VERSION=XX%2e000000
-			&BUILD=1%2e0006
-			&TOKEN=EC%2d1NK66318YB717835M
-			&EMAIL=YourSandboxBuyerAccountEmail
-			&PAYERID=7AKUSARZ7SAT8
-			&PAYERSTATUS=verified
-			&FIRSTNAME=...
-			&LASTNAME=...
-			&COUNTRYCODE=US
-			&BUSINESS=...
-			&PAYMENTREQUEST_0_SHIPTONAME=...
-			&PAYMENTREQUEST_0_SHIPTOSTREET=...
-			&PAYMENTREQUEST_0_SHIPTOCITY=...
-			&PAYMENTREQUEST_0_SHIPTOSTATE=CA
-			&PAYMENTREQUEST_0_SHIPTOCOUNTRYCODE=US
-			&PAYMENTREQUEST_0_SHIPTOCOUNTRYNAME=United%20States
-			&PAYMENTREQUEST_0_SHIPTOZIP=94666
-			&PAYMENTREQUEST_0_ADDRESSID=...
-			&PAYMENTREQUEST_0_ADDRESSSTATUS=Confirmed
-				
-			<form method=post action=https://api-3t.sandbox.paypal.com/nvp>
-				<input type=hidden name=USER value=API_username>
-				<input type=hidden name=PWD value=API_password>
-				<input type=hidden name=SIGNATURE value=API_signature>
-				<input type=hidden name=VERSION value=XX.0>
-				<input type=hidden name=PAYMENTREQUEST_0_PAYMENTACTION
-					value=Sale>
-				<input type=hidden name=PAYERID value=7AKUSARZ7SAT8>
-				<input type=hidden name=TOKEN value= EC%2d1NK66318YB717835M>
-				<input type=hidden name=PAYMENTREQUEST_0_AMT value= 19.95>
-				<input type=submit name=METHOD value=DoExpressCheckoutPayment>
-			</form>
-			
-			TIMESTAMP=2007%2d04%2d05T23%3a30%3a16Z
-			&CORRELATIONID=333fb808bb23
-			ACK=Success
-			&VERSION=XX%2e000000
-			&BUILD=1%2e0006
-			&TOKEN=EC%2d1NK66318YB717835M
-			&PAYMENTREQUEST_0_TRANSACTIONID=043144440L487742J
-			&PAYMENTREQUEST_0_TRANSACTIONTYPE=expresscheckout
-			&PAYMENTREQUEST_0_PAYMENTTYPE=instant
-			&PAYMENTREQUEST_0_ORDERTIME=2007%2d04%2d05T23%3a30%3a14Z
-			&PAYMENTREQUEST_0_AMT=19%2e95
-			&PAYMENTREQUEST_0_CURRENCYCODE=USD
-			&PAYMENTREQUEST_0_TAXAMT=0%2e00
-			&PAYMENTREQUEST_0_PAYMENTSTATUS=Pending
-			&PAYMENTREQUEST_0_PENDINGREASON=authorization
-			&PAYMENTREQUEST_0_REASONCODE=None
-				
-			*/
+			$token = urldecode(get_query_var('TOKEN'));
+			$version = urldecode(get_query_var('VERSION'));
+			$postid = urldecode(get_query_var('CUSTOM'));
+			$args = array( 
+				'TOKEN' => $token, 
+				'PAYERID' => $payerid, 
+				'VERSION' => $version,
+				'METHOD' => "GetExpressCheckoutDetails",
+			);
+			if (sendMessage($args) && preg_match("/Success/i", urldecode(get_query_var('ACK')))) {
+				$groupid = urldecode(get_query_var('INVNUM'));
+				$args['METHOD'] = 'DoExpressCheckoutPayment';
+				$args['PAYMENTREQUEST_0_PAYMENTACTION'] = 'Sale';
+				$args['PAYMENTREQUEST_0_AMT'] = price_to_string(get_total());
+				if (sendMessage($args) && preg_match("/Success/i", urldecode(get_query_var('ACK')))) {
+					$status = urldecode(get_query_arg('PAYMENTREQUEST_0_PAYMENTSTATUS'));
+					$amount = urldecode(get_query_arg('PAYMENTREQUEST_0_AMT'));
+					$transid = urldecode(get_query_arg('PAYMENTREQUEST_0_TRANSACTIONID'));
+					// FIXME  now what?  we need a post or page to land on
+					wp_redirect(home_url("/?p=$postid&fsp=5"));
+					exit();
+				} else {
+					sys_log("DoExpressCheckoutPayment failed");
+				}
+			} else {
+				sys_log("GetExpressCheckoutDetails failed");	 
+			}
 			break;
 		case 2:
 			// user cancelled payment
@@ -199,13 +127,84 @@ function freeseat_express_checkout( $data ) {
 			// wtf?
 			sys_log("Express checkout return value unknown: ".$qv);
 	}
+	paypalpro_cancel();
 }
+
+/*  For Express Checkout                   
+Send after returning from paypal:
+<form method=post action=https://api-3t.sandbox.paypal.com/nvp
+	<input type=hidden name=USER value=API_username>
+	<input type=hidden name=PWD value=API_password>
+	<input type=hidden name=SIGNATURE value=API_signature>
+	<input type=hidden name=VERSION value=XX.0>
+	<input name=TOKEN value=EC-1NK66318YB717835M>
+	<input type=submit name=METHOD value=GetExpressCheckoutDetails>
+</form>
+
+Expect response like:
+TIMESTAMP=2007%2d04%2d05T23%3a44%3a11Z
+&CORRELATIONID=6b174e9bac3b3
+&ACK=Success
+&VERSION=XX%2e000000
+&BUILD=1%2e0006
+&TOKEN=EC%2d1NK66318YB717835M
+&EMAIL=YourSandboxBuyerAccountEmail
+&PAYERID=7AKUSARZ7SAT8
+&PAYERSTATUS=verified
+&FIRSTNAME=...
+&LASTNAME=...
+&COUNTRYCODE=US
+&BUSINESS=...
+&PAYMENTREQUEST_0_SHIPTONAME=...
+&PAYMENTREQUEST_0_SHIPTOSTREET=...
+&PAYMENTREQUEST_0_SHIPTOCITY=...
+&PAYMENTREQUEST_0_SHIPTOSTATE=CA
+&PAYMENTREQUEST_0_SHIPTOCOUNTRYCODE=US
+&PAYMENTREQUEST_0_SHIPTOCOUNTRYNAME=United%20States
+&PAYMENTREQUEST_0_SHIPTOZIP=94666
+&PAYMENTREQUEST_0_ADDRESSID=...
+&PAYMENTREQUEST_0_ADDRESSSTATUS=Confirmed
+	
+Send to finish payment:
+<form method=post action=https://api-3t.sandbox.paypal.com/nvp>
+	<input type=hidden name=USER value=API_username>
+	<input type=hidden name=PWD value=API_password>
+	<input type=hidden name=SIGNATURE value=API_signature>
+	<input type=hidden name=VERSION value=XX.0>
+	<input type=hidden name=PAYMENTREQUEST_0_PAYMENTACTION
+		value=Sale>
+	<input type=hidden name=PAYERID value=7AKUSARZ7SAT8>
+	<input type=hidden name=TOKEN value= EC%2d1NK66318YB717835M>
+	<input type=hidden name=PAYMENTREQUEST_0_AMT value= 19.95>
+	<input type=submit name=METHOD value=DoExpressCheckoutPayment>
+</form>
+
+Receive confirmation:
+TIMESTAMP=2007%2d04%2d05T23%3a30%3a16Z
+&CORRELATIONID=333fb808bb23
+ACK=Success
+&VERSION=XX%2e000000
+&BUILD=1%2e0006
+&TOKEN=EC%2d1NK66318YB717835M
+&PAYMENTREQUEST_0_TRANSACTIONID=043144440L487742J
+&PAYMENTREQUEST_0_TRANSACTIONTYPE=expresscheckout
+&PAYMENTREQUEST_0_PAYMENTTYPE=instant
+&PAYMENTREQUEST_0_ORDERTIME=2007%2d04%2d05T23%3a30%3a14Z
+&PAYMENTREQUEST_0_AMT=19%2e95
+&PAYMENTREQUEST_0_CURRENCYCODE=USD
+&PAYMENTREQUEST_0_TAXAMT=0%2e00
+&PAYMENTREQUEST_0_PAYMENTSTATUS=Pending
+&PAYMENTREQUEST_0_PENDINGREASON=authorization
+&PAYMENTREQUEST_0_REASONCODE=None
+	
+*/
 
 function paypalpro_cancel() {
 	global $lang;
 	show_head();
 	printf($lang["paypalpro_failure_page"], replace_fsp(get_permalink(), PAGE_PAY ));
 	show_foot();
+	exit();
 }
 
 /** 
@@ -224,7 +223,6 @@ function paypalpro_form() {
 		$months[(string)($i+1)] = "$mstr - ". date('M', mktime(0,0,0,$i+1,date('j'),date('Y')));
 		$years["$y"]  = "$y";
 	}
-	
 	?>
 		<p class="main">
 			<?php echo $lang['paypalpro_message']; ?>
@@ -305,11 +303,13 @@ function paypalpro_sendtoexpress() {
 		'PAYMENTREQUEST_0_CURRENCYCODE' => $lang['paypalpro_currency'],
 		'PAYMENTREQUEST_0_PAYMENTACTION' => 'Sale',
 		'VERSION'		=> '109.0',
+		'LOGOIMG'		=> '', 
+		'CUSTOM'		=> get_the_ID(), // store the post ID to come back to
 	);
 	$response = hashCall($ppParams);
-	if (isset($response['ACK']) && $response['ACK']=='Success') {
+	if (isset($response['ACK']) && preg_match("/Success/i", $response['ACK'])) {
 		$token = array( 'token' => $response['token'] );
-		$wpPayPalFramework -> sendToExpressCheckout($token);
+		$wpPayPalFramework->sendToExpressCheckout($token);
 	} else {
 		return $response;
 	} 
@@ -345,7 +345,7 @@ function paypalpro_calldirect() {
 	&TRANSACTIONID=61K41112Y6568602S
 	&TIMESTAMP=2011-08-11T00:14:22Z&CORRELATIONID=1e931819365cfVERSION=78&BUILD=2031893&AMT=5.00
 	*/
-	if (isset($response['ACK']) && $response['ACK']=='Success') {
+	if (isset($response['ACK']) && preg_match("/Success/i", $response['ACK'])) {
 		return TRUE;
 	}
 	return FALSE;
@@ -484,8 +484,7 @@ function paypalpro_cleanup() {
 }
 
 
-class wpPayPalFramework
-{
+class wpPayPalFramework {
 	private $_settings;
 	static  $instance = false;
 	private $_optionsName = 'paypal-framework';
@@ -603,6 +602,10 @@ class wpPayPalFramework
 		return http_build_query( $reqArray, '', $sep );
 	}
 
+	public function getEndpoint() {
+		return $this->_endpoint[$this->_settings['sandbox']];
+	}
+	
 	/**
 	 * hashCall: Function to perform the API call to PayPal using API signature
 	 * @param string|array $args Parameters needed for call
@@ -724,11 +727,11 @@ class wpPayPalFramework
 		$resp = wp_remote_post( $this->_url[$this->_settings['sandbox']], $params );
 		// If the response was valid, check to see if the request was valid
 		if ( !is_wp_error($resp) && $resp['response']['code'] >= 200 && $resp['response']['code'] < 300 && (strcmp( $resp['body'], "Success") == 0)) {
-			$this->_debug_mail( __( 'IPN Listener Test - Validation Succeeded', 'paypal-framework' ), $message );
+			$this->_debug_mail( __( 'Paypal Validation Succeeded', 'paypal-framework' ), $message );
 			return true;
 		} else {
 			// If we can't validate the message, assume it's bad
-			$this->_debug_mail( __( 'IPN Listener Test - Validation Failed', 'paypal-framework' ), $message );
+			$this->_debug_mail( __( 'Paypal Validation Failed', 'paypal-framework' ), $message );
 			return false;
 		}
 	}

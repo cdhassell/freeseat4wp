@@ -18,5 +18,6 @@ $lang["paypalpro_failure_page"] = "<h3>We're sorry, but your payment was not com
 <p class='main'>You may try again, or contact the office for assistance.</p>
 <p class='main'>Thank you for your patience.</p><br>
 <a href='%s'>Click here to try again</a>"; 
-$lang["paypalpro_confirm"] = 'Please confirm your purchase by clicking Confirm';
+$lang["paypalpro_confirm"] = 'Please confirm your purchase by clicking below';
+$lang["paypalpro_makepayment"] = 'Make Payment';
 
