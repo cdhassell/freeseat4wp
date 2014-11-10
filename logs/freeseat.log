@@ -1,0 +1,411 @@
+Sun 12 Oct 2014 03:33 PM : cronjob : delete from seat_locks where until < 1413127989
+delete from booking where state=5 and firstname='Disabled' and lastname='Seat'
+
+Deleting state=3 and '2014-10-09 15:33:09' > timestamp and payment=1
+Deleting state=3 and '2014-10-07 15:33:09' > timestamp and payment=2
+Shaking state=2 and '2014-10-10 15:33:09' > timestamp and payment=1
+Shaking state=2 and '2014-10-09 15:33:09' > timestamp and payment=2
+Done.
+Mon 13 Oct 2014 09:46 AM : cronjob : delete from seat_locks where until < 1413193619
+delete from booking where state=5 and firstname='Disabled' and lastname='Seat'
+
+Deleting state=3 and '2014-10-10 09:46:59' > timestamp and payment=1
+Deleting state=3 and '2014-10-08 09:46:59' > timestamp and payment=2
+Shaking state=2 and '2014-10-11 09:46:59' > timestamp and payment=1
+Shaking state=2 and '2014-10-10 09:46:59' > timestamp and payment=2
+Done.
+Mon 13 Oct 2014 11:09 AM : cronjob : delete from seat_locks where until < 1413198592
+delete from booking where state=5 and firstname='Disabled' and lastname='Seat'
+
+Deleting state=3 and '2014-10-10 11:09:52' > timestamp and payment=1
+Deleting state=3 and '2014-10-08 11:09:52' > timestamp and payment=2
+Shaking state=2 and '2014-10-11 11:09:52' > timestamp and payment=1
+Shaking state=2 and '2014-10-10 11:09:52' > timestamp and payment=2
+Done.
+Mon 13 Oct 2014 11:33 AM : cronjob : delete from seat_locks where until < 1413200033
+delete from booking where state=5 and firstname='Disabled' and lastname='Seat'
+
+Deleting state=3 and '2014-10-10 11:33:53' > timestamp and payment=1
+Deleting state=3 and '2014-10-08 11:33:53' > timestamp and payment=2
+Shaking state=2 and '2014-10-11 11:33:53' > timestamp and payment=1
+Shaking state=2 and '2014-10-10 11:33:53' > timestamp and payment=2
+Done.
+Mon 13 Oct 2014 12:33 PM : cronjob : delete from seat_locks where until < 1413203612
+delete from booking where state=5 and firstname='Disabled' and lastname='Seat'
+
+Deleting state=3 and '2014-10-10 12:33:32' > timestamp and payment=1
+Deleting state=3 and '2014-10-08 12:33:32' > timestamp and payment=2
+Shaking state=2 and '2014-10-11 12:33:32' > timestamp and payment=1
+Shaking state=2 and '2014-10-10 12:33:32' > timestamp and payment=2
+Done.
+Mon 13 Oct 2014 01:32 PM : cronjob : delete from seat_locks where until < 1413207154
+delete from booking where state=5 and firstname='Disabled' and lastname='Seat'
+
+Deleting state=3 and '2014-10-10 13:32:34' > timestamp and payment=1
+Deleting state=3 and '2014-10-08 13:32:34' > timestamp and payment=2
+Shaking state=2 and '2014-10-11 13:32:34' > timestamp and payment=1
+Shaking state=2 and '2014-10-10 13:32:34' > timestamp and payment=2
+Done.
+Mon 13 Oct 2014 05:18 PM : cronjob : delete from seat_locks where until < 1413220690
+delete from booking where state=5 and firstname='Disabled' and lastname='Seat'
+
+Deleting state=3 and '2014-10-10 17:18:10' > timestamp and payment=1
+Deleting state=3 and '2014-10-08 17:18:10' > timestamp and payment=2
+Shaking state=2 and '2014-10-11 17:18:10' > timestamp and payment=1
+Shaking state=2 and '2014-10-10 17:18:10' > timestamp and payment=2
+Done.
+Mon 13 Oct 2014 05:32 PM : cronjob : delete from seat_locks where until < 1413221565
+delete from booking where state=5 and firstname='Disabled' and lastname='Seat'
+
+Deleting state=3 and '2014-10-10 17:32:45' > timestamp and payment=1
+Deleting state=3 and '2014-10-08 17:32:45' > timestamp and payment=2
+Shaking state=2 and '2014-10-11 17:32:45' > timestamp and payment=1
+Shaking state=2 and '2014-10-10 17:32:45' > timestamp and payment=2
+Done.
+Mon 13 Oct 2014 06:32 PM : cronjob : delete from seat_locks where until < 1413225155
+delete from booking where state=5 and firstname='Disabled' and lastname='Seat'
+
+Deleting state=3 and '2014-10-10 18:32:35' > timestamp and payment=1
+Deleting state=3 and '2014-10-08 18:32:35' > timestamp and payment=2
+Shaking state=2 and '2014-10-11 18:32:35' > timestamp and payment=1
+Shaking state=2 and '2014-10-10 18:32:35' > timestamp and payment=2
+Done.
+Mon 13 Oct 2014 09:52 PM : cronjob : delete from seat_locks where until < 1413237146
+delete from booking where state=5 and firstname='Disabled' and lastname='Seat'
+
+Deleting state=3 and '2014-10-10 21:52:26' > timestamp and payment=1
+Deleting state=3 and '2014-10-08 21:52:26' > timestamp and payment=2
+Shaking state=2 and '2014-10-11 21:52:26' > timestamp and payment=1
+Shaking state=2 and '2014-10-10 21:52:26' > timestamp and payment=2
+Done.
+Fri 17 Oct 2014 11:22 AM : cronjob : delete from seat_locks where until < 1413544964
+delete from booking where state=5 and firstname='Disabled' and lastname='Seat'
+
+Deleting state=3 and '2014-10-14 11:22:44' > timestamp and payment=1
+Deleting state=3 and '2014-10-12 11:22:44' > timestamp and payment=2
+Shaking state=2 and '2014-10-15 11:22:44' > timestamp and payment=1
+Shaking state=2 and '2014-10-14 11:22:44' > timestamp and payment=2
+Done.
+Fri 17 Oct 2014 11:33 AM : cronjob : delete from seat_locks where until < 1413545614
+delete from booking where state=5 and firstname='Disabled' and lastname='Seat'
+
+Deleting state=3 and '2014-10-14 11:33:34' > timestamp and payment=1
+Deleting state=3 and '2014-10-12 11:33:34' > timestamp and payment=2
+Shaking state=2 and '2014-10-15 11:33:34' > timestamp and payment=1
+Shaking state=2 and '2014-10-14 11:33:34' > timestamp and payment=2
+Done.
+Fri 17 Oct 2014 11:55 AM :  : session id = 
+Fri 17 Oct 2014 11:55 AM :  : session id = 
+Fri 17 Oct 2014 11:56 AM :  : session id = 
+Fri 17 Oct 2014 11:56 AM :  : session id = 
+Fri 17 Oct 2014 12:02 PM :  : session id = 
+Fri 17 Oct 2014 12:02 PM :  : session id = 
+Fri 17 Oct 2014 12:04 PM :  : session id = 
+Fri 17 Oct 2014 12:04 PM :  : session id = 
+Fri 17 Oct 2014 12:04 PM :  : session id = 
+Fri 17 Oct 2014 12:04 PM :  : session id = 
+Fri 17 Oct 2014 12:05 PM :  : session id = 
+Fri 17 Oct 2014 12:05 PM :  : session id = 
+Fri 17 Oct 2014 12:06 PM :  : session id = 
+Fri 17 Oct 2014 12:06 PM :  : session id = 
+Fri 17 Oct 2014 12:06 PM :  : session id = 
+Fri 17 Oct 2014 12:06 PM :  : session id = 
+Fri 17 Oct 2014 12:06 PM :  : session id = 
+Fri 17 Oct 2014 12:06 PM :  : session id = 
+Fri 17 Oct 2014 12:14 PM :  : session id = 
+Fri 17 Oct 2014 12:14 PM :  : session id = 
+Fri 17 Oct 2014 10:58 PM : cronjob : delete from seat_locks where until < 1413586692
+delete from booking where state=5 and firstname='Disabled' and lastname='Seat'
+
+Deleting state=3 and '2014-10-14 22:58:12' > timestamp and payment=1
+Deleting state=3 and '2014-10-12 22:58:12' > timestamp and payment=2
+Shaking state=2 and '2014-10-15 22:58:12' > timestamp and payment=1
+Shaking state=2 and '2014-10-14 22:58:12' > timestamp and payment=2
+Done.
+Fri 17 Oct 2014 11:26 PM :  : session id = 
+Fri 17 Oct 2014 11:26 PM :  : session id = 
+Fri 17 Oct 2014 11:26 PM :  : session id = 
+Fri 17 Oct 2014 11:26 PM :  : session id = 
+Fri 17 Oct 2014 11:33 PM : cronjob : delete from seat_locks where until < 1413588781
+delete from booking where state=5 and firstname='Disabled' and lastname='Seat'
+
+Deleting state=3 and '2014-10-14 23:33:01' > timestamp and payment=1
+Deleting state=3 and '2014-10-12 23:33:01' > timestamp and payment=2
+Shaking state=2 and '2014-10-15 23:33:01' > timestamp and payment=1
+Shaking state=2 and '2014-10-14 23:33:01' > timestamp and payment=2
+Done.
+Sat 18 Oct 2014 12:32 AM : cronjob : delete from seat_locks where until < 1413592369
+delete from booking where state=5 and firstname='Disabled' and lastname='Seat'
+
+Tue 28 Oct 2014 01:56 AM : cronjob : delete from seat_locks where until < 1414461370
+delete from booking where state=5 and firstname='Disabled' and lastname='Seat'
+
+Deleting state=3 and '2014-10-25 01:56:10' > timestamp and payment=1
+Deleting state=3 and '2014-10-23 01:56:10' > timestamp and payment=2
+Shaking state=2 and '2014-10-26 01:56:10' > timestamp and payment=1
+Shaking state=2 and '2014-10-25 01:56:10' > timestamp and payment=2
+Done.
+Wed 29 Oct 2014 01:43 AM : cronjob : delete from seat_locks where until < 1414547021
+delete from booking where state=5 and firstname='Disabled' and lastname='Seat'
+
+Deleting state=3 and '2014-10-26 01:43:41' > timestamp and payment=1
+Deleting state=3 and '2014-10-24 01:43:41' > timestamp and payment=2
+Shaking state=2 and '2014-10-27 01:43:41' > timestamp and payment=1
+Shaking state=2 and '2014-10-26 01:43:41' > timestamp and payment=2
+Done.
+Wed 29 Oct 2014 03:03 AM : cronjob : delete from seat_locks where until < 1414551798
+delete from booking where state=5 and firstname='Disabled' and lastname='Seat'
+
+Deleting state=3 and '2014-10-26 03:03:18' > timestamp and payment=1
+Deleting state=3 and '2014-10-24 03:03:18' > timestamp and payment=2
+Shaking state=2 and '2014-10-27 03:03:18' > timestamp and payment=1
+Shaking state=2 and '2014-10-26 03:03:18' > timestamp and payment=2
+Done.
+Wed 29 Oct 2014 03:33 AM : cronjob : delete from seat_locks where until < 1414553626
+delete from booking where state=5 and firstname='Disabled' and lastname='Seat'
+
+Deleting state=3 and '2014-10-26 03:33:46' > timestamp and payment=1
+Deleting state=3 and '2014-10-24 03:33:46' > timestamp and payment=2
+Shaking state=2 and '2014-10-27 03:33:46' > timestamp and payment=1
+Shaking state=2 and '2014-10-26 03:33:46' > timestamp and payment=2
+Done.
+Wed 29 Oct 2014 11:41 AM : cronjob : delete from seat_locks where until < 1414582889
+delete from booking where state=5 and firstname='Disabled' and lastname='Seat'
+
+Deleting state=3 and '2014-10-26 11:41:29' > timestamp and payment=1
+Deleting state=3 and '2014-10-24 11:41:29' > timestamp and payment=2
+Shaking state=2 and '2014-10-27 11:41:29' > timestamp and payment=1
+Shaking state=2 and '2014-10-26 11:41:29' > timestamp and payment=2
+Done.
+Thu 30 Oct 2014 10:53 AM : cronjob : delete from seat_locks where until < 1414666416
+delete from booking where state=5 and firstname='Disabled' and lastname='Seat'
+
+Deleting state=3 and '2014-10-27 10:53:36' > timestamp and payment=1
+Deleting state=3 and '2014-10-25 10:53:36' > timestamp and payment=2
+Shaking state=2 and '2014-10-28 10:53:36' > timestamp and payment=1
+Shaking state=2 and '2014-10-27 10:53:36' > timestamp and payment=2
+Done.
+Thu 30 Oct 2014 11:32 AM : cronjob : delete from seat_locks where until < 1414668774
+delete from booking where state=5 and firstname='Disabled' and lastname='Seat'
+
+Deleting state=3 and '2014-10-27 11:32:54' > timestamp and payment=1
+Deleting state=3 and '2014-10-25 11:32:54' > timestamp and payment=2
+Shaking state=2 and '2014-10-28 11:32:54' > timestamp and payment=1
+Shaking state=2 and '2014-10-27 11:32:54' > timestamp and payment=2
+Done.
+Thu 30 Oct 2014 09:48 PM : cronjob : delete from seat_locks where until < 1414705678
+delete from booking where state=5 and firstname='Disabled' and lastname='Seat'
+
+Deleting state=3 and '2014-10-27 21:47:58' > timestamp and payment=1
+Deleting state=3 and '2014-10-25 21:47:58' > timestamp and payment=2
+Shaking state=2 and '2014-10-28 21:47:58' > timestamp and payment=1
+Shaking state=2 and '2014-10-27 21:47:58' > timestamp and payment=2
+Done.
+Sat 01 Nov 2014 09:37 PM : cronjob : delete from seat_locks where until < 1414877834
+delete from booking where state=5 and firstname='Disabled' and lastname='Seat'
+
+Deleting state=3 and '2014-10-29 21:37:14' > timestamp and payment=1
+Deleting state=3 and '2014-10-27 21:37:14' > timestamp and payment=2
+Shaking state=2 and '2014-10-30 21:37:14' > timestamp and payment=1
+Shaking state=2 and '2014-10-29 21:37:14' > timestamp and payment=2
+Done.
+Sat 01 Nov 2014 10:33 PM : cronjob : delete from seat_locks where until < 1414881184
+delete from booking where state=5 and firstname='Disabled' and lastname='Seat'
+
+Deleting state=3 and '2014-10-29 22:33:04' > timestamp and payment=1
+Deleting state=3 and '2014-10-27 22:33:04' > timestamp and payment=2
+Shaking state=2 and '2014-10-30 22:33:04' > timestamp and payment=1
+Shaking state=2 and '2014-10-29 22:33:04' > timestamp and payment=2
+Done.
+Sun 02 Nov 2014 12:05 AM : cronjob : delete from seat_locks where until < 1414886753
+delete from booking where state=5 and firstname='Disabled' and lastname='Seat'
+
+Deleting state=3 and '2014-10-30 00:05:53' > timestamp and payment=1
+Deleting state=3 and '2014-10-28 00:05:53' > timestamp and payment=2
+Shaking state=2 and '2014-10-31 00:05:53' > timestamp and payment=1
+Shaking state=2 and '2014-10-30 00:05:53' > timestamp and payment=2
+Done.
+Sun 02 Nov 2014 02:25 AM : cronjob : delete from seat_locks where until < 1414895137
+delete from booking where state=5 and firstname='Disabled' and lastname='Seat'
+
+Deleting state=3 and '2014-10-30 02:25:37' > timestamp and payment=1
+Deleting state=3 and '2014-10-28 02:25:37' > timestamp and payment=2
+Shaking state=2 and '2014-10-31 02:25:37' > timestamp and payment=1
+Shaking state=2 and '2014-10-30 02:25:37' > timestamp and payment=2
+Done.
+Sun 02 Nov 2014 02:32 AM : cronjob : delete from seat_locks where until < 1414895556
+delete from booking where state=5 and firstname='Disabled' and lastname='Seat'
+
+Deleting state=3 and '2014-10-30 02:32:36' > timestamp and payment=1
+Deleting state=3 and '2014-10-28 02:32:36' > timestamp and payment=2
+Shaking state=2 and '2014-10-31 02:32:36' > timestamp and payment=1
+Shaking state=2 and '2014-10-30 02:32:36' > timestamp and payment=2
+Done.
+Sun 02 Nov 2014 11:09 AM : cronjob : delete from seat_locks where until < 1414926549
+delete from booking where state=5 and firstname='Disabled' and lastname='Seat'
+
+Deleting state=3 and '2014-10-30 11:09:09' > timestamp and payment=1
+Deleting state=3 and '2014-10-28 11:09:09' > timestamp and payment=2
+Shaking state=2 and '2014-10-31 11:09:09' > timestamp and payment=1
+Shaking state=2 and '2014-10-30 11:09:09' > timestamp and payment=2
+Done.
+Sun 02 Nov 2014 11:38 AM : cronjob : delete from seat_locks where until < 1414928304
+delete from booking where state=5 and firstname='Disabled' and lastname='Seat'
+
+Deleting state=3 and '2014-10-30 11:38:24' > timestamp and payment=1
+Deleting state=3 and '2014-10-28 11:38:24' > timestamp and payment=2
+Shaking state=2 and '2014-10-31 11:38:24' > timestamp and payment=1
+Shaking state=2 and '2014-10-30 11:38:24' > timestamp and payment=2
+Done.
+Sun 02 Nov 2014 12:39 PM : cronjob : delete from seat_locks where until < 1414931952
+delete from booking where state=5 and firstname='Disabled' and lastname='Seat'
+
+Deleting state=3 and '2014-10-30 12:39:12' > timestamp and payment=1
+Deleting state=3 and '2014-10-28 12:39:12' > timestamp and payment=2
+Shaking state=2 and '2014-10-31 12:39:12' > timestamp and payment=1
+Shaking state=2 and '2014-10-30 12:39:12' > timestamp and payment=2
+Done.
+Sun 02 Nov 2014 01:32 PM : cronjob : delete from seat_locks where until < 1414935146
+delete from booking where state=5 and firstname='Disabled' and lastname='Seat'
+
+Deleting state=3 and '2014-10-30 13:32:26' > timestamp and payment=1
+Deleting state=3 and '2014-10-28 13:32:26' > timestamp and payment=2
+Shaking state=2 and '2014-10-31 13:32:26' > timestamp and payment=1
+Shaking state=2 and '2014-10-30 13:32:26' > timestamp and payment=2
+Done.
+Sun 02 Nov 2014 02:43 PM : cronjob : delete from seat_locks where until < 1414939432
+delete from booking where state=5 and firstname='Disabled' and lastname='Seat'
+
+Deleting state=3 and '2014-10-30 14:43:52' > timestamp and payment=1
+Deleting state=3 and '2014-10-28 14:43:52' > timestamp and payment=2
+Shaking state=2 and '2014-10-31 14:43:52' > timestamp and payment=1
+Shaking state=2 and '2014-10-30 14:43:52' > timestamp and payment=2
+Done.
+Sun 02 Nov 2014 04:48 PM : cronjob : delete from seat_locks where until < 1414946921
+delete from booking where state=5 and firstname='Disabled' and lastname='Seat'
+
+Deleting state=3 and '2014-10-30 16:48:41' > timestamp and payment=1
+Deleting state=3 and '2014-10-28 16:48:41' > timestamp and payment=2
+Shaking state=2 and '2014-10-31 16:48:41' > timestamp and payment=1
+Shaking state=2 and '2014-10-30 16:48:41' > timestamp and payment=2
+Done.
+Sun 02 Nov 2014 05:33 PM : cronjob : delete from seat_locks where until < 1414949597
+delete from booking where state=5 and firstname='Disabled' and lastname='Seat'
+
+Deleting state=3 and '2014-10-30 17:33:17' > timestamp and payment=1
+Deleting state=3 and '2014-10-28 17:33:17' > timestamp and payment=2
+Shaking state=2 and '2014-10-31 17:33:17' > timestamp and payment=1
+Shaking state=2 and '2014-10-30 17:33:17' > timestamp and payment=2
+Done.
+Sun 02 Nov 2014 07:40 PM : cronjob : delete from seat_locks where until < 1414957255
+delete from booking where state=5 and firstname='Disabled' and lastname='Seat'
+
+Deleting state=3 and '2014-10-30 19:40:55' > timestamp and payment=1
+Deleting state=3 and '2014-10-28 19:40:55' > timestamp and payment=2
+Shaking state=2 and '2014-10-31 19:40:55' > timestamp and payment=1
+Shaking state=2 and '2014-10-30 19:40:55' > timestamp and payment=2
+Done.
+Sun 02 Nov 2014 10:39 PM : cronjob : delete from seat_locks where until < 1414967948
+delete from booking where state=5 and firstname='Disabled' and lastname='Seat'
+
+Deleting state=3 and '2014-10-30 22:39:08' > timestamp and payment=1
+Deleting state=3 and '2014-10-28 22:39:08' > timestamp and payment=2
+Shaking state=2 and '2014-10-31 22:39:08' > timestamp and payment=1
+Shaking state=2 and '2014-10-30 22:39:08' > timestamp and payment=2
+Done.
+Mon 03 Nov 2014 01:30 PM : cronjob : delete from seat_locks where until < 1415021413
+delete from booking where state=5 and firstname='Disabled' and lastname='Seat'
+
+Deleting state=3 and '2014-10-31 13:30:13' > timestamp and payment=1
+Deleting state=3 and '2014-10-29 13:30:13' > timestamp and payment=2
+Shaking state=2 and '2014-11-01 13:30:13' > timestamp and payment=1
+Shaking state=2 and '2014-10-31 13:30:13' > timestamp and payment=2
+Done.
+Tue 04 Nov 2014 09:05 AM : cronjob : delete from seat_locks where until < 1415091951
+delete from booking where state=5 and firstname='Disabled' and lastname='Seat'
+
+Deleting state=3 and '2014-11-01 09:05:51' > timestamp and payment=1
+Deleting state=3 and '2014-10-30 09:05:51' > timestamp and payment=2
+Shaking state=2 and '2014-11-02 09:05:51' > timestamp and payment=1
+Shaking state=2 and '2014-11-01 09:05:51' > timestamp and payment=2
+Done.
+Tue 04 Nov 2014 09:37 AM : cronjob : delete from seat_locks where until < 1415093826
+delete from booking where state=5 and firstname='Disabled' and lastname='Seat'
+
+Deleting state=3 and '2014-11-01 09:37:06' > timestamp and payment=1
+Deleting state=3 and '2014-10-30 09:37:06' > timestamp and payment=2
+Shaking state=2 and '2014-11-02 09:37:06' > timestamp and payment=1
+Shaking state=2 and '2014-11-01 09:37:06' > timestamp and payment=2
+Done.
+Thu 06 Nov 2014 02:41 AM : cronjob : delete from seat_locks where until < 1415241661
+delete from booking where state=5 and firstname='Disabled' and lastname='Seat'
+
+Deleting state=3 and '2014-11-03 02:41:01' > timestamp and payment=1
+Deleting state=3 and '2014-11-01 02:41:01' > timestamp and payment=2
+Shaking state=2 and '2014-11-04 02:41:01' > timestamp and payment=1
+Shaking state=2 and '2014-11-03 02:41:01' > timestamp and payment=2
+Done.
+Fri 07 Nov 2014 02:31 AM : cronjob : delete from seat_locks where until < 1415327460
+delete from booking where state=5 and firstname='Disabled' and lastname='Seat'
+
+Deleting state=3 and '2014-11-04 02:31:00' > timestamp and payment=1
+Deleting state=3 and '2014-11-02 02:31:00' > timestamp and payment=2
+Shaking state=2 and '2014-11-05 02:31:00' > timestamp and payment=1
+Shaking state=2 and '2014-11-04 02:31:00' > timestamp and payment=2
+Done.
+Fri 07 Nov 2014 02:38 AM : cronjob : delete from seat_locks where until < 1415327914
+delete from booking where state=5 and firstname='Disabled' and lastname='Seat'
+
+Deleting state=3 and '2014-11-04 02:38:34' > timestamp and payment=1
+Deleting state=3 and '2014-11-02 02:38:34' > timestamp and payment=2
+Shaking state=2 and '2014-11-05 02:38:34' > timestamp and payment=1
+Shaking state=2 and '2014-11-04 02:38:34' > timestamp and payment=2
+Done.
+Fri 07 Nov 2014 12:45 PM : cronjob : delete from seat_locks where until < 1415364341
+delete from booking where state=5 and firstname='Disabled' and lastname='Seat'
+
+Deleting state=3 and '2014-11-04 12:45:41' > timestamp and payment=1
+Deleting state=3 and '2014-11-02 12:45:41' > timestamp and payment=2
+Shaking state=2 and '2014-11-05 12:45:41' > timestamp and payment=1
+Shaking state=2 and '2014-11-04 12:45:41' > timestamp and payment=2
+Done.
+Sun 09 Nov 2014 04:43 PM : cronjob : delete from seat_locks where until < 1415551393
+delete from booking where state=5 and firstname='Disabled' and lastname='Seat'
+
+Deleting state=3 and '2014-11-06 16:43:13' > timestamp and payment=1
+Deleting state=3 and '2014-11-04 16:43:13' > timestamp and payment=2
+Shaking state=2 and '2014-11-07 16:43:13' > timestamp and payment=1
+Shaking state=2 and '2014-11-06 16:43:13' > timestamp and payment=2
+Done.
+Sun 09 Nov 2014 05:33 PM : cronjob : delete from seat_locks where until < 1415554383
+delete from booking where state=5 and firstname='Disabled' and lastname='Seat'
+
+Deleting state=3 and '2014-11-06 17:33:03' > timestamp and payment=1
+Deleting state=3 and '2014-11-04 17:33:03' > timestamp and payment=2
+Shaking state=2 and '2014-11-07 17:33:03' > timestamp and payment=1
+Shaking state=2 and '2014-11-06 17:33:03' > timestamp and payment=2
+Done.
+Mon 10 Nov 2014 03:02 AM : cronjob : delete from seat_locks where until < 1415588518
+delete from booking where state=5 and firstname='Disabled' and lastname='Seat'
+
+Deleting state=3 and '2014-11-07 03:01:58' > timestamp and payment=1
+Deleting state=3 and '2014-11-05 03:01:58' > timestamp and payment=2
+Shaking state=2 and '2014-11-08 03:01:58' > timestamp and payment=1
+Shaking state=2 and '2014-11-07 03:01:58' > timestamp and payment=2
+Done.
+Mon 10 Nov 2014 11:52 AM : cronjob : delete from seat_locks where until < 1415620350
+delete from booking where state=5 and firstname='Disabled' and lastname='Seat'
+
+Deleting state=3 and '2014-11-07 11:52:30' > timestamp and payment=1
+Deleting state=3 and '2014-11-05 11:52:30' > timestamp and payment=2
+Shaking state=2 and '2014-11-08 11:52:30' > timestamp and payment=1
+Shaking state=2 and '2014-11-07 11:52:30' > timestamp and payment=2
+Done.
+Mon 10 Nov 2014 12:36 PM : cronjob : delete from seat_locks where until < 1415623009
+delete from booking where state=5 and firstname='Disabled' and lastname='Seat'
+
+Deleting state=3 and '2014-11-07 12:36:49' > timestamp and payment=1
+Deleting state=3 and '2014-11-05 12:36:49' > timestamp and payment=2
+Shaking state=2 and '2014-11-08 12:36:49' > timestamp and payment=1
+Shaking state=2 and '2014-11-07 12:36:49' > timestamp and payment=2
+Done.
