@@ -35,7 +35,6 @@ function freeseat_plugin_init_paypalpro() {
 	
 	$freeseat_plugin_hooks['confirm_process']['paypalpro'] = 'paypalpro_process'; 
 	$freeseat_plugin_hooks['finish_ccard']['paypalpro'] = 'paypalpro_calldirect'; 
-	// $freeseat_plugin_hooks['finish_ccard_failure']['paypalpro'] = 'paypalpro_cancel'; 
 	$freeseat_plugin_hooks['kill_booking_done']['paypalpro'] = 'paypalpro_cleanup';
 	init_language('paypalpro');
 }
@@ -49,6 +48,9 @@ function freeseat_express_checkout_query($vars) {
 	return $vars;
 }
 
+/**
+ *  Handle a paypal IPN call
+ */
 function freeseat_ipn( $repost ) {
 	// $repost is the $_POST response from IPN 
 	prepare_log("ccard_ipn");
@@ -82,6 +84,9 @@ function freeseat_ipn( $repost ) {
 	log_done();	
 }
 
+/**
+ *  Called to handle the jump back from paypal express checkout
+ */
 function freeseat_express_checkout( $data ) {
 	global $lang;
 	// check to see if we are returning from paypal on express checkout
@@ -129,75 +134,6 @@ function freeseat_express_checkout( $data ) {
 	}
 	paypalpro_cancel();
 }
-
-/*  For Express Checkout                   
-Send after returning from paypal:
-<form method=post action=https://api-3t.sandbox.paypal.com/nvp
-	<input type=hidden name=USER value=API_username>
-	<input type=hidden name=PWD value=API_password>
-	<input type=hidden name=SIGNATURE value=API_signature>
-	<input type=hidden name=VERSION value=XX.0>
-	<input name=TOKEN value=EC-1NK66318YB717835M>
-	<input type=submit name=METHOD value=GetExpressCheckoutDetails>
-</form>
-
-Expect response like:
-TIMESTAMP=2007%2d04%2d05T23%3a44%3a11Z
-&CORRELATIONID=6b174e9bac3b3
-&ACK=Success
-&VERSION=XX%2e000000
-&BUILD=1%2e0006
-&TOKEN=EC%2d1NK66318YB717835M
-&EMAIL=YourSandboxBuyerAccountEmail
-&PAYERID=7AKUSARZ7SAT8
-&PAYERSTATUS=verified
-&FIRSTNAME=...
-&LASTNAME=...
-&COUNTRYCODE=US
-&BUSINESS=...
-&PAYMENTREQUEST_0_SHIPTONAME=...
-&PAYMENTREQUEST_0_SHIPTOSTREET=...
-&PAYMENTREQUEST_0_SHIPTOCITY=...
-&PAYMENTREQUEST_0_SHIPTOSTATE=CA
-&PAYMENTREQUEST_0_SHIPTOCOUNTRYCODE=US
-&PAYMENTREQUEST_0_SHIPTOCOUNTRYNAME=United%20States
-&PAYMENTREQUEST_0_SHIPTOZIP=94666
-&PAYMENTREQUEST_0_ADDRESSID=...
-&PAYMENTREQUEST_0_ADDRESSSTATUS=Confirmed
-	
-Send to finish payment:
-<form method=post action=https://api-3t.sandbox.paypal.com/nvp>
-	<input type=hidden name=USER value=API_username>
-	<input type=hidden name=PWD value=API_password>
-	<input type=hidden name=SIGNATURE value=API_signature>
-	<input type=hidden name=VERSION value=XX.0>
-	<input type=hidden name=PAYMENTREQUEST_0_PAYMENTACTION
-		value=Sale>
-	<input type=hidden name=PAYERID value=7AKUSARZ7SAT8>
-	<input type=hidden name=TOKEN value= EC%2d1NK66318YB717835M>
-	<input type=hidden name=PAYMENTREQUEST_0_AMT value= 19.95>
-	<input type=submit name=METHOD value=DoExpressCheckoutPayment>
-</form>
-
-Receive confirmation:
-TIMESTAMP=2007%2d04%2d05T23%3a30%3a16Z
-&CORRELATIONID=333fb808bb23
-ACK=Success
-&VERSION=XX%2e000000
-&BUILD=1%2e0006
-&TOKEN=EC%2d1NK66318YB717835M
-&PAYMENTREQUEST_0_TRANSACTIONID=043144440L487742J
-&PAYMENTREQUEST_0_TRANSACTIONTYPE=expresscheckout
-&PAYMENTREQUEST_0_PAYMENTTYPE=instant
-&PAYMENTREQUEST_0_ORDERTIME=2007%2d04%2d05T23%3a30%3a14Z
-&PAYMENTREQUEST_0_AMT=19%2e95
-&PAYMENTREQUEST_0_CURRENCYCODE=USD
-&PAYMENTREQUEST_0_TAXAMT=0%2e00
-&PAYMENTREQUEST_0_PAYMENTSTATUS=Pending
-&PAYMENTREQUEST_0_PENDINGREASON=authorization
-&PAYMENTREQUEST_0_REASONCODE=None
-	
-*/
 
 function paypalpro_cancel() {
 	global $lang;
@@ -258,21 +194,6 @@ function paypalpro_form() {
 	<?php
 }
 
-function paypalpro_confirm() {
-?>
-	<div>
-		<p class="main">
-		<?php echo $lang['paypalpro_type'].": ".$_SESSION['paypalpro_type']; ?>&emsp;
-		<?php echo $lang['paypalpro_exp'].": ".$_SESSION['paypalpro_exp']; ?>
-		</p>
-		<p class="main">
-		<?php echo $lang['paypalpro_account'].": ".substr($_SESSION['paypalpro_account'],0,4).str_repeat("*",12); ?>&emsp;
-		<?php echo $lang['paypalpro_cvv2'].": ".$_SESSION['paypalpro_cvv2']; ?>
-		</p>
-	</div>
-<?php	
-}
-
 function paypalpro_process() {
 	global $lang;
 	foreach (array("firstname", "lastname", "paypalpro_type", "paypalpro_account", "paypalpro_expmonth", "paypalpro_expyear", "paypalpro_cvv2") as $a) {
@@ -290,7 +211,7 @@ function paypalpro_sendtoexpress() {
 		'FIRSTNAME'		=> $_SESSION['firstname'],
 		'LASTNAME'		=> $_SESSION['lastname'],
 		'EMAIL'			=> $_SESSION['email'],
-		'STREET'		=> $_SESSION['street'],
+		'STREET'		=> $_SESSION['address'],
 		'STREET2'		=> '',
 		'CITY'			=> $_SESSION['city'],
 		'STATE'			=> $_SESSION['us_state'],
@@ -330,7 +251,7 @@ function paypalpro_calldirect() {
 		'FIRSTNAME'		=> $_SESSION['firstname'],
 		'LASTNAME'		=> $_SESSION['lastname'],
 		'EMAIL'			=> $_SESSION['email'],
-		'STREET'		=> $_SESSION['street'],
+		'STREET'		=> $_SESSION['address'],
 		'STREET2'		=> '',
 		'CITY'			=> $_SESSION['city'],
 		'STATE'			=> $_SESSION['us_state'],
@@ -340,14 +261,7 @@ function paypalpro_calldirect() {
 		'CURRENCYCODE'	=> $lang['paypalpro_currency'],
 	);
 	$response = hashCall($ppParams);
-	/*  expecting a response like this
-	ACK=Success&CURRENCYCODE=USD&AVSCODE=X&CVV2MATCH=M
-	&TRANSACTIONID=61K41112Y6568602S
-	&TIMESTAMP=2011-08-11T00:14:22Z&CORRELATIONID=1e931819365cfVERSION=78&BUILD=2031893&AMT=5.00
-	*/
-	if (isset($response['ACK']) && preg_match("/Success/i", $response['ACK'])) {
-		return TRUE;
-	}
+	if (isset($response['ACK']) && preg_match("/Success/i", $response['ACK'])) return TRUE;
 	return FALSE;
 }
 

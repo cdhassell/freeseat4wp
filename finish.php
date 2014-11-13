@@ -15,24 +15,16 @@ Modifications for Wordpress are Copyright (C) 2013 twowheeler.
  */
 function freeseat_finish( $page_url ) {
 	global $lang, $messages, $sh, $auto_mail_signature, $smtp_sender, $admin_mail;
+	
 	prepare_log((admin_mode()?"admin":"user")." buying from ".$_SERVER["REMOTE_ADDR"]);
-	
-	/* if (isset($_REQUEST['custom']) && (!isset($_SESSION['showid']))) {
-		// we are returning from the credit card site and lost the session
-		// try to retrieve the data from the DB
-		$groupid = $_REQUEST['custom'];
-		$sql = "SELECT id FROM booking WHERE groupid=$groupid OR id=$groupid";
-		$bookings = fetch_all($sql);
-		bookinglist_setup_session( $bookings, $groupid );
-	} */
-	
 	$sh = get_show($_SESSION["showid"]);
 	$spec = get_spectacle($sh["spectacleid"]);
 
 	if ((!isset($_SESSION["booking_done"])) || ($_SESSION["booking_done"]===false)) {
-		// first trip through finish.php
+		// first trip through finish.php, booking is not recorded yet
 		$_SESSION["groupid"] = 0;
-		do_hook('confirm_process'); // process any extra parameters from confirm.php
+		// process any extra parameters from confirm.php
+		do_hook('confirm_process'); 
 		check_session(4,true); 
 		foreach ($_SESSION["seats"] as $n => $s) {
 			// book each seat here with status ST_BOOKED
@@ -47,30 +39,31 @@ function freeseat_finish( $page_url ) {
 				log_done();
 				exit;
 			} else {
-				// seats are now booked, capture the groupid
+				// seats are now booked, so capture the groupid
 				$_SESSION["seats"][$n]["bookid"] = $bookid;
 				if (!(isset($_SESSION["groupid"]) && $_SESSION["groupid"]!=0))
 					$_SESSION["groupid"] = $bookid;
 			}
 		}
 		$_SESSION["booking_done"] = ST_BOOKED;
-		if (do_hook_function('finish_ccard')) $_SESSION["booking_done"] = ST_PAID;
-	} else {
-		if ( $_SESSION["payment"]==PAY_CCARD) {
-			// returning from credit card site, check for payment
-			$sql = "SELECT count(numxkp) FROM ccard_transactions WHERE groupid=$groupid";	
-			if (m_eval($sql)) $_SESSION['booking_done'] = ST_PAID;
-			// else kaboom(sprintf($lang["err_ccard_user"],$smtp_sender));
-			check_session(4); // a valid user name and payment method must exist at this point
-		} else {
-			$_SESSION["booking_done"] = ST_PAID;
-		}
-	}
 		
+		if (do_hook_function('finish_ccard')) $_SESSION["booking_done"] = ST_PAID;
+	}
+	
+	if ( $_SESSION["payment"]==PAY_CCARD) {
+		// returning from credit card site, check for payment
+		$sql = "SELECT count(numxkp) FROM ccard_transactions WHERE groupid={$_SESSION['groupid']}";	
+		if (m_eval($sql)) $_SESSION['booking_done'] = ST_PAID;
+		check_session(4); // a valid user name and payment method must exist at this point
+	} else {
+		$_SESSION["booking_done"] = ST_PAID;
+	}
+	
 	if (($_SESSION["payment"]==PAY_CCARD) && ($_SESSION["booking_done"]!=ST_PAID) && (get_total()>0)) {
-		// expecting credit card payment but it failed
-		do_hook('finish_ccard_failure');
-		exit();
+		// expecting credit card payment so display the payment form and jump to credit card site
+		show_head();
+		echo $lang["intro_ccard"];  // Thank you for your reservation, please wait ...
+		do_hook('ccard_paymentform');
 	} else { 
 		// not a credit card sale, or coming back from credit card processor
 		$config = get_config();
