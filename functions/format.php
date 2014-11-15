@@ -182,13 +182,14 @@ is optional stuff to add to the html tag
  **/
 function input_field( $k, $d='', $a='' ) {
   global $lang;
-  if (isset($lang[$k])) echo "<label>{$lang[$k]}&nbsp;";
+  if (isset($lang[$k])) echo "<label>{$lang[$k]}&emsp;";
   if (empty($a)) $a = " size=8";
   echo "<input name='$k'";
   if (isset($_SESSION[$k])) $d=htmlspecialchars($_SESSION[$k]);
   if ($d!='') echo ' value="'.$d.'"'; 
   // do NOT swap the quote styles as ' in $d is not quoted
-  echo "$a></label>";
+  echo "$a>";
+  if (isset($lang[$k])) echo "</label>";
 }
 
 /* Return the css class to use when displaying a booking in the given

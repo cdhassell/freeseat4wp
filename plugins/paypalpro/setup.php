@@ -208,8 +208,9 @@ function paypalpro_process() {
 
 function paypalpro_sendtoexpress() {
 	global $lang;
-	sys_log('paypalpro_sendtoexpress called');
+	
 	if (!isset( $_REQUEST['freeseat-ec'] )) return;
+	sys_log('paypalpro_sendtoexpress called');
 	$ppParams = array(
 		'METHOD'		=> 'SetExpressCheckout',
 		'DESC'			=> paypalpro_get_memo(),
@@ -244,7 +245,7 @@ function paypalpro_sendtoexpress() {
 
 function paypalpro_calldirect() {
 	global $lang;
-	sys_log('paypalpro_calldirect called');
+	
 	$ppParams = array(
 		'METHOD'		=> 'doDirectPayment',
 		'PAYMENTACTION'	=> 'Sale',
@@ -267,9 +268,10 @@ function paypalpro_calldirect() {
 		'INVNUM'		=> $_SESSION['groupid'],
 		'CURRENCYCODE'	=> $lang['paypalpro_currency'],
 	);
+	sys_log('paypalpro_calldirect called with '.print_r($ppParams,1));
 	$response = hashCall($ppParams);
 	if (isset($response['ACK']) && preg_match("/Success/i", $response['ACK'])) return TRUE;
-	sys_log('paypalpro_calldirect failed');
+	sys_log('paypalpro_calldirect failed with '.print_r($response,1));
 	return FALSE;
 }
 
@@ -387,7 +389,7 @@ function select_one( $name, $options ) {
 	<label><?php echo $lang[$name]; ?>&nbsp;
 		<select name="<?php echo $name; ?>">
 			<?php foreach ($options as $key => $val) {  ?>
-				<option name="<?php echo $key; ?>" <?php if (isset($_SESSION[$name]) && $_SESSION[$name]==$key) echo " selected"; ?> >
+				<option value="<?php echo $key; ?>" <?php if (isset($_SESSION[$name]) && $_SESSION[$name]==$key) echo " selected"; ?> >
 				<?php echo $val;  ?> 
 				</option>
 			<?php } ?>
