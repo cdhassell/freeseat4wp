@@ -152,7 +152,7 @@ function freeseat_pay( $page_url )
 			?>
 			</p><p class="main">
 			<label>
-				<?php echo $lang["us_state"]: ?>&nbsp;:&nbsp;
+				<?php echo $lang["us_state"]; ?>:&nbsp;
 				<?php select_state(); ?>
 			</label>
 			<?php
@@ -161,11 +161,12 @@ function freeseat_pay( $page_url )
 			?>
 			</p><p class="main">
 			<label>
-				<?php echo $lang["country"]; ?>&nbsp;:&nbsp;
+				<?php echo $lang["country"]; ?>:&nbsp;
 				<?php select_country(); ?>
 			</label>
+			<?php
 		}
-		?>
+	?>
 	</p>
 	</div><!-- end of pamentblock -->
 	<?php if (payment_open($sh,PAY_CCARD)) do_hook('ccard_partner'); ?>
