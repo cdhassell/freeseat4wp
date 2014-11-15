@@ -149,14 +149,21 @@ function freeseat_pay( $page_url )
 		<?php input_field("postalcode",""," size=8"); ?> <?php input_field("city",""," size=12"); 
 		// we will skip the us_state and/or country fields if the defaults are not set in config.php
 		if ($pref_state_code != "")  {
-			echo '</p><p class="main">';
-			echo $lang["us_state"].'&nbsp;:&nbsp;';
-			select_state();
+			?>
+			</p><p class="main">
+			<label>
+				<?php echo $lang["us_state"]: ?>&nbsp;:&nbsp;
+				<?php select_state(); ?>
+			</label>
+			<?php
 		}
 		if ($pref_country_code != "")  {
-			echo '</p><p class="main">';
-			echo $lang["country"].'&nbsp;:&nbsp;';
-			select_country();
+			?>
+			</p><p class="main">
+			<label>
+				<?php echo $lang["country"]; ?>&nbsp;:&nbsp;
+				<?php select_country(); ?>
+			</label>
 		}
 		?>
 	</p>

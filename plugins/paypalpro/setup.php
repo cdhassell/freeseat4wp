@@ -115,6 +115,7 @@ function freeseat_express_checkout( $data ) {
 					$amount = urldecode(get_query_arg('PAYMENTREQUEST_0_AMT'));
 					$transid = urldecode(get_query_arg('PAYMENTREQUEST_0_TRANSACTIONID'));
 					// FIXME  now what?  we need a post or page to land on
+					sys_log('paypalpro_express_checkout success');
 					freeseat_finish();
 					// wp_redirect(replace_fsp(get_permalink($postid),PAGE_FINISH));
 					// exit();
@@ -193,6 +194,7 @@ function paypalpro_form() {
 			<input class="button button-primary" type="submit" value="<?php echo $lang["continue"]; ?>">
 		</p>
 	<?php
+	sys_log('paypalpro_form called');
 }
 
 function paypalpro_process() {
@@ -201,11 +203,12 @@ function paypalpro_process() {
 		if (isset($_POST[$a])) $_SESSION[$a] = sanitize_text_field(nogpc($_POST[$a]));
 	}
 	$_SESSION['paypalpro_exp'] = $_SESSION['paypalpro_expmonth'].$_SESSION['paypalpro_expyear'];
+	sys_log('paypalpro_process called');
 }
 
 function paypalpro_sendtoexpress() {
 	global $lang;
-	
+	sys_log('paypalpro_sendtoexpress called');
 	if (!isset( $_REQUEST['freeseat-ec'] )) return;
 	$ppParams = array(
 		'METHOD'		=> 'SetExpressCheckout',
@@ -232,6 +235,7 @@ function paypalpro_sendtoexpress() {
 	$response = hashCall($ppParams);
 	if (isset($response['ACK']) && preg_match("/Success/i", $response['ACK'])) {
 		$token = array( 'token' => $response['token'] );
+		sys_log('sendToExpressCheckout called');
 		$wpPayPalFramework->sendToExpressCheckout($token);
 	} else {
 		return $response;
@@ -240,6 +244,7 @@ function paypalpro_sendtoexpress() {
 
 function paypalpro_calldirect() {
 	global $lang;
+	sys_log('paypalpro_calldirect called');
 	$ppParams = array(
 		'METHOD'		=> 'doDirectPayment',
 		'PAYMENTACTION'	=> 'Sale',
@@ -264,6 +269,7 @@ function paypalpro_calldirect() {
 	);
 	$response = hashCall($ppParams);
 	if (isset($response['ACK']) && preg_match("/Success/i", $response['ACK'])) return TRUE;
+	sys_log('paypalpro_calldirect failed');
 	return FALSE;
 }
 
@@ -369,6 +375,7 @@ function paypalpro_user_ip() {
 	} else {
 		$ip = $_SERVER['REMOTE_ADDR'];
 	}
+	sys_log("paypalpro_user_ip ip = $ip");
 	return apply_filters( 'wpb_get_ip', $ip );
 }
 
