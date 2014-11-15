@@ -19,6 +19,7 @@
 
 add_action( 'paypal-ipn', __NAMESPACE__ . '\\freeseat_ipn');
 add_action( 'template_redirect', __NAMESPACE__ . '\\freeseat_express_checkout' );
+add_action( 'template_redirect', __NAMESPACE__ . '\\freeseat_paypalpro_go' );
 add_filter( 'query_vars', __NAMESPACE__ . '\\freeseat_express_checkout_query' );
 
 
@@ -30,11 +31,10 @@ function freeseat_plugin_init_paypalpro() {
 	
 	$freeseat_plugin_hooks['ccard_exists']['paypalpro'] = 'paypalpro_true';
 	$freeseat_plugin_hooks['ccard_confirm_button']['paypalpro'] = 'paypalpro_form';
-	// $freeseat_plugin_hooks['check_session']['paypalpro'] = 'paypalpro_checksession';
-	$freeseat_plugin_hooks['ccard_paymentform']['paypalpro'] = 'paypalpro_sendtoexpress';
+	$freeseat_plugin_hooks['confirm_process']['paypalpro'] = 'paypalpro_process'; 	
 	
-	$freeseat_plugin_hooks['confirm_process']['paypalpro'] = 'paypalpro_process'; 
-	$freeseat_plugin_hooks['finish_ccard']['paypalpro'] = 'paypalpro_calldirect'; 
+	// $freeseat_plugin_hooks['check_session']['paypalpro'] = 'paypalpro_checksession';
+	
 	$freeseat_plugin_hooks['kill_booking_done']['paypalpro'] = 'paypalpro_cleanup';
 	init_language('paypalpro');
 }
@@ -54,6 +54,7 @@ function freeseat_express_checkout_query($vars) {
 function freeseat_ipn( $repost ) {
 	// $repost is the $_POST response from IPN 
 	prepare_log("ccard_ipn");
+	sys_log('IPN received: '.print_r($repost,1));
 	$ok = FALSE;
 	if (isset($repost["item_number"])) {
 		$groupid = (int)($repost["item_number"]);
@@ -91,29 +92,29 @@ function freeseat_express_checkout( $data ) {
 	global $lang;
 	// check to see if we are returning from paypal on express checkout
 	// go through all of the steps to confirm the payment in this function
+	// http://test.hbg-cpac.org/freeseat_1/?freeseat-return=1&token=EC-29J24760XE004145C&PayerID=6L2CBG9GT6U6W
 	$qv = get_query_var( 'freeseat-return' );
 	if ( empty($qv) ) return;
 	switch ( $qv ) {
 		case 1:
 			// payment successful
-			$token = urldecode(get_query_var('TOKEN'));
-			$version = urldecode(get_query_var('VERSION'));
-			$postid = urldecode(get_query_var('CUSTOM'));
+			$token = urldecode(get_query_var('token'));
+			$version = 109.0;
 			$args = array( 
 				'TOKEN' => $token, 
-				'PAYERID' => $payerid, 
 				'VERSION' => $version,
 				'METHOD' => "GetExpressCheckoutDetails",
 			);
-			if (sendMessage($args) && preg_match("/Success/i", urldecode(get_query_var('ACK')))) {
-				$groupid = urldecode(get_query_var('INVNUM'));
+			if (sendMessage($args) && preg_match("/Success/i", urldecode($_REQUEST['ACK']))) {
+				$postid = urldecode($_REQUEST['CUSTOM']);
+				$groupid = urldecode($_REQUEST['INVNUM']);
 				$args['METHOD'] = 'DoExpressCheckoutPayment';
 				$args['PAYMENTREQUEST_0_PAYMENTACTION'] = 'Sale';
 				$args['PAYMENTREQUEST_0_AMT'] = price_to_string(get_total());
-				if (sendMessage($args) && preg_match("/Success/i", urldecode(get_query_var('ACK')))) {
-					$status = urldecode(get_query_arg('PAYMENTREQUEST_0_PAYMENTSTATUS'));
-					$amount = urldecode(get_query_arg('PAYMENTREQUEST_0_AMT'));
-					$transid = urldecode(get_query_arg('PAYMENTREQUEST_0_TRANSACTIONID'));
+				if (sendMessage($args) && preg_match("/Success/i", urldecode($_REQUEST['ACK']))) {
+					$status = urldecode($_REQUEST['PAYMENTREQUEST_0_PAYMENTSTATUS']);
+					$amount = urldecode($_REQUEST['PAYMENTREQUEST_0_AMT']);
+					$transid = urldecode($_REQUEST['PAYMENTREQUEST_0_TRANSACTIONID']);
 					// FIXME  now what?  we need a post or page to land on
 					sys_log('paypalpro_express_checkout success');
 					freeseat_finish();
@@ -141,6 +142,7 @@ function paypalpro_cancel() {
 	global $lang;
 	show_head();
 	printf($lang["paypalpro_failure_page"], replace_fsp(get_permalink(), PAGE_PAY ));
+	echo "<pre>".print_r($_REQUEST,1)."</pre>";
 	show_foot();
 	exit();
 }
@@ -166,7 +168,8 @@ function paypalpro_form() {
 			<?php echo $lang['paypalpro_message']; ?>
 		</p>
 		<p class="main">
-			<input type="image" name="freeseat-ec" src="https://www.paypal.com/en_US/i/btn/btn_xpressCheckout.gif">
+			<input type="hidden" name="freeseat-form" value="1">
+			<input type="image" src="https://www.paypal.com/en_US/i/btn/btn_xpressCheckout.gif">
 		</p>
 		<hr />
 		<p class="main emph">
@@ -206,73 +209,87 @@ function paypalpro_process() {
 	sys_log('paypalpro_process called');
 }
 
-function paypalpro_sendtoexpress() {
+function freeseat_paypalpro_go() {
 	global $lang;
 	
-	if (!isset( $_REQUEST['freeseat-ec'] )) return;
-	sys_log('paypalpro_sendtoexpress called');
-	$ppParams = array(
-		'METHOD'		=> 'SetExpressCheckout',
-		'DESC'			=> paypalpro_get_memo(),
-		'FIRSTNAME'		=> $_SESSION['firstname'],
-		'LASTNAME'		=> $_SESSION['lastname'],
-		'EMAIL'			=> $_SESSION['email'],
-		'STREET'		=> $_SESSION['address'],
-		'STREET2'		=> '',
-		'CITY'			=> $_SESSION['city'],
-		'STATE'			=> $_SESSION['us_state'],
-		'ZIP'			=> $_SESSION['postalcode'],
-		'COUNTRYCODE'	=> $_SESSION['country'],
-		'INVNUM'		=> $_SESSION['groupid'],
-		'RETURNURL'		=> add_query_arg( array( 'freeseat-return' => 1 ), get_permalink() ),
-		'CANCELURL'		=> add_query_arg( array( 'freeseat-return' => 2 ), get_permalink() ),
-		'PAYMENTREQUEST_0_AMT' => price_to_string(get_total()),
-		'PAYMENTREQUEST_0_CURRENCYCODE' => $lang['paypalpro_currency'],
-		'PAYMENTREQUEST_0_PAYMENTACTION' => 'Sale',
-		'VERSION'		=> '109.0',
-		'LOGOIMG'		=> '', 
-		'CUSTOM'		=> get_the_ID(), // store the post ID to come back to
-	);
-	$response = hashCall($ppParams);
-	if (isset($response['ACK']) && preg_match("/Success/i", $response['ACK'])) {
-		$token = array( 'token' => $response['token'] );
-		sys_log('sendToExpressCheckout called');
-		$wpPayPalFramework->sendToExpressCheckout($token);
+	if ( empty( $_REQUEST['freeseat-form'] ) ) return;
+	// if ( get_query_var( 'fsp' )!=PAGE_FINISH ) return;
+	foreach ($_SESSION["seats"] as $n => $s) {
+		// book each seat here with status ST_BOOKED
+		if (($bookid = book($_SESSION,$s))!==FALSE) { 
+			// seats are now booked, so capture the groupid
+			$_SESSION["seats"][$n]["bookid"] = $bookid;
+			if (!(isset($_SESSION["groupid"]) && $_SESSION["groupid"]!=0))
+				$_SESSION["groupid"] = $bookid;
+		}
+	}
+	$_SESSION["booking_done"] = ST_BOOKED;
+	if (isset( $_REQUEST['x'] )) {
+		sys_log('paypalpro_sendtoexpress called');
+		$ppParams = array(
+			'METHOD'		=> 'SetExpressCheckout',
+			'DESC'			=> paypalpro_get_memo(),
+			'FIRSTNAME'		=> $_SESSION['firstname'],
+			'LASTNAME'		=> $_SESSION['lastname'],
+			'EMAIL'			=> $_SESSION['email'],
+			'STREET'		=> $_SESSION['address'],
+			'STREET2'		=> '',
+			'CITY'			=> $_SESSION['city'],
+			'STATE'			=> $_SESSION['us_state'],
+			'ZIP'			=> $_SESSION['postalcode'],
+			'COUNTRYCODE'	=> $_SESSION['country'],
+			'INVNUM'		=> $_SESSION['groupid'],
+			'RETURNURL'		=> add_query_arg( array( 'freeseat-return' => 1 ), get_permalink() ),
+			'CANCELURL'		=> add_query_arg( array( 'freeseat-return' => 2 ), get_permalink() ),
+			'PAYMENTREQUEST_0_AMT' => price_to_string(get_total()),
+			'PAYMENTREQUEST_0_CURRENCYCODE' => $lang['paypalpro_currency'],
+			'PAYMENTREQUEST_0_PAYMENTACTION' => 'Sale',
+			'VERSION'		=> '109.0',
+			'LOGOIMG'		=> '', 
+			'CUSTOM'		=> get_the_ID(), // store the post ID to come back to
+		);
+		$response = hashCall($ppParams);
+		if (isset($response['ACK']) && preg_match("/Success/i", $response['ACK'])) {
+			$token = array( 'token' => $response['TOKEN'] );
+			sys_log('sendToExpressCheckout called');
+			sendToExpressCheckout($token);
+		} else {
+			sys_log('sendToExpressCheckout failed with '.print_r($response,1));
+			paypalpro_cancel();
+		} 
 	} else {
-		return $response;
-	} 
-}
-
-function paypalpro_calldirect() {
-	global $lang;
-	
-	$ppParams = array(
-		'METHOD'		=> 'doDirectPayment',
-		'PAYMENTACTION'	=> 'Sale',
-		'IPADDRESS'		=> paypalpro_user_ip(),
-		'AMT'			=> price_to_string(get_total()),
-		'DESC'			=> paypalpro_get_memo(),
-		'CREDITCARDTYPE' => $_SESSION['paypalpro_type'],
-		'ACCT'			=> $_SESSION['paypalpro_account'],
-		'EXPDATE'		=> $_SESSION['paypalpro_exp'],
-		'CVV2'			=> $_SESSION['paypalpro_cvv2'],
-		'FIRSTNAME'		=> $_SESSION['firstname'],
-		'LASTNAME'		=> $_SESSION['lastname'],
-		'EMAIL'			=> $_SESSION['email'],
-		'STREET'		=> $_SESSION['address'],
-		'STREET2'		=> '',
-		'CITY'			=> $_SESSION['city'],
-		'STATE'			=> $_SESSION['us_state'],
-		'ZIP'			=> $_SESSION['postalcode'],
-		'COUNTRYCODE'	=> $_SESSION['country'],
-		'INVNUM'		=> $_SESSION['groupid'],
-		'CURRENCYCODE'	=> $lang['paypalpro_currency'],
-	);
-	sys_log('paypalpro_calldirect called with '.print_r($ppParams,1));
-	$response = hashCall($ppParams);
-	if (isset($response['ACK']) && preg_match("/Success/i", $response['ACK'])) return TRUE;
-	sys_log('paypalpro_calldirect failed with '.print_r($response,1));
-	return FALSE;
+		sys_log('paypalpro_calldirect called');
+		$ppParams = array(
+			'METHOD'		=> 'doDirectPayment',
+			'PAYMENTACTION'	=> 'Sale',
+			'IPADDRESS'		=> paypalpro_user_ip(),
+			'AMT'			=> price_to_string(get_total()),
+			'DESC'			=> paypalpro_get_memo(),
+			'CREDITCARDTYPE' => $_SESSION['paypalpro_type'],
+			'ACCT'			=> $_SESSION['paypalpro_account'],
+			'EXPDATE'		=> $_SESSION['paypalpro_exp'],
+			'CVV2'			=> $_SESSION['paypalpro_cvv2'],
+			'FIRSTNAME'		=> $_SESSION['firstname'],
+			'LASTNAME'		=> $_SESSION['lastname'],
+			'EMAIL'			=> $_SESSION['email'],
+			'STREET'		=> $_SESSION['address'],
+			'STREET2'		=> '',
+			'CITY'			=> $_SESSION['city'],
+			'STATE'			=> $_SESSION['us_state'],
+			'ZIP'			=> $_SESSION['postalcode'],
+			'COUNTRYCODE'	=> $_SESSION['country'],
+			'INVNUM'		=> $_SESSION['groupid'],
+			'CURRENCYCODE'	=> $lang['paypalpro_currency'],
+		);
+		sys_log('paypalpro_calldirect called');
+		$response = hashCall($ppParams);
+		if (isset($response['ACK']) && preg_match("/Success/i", $response['ACK'])) {
+			$_SESSION["booking_done"] = ST_PAID;
+		} else {
+			sys_log('paypalpro_calldirect failed with '.print_r($response,1));
+			paypalpro_cancel();
+		}
+	}
 }
 
 function paypalpro_get_memo() {
@@ -455,8 +472,6 @@ class wpPayPalFramework {
 	private function _getSettings() {
 		global $lang;
 		if (empty($this->_settings))
-			$this->_settings = get_option( $this->_optionsName );
-		if ( !is_array( $this->_settings ) )
 			$this->_settings = array();
 
 		$defaults = array(
@@ -543,7 +558,7 @@ class wpPayPalFramework {
 			'sslverify' => apply_filters( 'paypal_framework_sslverify', false ),
 			'timeout' 	=> 30,
 		);
-
+		sys_log('hashCall called with '.print_r($params,1));
 		// Send the request
 		$resp = wp_remote_post( $this->_endpoint[$this->_settings['sandbox']], $params );
 
@@ -652,11 +667,11 @@ class wpPayPalFramework {
 		$resp = wp_remote_post( $this->_url[$this->_settings['sandbox']], $params );
 		// If the response was valid, check to see if the request was valid
 		if ( !is_wp_error($resp) && $resp['response']['code'] >= 200 && $resp['response']['code'] < 300 && (strcmp( $resp['body'], "Success") == 0)) {
-			$this->_debug_mail( __( 'Paypal Validation Succeeded', 'paypal-framework' ), $message );
+			$this->_debug_mail( __( 'Paypal Validation Succeeded', 'paypal-framework' ), $resp['body'] );
 			return true;
 		} else {
 			// If we can't validate the message, assume it's bad
-			$this->_debug_mail( __( 'Paypal Validation Failed', 'paypal-framework' ), $message );
+			$this->_debug_mail( __( 'Paypal Validation Failed', 'paypal-framework' ), $resp['body'] );
 			return false;
 		}
 	}
@@ -733,6 +748,16 @@ class wpPayPalFramework {
 function hashCall ($args) {
 	$wpPayPalFramework = wpPayPalFramework::getInstance();
 	return $wpPayPalFramework->hashCall($args);
+}
+
+function sendToExpressCheckout ($args) {
+	$wpPayPalFramework = wpPayPalFramework::getInstance();
+	return $wpPayPalFramework->sendToExpressCheckout($args);
+}
+
+function sendMessage ($args) {
+	$wpPayPalFramework = wpPayPalFramework::getInstance();
+	return $wpPayPalFramework->sendMessage($args);
 }
 
 function paypalFramework_legacy_function() {
