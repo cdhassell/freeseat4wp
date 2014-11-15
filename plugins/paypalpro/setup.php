@@ -85,7 +85,7 @@ function freeseat_ipn( $repost ) {
 }
 
 /**
- *  Called to handle the jump back from paypal express checkout
+ *  Handle the jump back from paypal express checkout
  */
 function freeseat_express_checkout( $data ) {
 	global $lang;
@@ -115,8 +115,9 @@ function freeseat_express_checkout( $data ) {
 					$amount = urldecode(get_query_arg('PAYMENTREQUEST_0_AMT'));
 					$transid = urldecode(get_query_arg('PAYMENTREQUEST_0_TRANSACTIONID'));
 					// FIXME  now what?  we need a post or page to land on
-					wp_redirect(home_url("/?p=$postid&fsp=5"));
-					exit();
+					freeseat_finish();
+					// wp_redirect(replace_fsp(get_permalink($postid),PAGE_FINISH));
+					// exit();
 				} else {
 					sys_log("DoExpressCheckoutPayment failed");
 				}
@@ -163,30 +164,30 @@ function paypalpro_form() {
 		<p class="main">
 			<?php echo $lang['paypalpro_message']; ?>
 		</p>
-		<p class="main"><!-- FIXME -->
-			<input type="image" id="" name="submit" src="https://www.paypal.com/en_US/i/btn/btn_xpressCheckout.gif">
+		<p class="main">
+			<input type="image" name="freeseat-ec" src="https://www.paypal.com/en_US/i/btn/btn_xpressCheckout.gif">
 		</p>
 		<hr />
 		<p class="main emph">
-		<?php echo $lang['paypalpro_title']; ?>
+			<?php echo $lang['paypalpro_title']; ?>
 		</p>
 		<p class="main">
-		<?php echo $lang['paypalpro_nameoncard']; ?>&emsp;
-		<?php input_field("firstname"); ?>&emsp;
-		<?php input_field("lastname"); ?>
+			<?php echo $lang['paypalpro_nameoncard']; ?>&emsp;
+			<?php input_field("firstname"); ?>&emsp;
+			<?php input_field("lastname"); ?>
 		</p>
 		<p class="main">
-		<?php 
-			select_one("paypalpro_type", array( 'visa'=> 'Visa','mastercard' => 'MasterCard', 'amex' => 'American Express', 'discover' => 'Discover' ));
-			input_field("paypalpro_account", "", " size=20");
-		?>
+			<?php 
+				select_one("paypalpro_type", array( 'visa'=> 'Visa','mastercard' => 'MasterCard', 'amex' => 'American Express', 'discover' => 'Discover' ));
+				input_field("paypalpro_account", "", " size=20");
+			?>
 		</p>
 		<p class="main">
-		<?php
-			select_one("paypalpro_expmonth", $months);
-			select_one("paypalpro_expyear", $years);
-			input_field("paypalpro_cvv2", "", " size=5 title='{$lang['paypalpro_cvv2_text']}'");
-		?>
+			<?php
+				select_one("paypalpro_expmonth", $months);
+				select_one("paypalpro_expyear", $years);
+				input_field("paypalpro_cvv2", "", " size=5 title='{$lang['paypalpro_cvv2_text']}'");
+			?>
 		</p>
 		<p class="main">
 			<input class="button button-primary" type="submit" value="<?php echo $lang["continue"]; ?>">
@@ -204,7 +205,8 @@ function paypalpro_process() {
 
 function paypalpro_sendtoexpress() {
 	global $lang;
-
+	
+	if (!isset( $_REQUEST['freeseat-ec'] )) return;
 	$ppParams = array(
 		'METHOD'		=> 'SetExpressCheckout',
 		'DESC'			=> paypalpro_get_memo(),

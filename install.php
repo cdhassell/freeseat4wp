@@ -532,13 +532,7 @@ function freeseat_install_data() {
 (1, 'The Tempest', '$filespec', 'This classic Shakespearean play is set on a remote island, where Prospero, the rightful Duke of Milan, plots to restore his daughter Miranda to her rightful place using illusion and skillful manipulation. He conjures up a storm to lure his usurping brother Antonio and the complicit King Alonso of Naples to the island. There, his machinations bring about the revelation of Antonio\'s lowly nature, the redemption of the King, and the marriage of Miranda to Alonso\'s son, Ferdinand.', '');");
 	$wpdb->query("INSERT INTO freeseat_theatres (id, name, imagesrc, staggered_seating) VALUES
 	(1, 'Two reserved classes 4x30&6x32, lettered rows', NULL, 0);");
-	
-	/* $post = array(
-		'id' => 1,
-		'name' => 'The Tempest',
-		'imageid' => 0,
-	);
-	show_post($post); */
+	show_post(array('id' => 1, 'name' => 'The Tempest'));
 }
 
 /**

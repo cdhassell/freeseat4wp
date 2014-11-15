@@ -41,14 +41,15 @@ function freeseat_pay( $page_url )
 	$seatcount = count($_SESSION["seats"]);
 	
 	show_head();
-	
-	echo '<h2>'.$lang["summary"].'</h2>';
-	/* echo "<p>";
+	?>
+	<h2><?php echo $lang["summary"]; ?></h2>
+	<?php /* echo "<p>";
 	show_show_info($sh);
-	echo "</p>"; */
-	echo print_booked_seats();
-	echo "<div class='user-info'>";
-	echo '<h3>'.$lang["ticket_details"].'</h3>';
+	echo "</p>"; */ ?>
+	<?php echo print_booked_seats(); ?>
+	<div class="user-info">
+	<h3><?php echo $lang["ticket_details"]; ?></h3>
+	<?php
 	echo '<form action="' . replace_fsp( $page_url, PAGE_CONFIRM ). '" method="post">';
 	if (function_exists('wp_nonce_field')) wp_nonce_field('freeseat-pay-input');
 	if (!isset($_SESSION["payment"])) $_SESSION["payment"]= PAY_CCARD;
@@ -59,7 +60,6 @@ function freeseat_pay( $page_url )
 	
 	/* All categories from which the user may choose, mapped to their $lang key. */
 	$cats = array();
-	
 	$cats[CAT_NORMAL] = "cat_normal";
 	
 	if ($discount_option) {
@@ -68,12 +68,9 @@ function freeseat_pay( $page_url )
 		echo '<p class="main">'.stripslashes($lowpriceconditions).'</p>';
 	}
 	
-	if (admin_mode())
-		$cats[CAT_FREE] = "cat_free";
+	if (admin_mode()) $cats[CAT_FREE] = "cat_free";
 	
 	if (count($cats) > 1) {
-		/* If neither of those two hold, the only option is normal mode... */
-	
 		if ($seatcount==1) {
 			/* see which one to select by defaut */
 			$def=CAT_NORMAL;
@@ -124,58 +121,54 @@ function freeseat_pay( $page_url )
 		}
 	}
 	
+	?>
+	<p class="main">
+		<?php echo $lang["select_payment"]; ?><br />
+		<?php pay_option(PAY_CCARD); ?>
+		<?php pay_option(PAY_POSTAL); ?>
+		<?php pay_option(PAY_CASH); ?>
+		<?php pay_option(PAY_OTHER); ?>
+	</p>
+	<?php do_hook('other_payment_info'); ?>
+	</div>
 	
-	echo'<p class="main">'.$lang["select_payment"] . '<br />';
-	pay_option(PAY_CCARD);
-	pay_option(PAY_POSTAL);
-	pay_option(PAY_CASH);
-	pay_option(PAY_OTHER);
-	echo '</p>';
-	do_hook('other_payment_info');
-	echo "</div>";	
-	
-	echo "<div class='paymentinfo'>";
-
-	echo '<div class="paymentblock">';
-	echo '<h2>'.$lang["youare"].'</h2>';
-	echo '<p class="main">'.$lang["reqd_info"].'</p>';
-	echo '<p class="main">';
-	input_field("firstname");
-	echo ' ';
-	input_field("lastname");
-	echo '</p><p class="main">';
-	input_field("phone");
-	echo ' ';
-	input_field("email",""," size=15");
-	echo '</p><p class="main">';
-	input_field("address",""," size=30");
-	echo '</p><p class="main">';
-	input_field("postalcode",""," size=8");
-	echo ' ';
-	input_field("city",""," size=12");
-	// we will skip the us_state and/or country fields if the defaults are not set in config.php
-	if ($pref_state_code != "")  {
-		echo '</p><p class="main">';
-		echo $lang["us_state"].'&nbsp;:&nbsp;';
-		select_state();
-	}
-	if ($pref_country_code != "")  {
-		echo '</p><p class="main">';
-		echo $lang["country"].'&nbsp;:&nbsp;';
-		select_country();
-	}
-	echo '</p>';
-	echo '</div><!-- end of pamentblock -->'; 
-	if (payment_open($sh,PAY_CCARD)) {
-	  do_hook('ccard_partner');
-	}
-	echo '<div class="clear-both"></div>';
-	echo '</div><!-- end of paymentinfo -->';
-	echo '<p class="main">';
-	echo '<input class="button button-primary" type="submit" value="'.$lang["continue"].'">';
-	echo '</p></form>';
-	
+	<div class='paymentinfo'>
+	<div class="paymentblock">
+	<h2><?php echo $lang["youare"]; ?></h2>
+	<p class="main"><?php echo $lang["reqd_info"]; ?></p>
+	<p class="main">
+		<?php input_field("firstname"); ?> <?php input_field("lastname"); ?>
+	</p>
+	<p class="main">
+		<?php input_field("phone"); ?> <?php input_field("email",""," size=15"); ?>
+	</p>
+	<p class="main">
+		<?php input_field("address",""," size=30"); ?>
+	</p>
+	<p class="main">
+		<?php input_field("postalcode",""," size=8"); ?> <?php input_field("city",""," size=12"); 
+		// we will skip the us_state and/or country fields if the defaults are not set in config.php
+		if ($pref_state_code != "")  {
+			echo '</p><p class="main">';
+			echo $lang["us_state"].'&nbsp;:&nbsp;';
+			select_state();
+		}
+		if ($pref_country_code != "")  {
+			echo '</p><p class="main">';
+			echo $lang["country"].'&nbsp;:&nbsp;';
+			select_country();
+		}
+		?>
+	</p>
+	</div><!-- end of pamentblock -->
+	<?php if (payment_open($sh,PAY_CCARD)) do_hook('ccard_partner'); ?>
+	<div class="clear-both"></div>
+	</div><!-- end of paymentinfo -->
+	<p class="main">
+		<input class="button button-primary" type="submit" value="<?php echo $lang["continue"]; ?>">
+	</p>
+	</form>
+	<?php 
 	show_foot();
-
 }	// end of freeseat_pay
 
