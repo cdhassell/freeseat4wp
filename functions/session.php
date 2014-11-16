@@ -140,6 +140,7 @@ function kill_booking_done() {
 		}
 		unset($_SESSION["showid"]);
 		unset($_SESSION["mail_sent"]);
+		unset($_SESSION["groupid"]);
 		foreach (array(CAT_REDUCED, CAT_NORMAL, CAT_FREE) as $cat) { 
 			if (isset($_SESSION["ncat$cat"])) 
 				unset($_SESSION["ncat$cat"]);

@@ -97,7 +97,6 @@ function freeseat_express_checkout( $data ) {
 		case 1:
 			// payment successful
 			$token = urldecode(get_query_var('token'));
-			// $payerid = urldecode(get_query_var('PayerID'));
 			$version = 109.0;
 			$args = array( 
 				'TOKEN' => $token, 
@@ -134,7 +133,7 @@ function freeseat_express_checkout( $data ) {
 			// wtf?
 			sys_log("Express checkout return value unknown: ".$qv);
 	}
-	paypalpro_cancel();
+	$_GET['fsp'] = PAGE_FINISH;
 }
 
 function paypalpro_cancel() {
@@ -217,9 +216,9 @@ function paypalpro_process() {
 function freeseat_paypalpro_go() {
 	global $lang;
 	
-	if ( empty( $_REQUEST['freeseat-form'] ) ) return;
-	// if ( get_query_var( 'fsp' )!=PAGE_FINISH ) return;
+	if ( !isset( $_REQUEST['freeseat-form'] ) ) return;
 	paypalpro_process();
+	unset($_SESSION["groupid"]);
 	foreach ($_SESSION["seats"] as $n => $s) {
 		// book each seat here with status ST_BOOKED
 		if (($bookid = book($_SESSION,$s))!==FALSE) { 
@@ -245,8 +244,8 @@ function freeseat_paypalpro_go() {
 			'ZIP'			=> $_SESSION['postalcode'],
 			'COUNTRYCODE'	=> $_SESSION['country'],
 			'INVNUM'		=> $_SESSION['groupid'],
-			'RETURNURL'		=> add_query_arg( array( 'freeseat-return' => 1, 'fsp' => PAGE_FINISH ), get_permalink() ),
-			'CANCELURL'		=> add_query_arg( array( 'freeseat-return' => 2, 'fsp' => PAGE_FINISH ), get_permalink() ),
+			'RETURNURL'		=> add_query_arg( array( 'freeseat-return' => 1 ), get_permalink() ),
+			'CANCELURL'		=> add_query_arg( array( 'freeseat-return' => 2 ), get_permalink() ),
 			'PAYMENTREQUEST_0_AMT' => price_to_string(get_total()),
 			'PAYMENTREQUEST_0_CURRENCYCODE' => $lang['paypalpro_currency'],
 			'PAYMENTREQUEST_0_PAYMENTACTION' => 'Sale',
@@ -295,6 +294,7 @@ function freeseat_paypalpro_go() {
 			sys_log('paypalpro_calldirect failed with '.print_r($response,1));
 			paypalpro_cancel();
 		}
+		$_GET['fsp'] = PAGE_FINISH;
 	}
 }
 
@@ -402,7 +402,7 @@ function select_one( $name, $options ) {
 }
 
 function paypalpro_cleanup() {
-	// clear session variables after use
+	// clear credit card session variables after use
 	unset($_SESSION['paypalpro_type']);
 	unset($_SESSION['paypalpro_account']);
 	unset($_SESSION['paypalpro_exp']);

@@ -51,37 +51,6 @@ function get_bookings($cond,$orderby = "booking.id",$offset = 0,$limit = 9999999
   return fetch_all( "SELECT booking.id as bookid, booking.*, seat, seats.row, seats.col, seats.extra, seats.zone, seats.class, showid, shows.date, shows.time, shows.spectacle as spectacleid, theatres.name as theatrename, theatres.id as theatreid, seats.x, seats.y FROM booking, shows, seats, theatres WHERE $cond booking.seat = seats.id and booking.showid=shows.id and shows.theatre = theatres.id $orderby LIMIT " . ( (int)$limit ) . " OFFSET " . ( (int)$offset ) );
 }
 
-/** filter all bookings according to the given filter, order them
-    according to attr, take $cnt rows starting from $offset'th, and
-    return an array of two elements, the value of the attribute $attr
-    for the first and last row in the slice. Return false in case of
-    problem (eg no rows match the given filter). NOTE conditions can
-    only be done on the booking table (not shows, seats etc) */
-function get_slice($attr,$filter="",$offset=0) {
-	global $bookings_on_a_page;
-	if ($filter) $filter = "where $filter";
-
-	$cnt = $bookings_on_a_page;
-	/*
-	if (!($r = mysql_query("select $attr from booking $filter order by $attr limit $cnt offset $offset")))
-		return myboom();
-	$cnt = mysql_num_rows($r); // may be smaller than requested $cnt
-	if (!($line = mysql_fetch_row($r)))
-		return false; // no results
-	$res = array($line[0]);
-	if (!mysql_data_seek($r,$cnt-1)) return myboom();
-	if (!($line = mysql_fetch_row($r))) return myboom("could not read slice's last row"); // ??
-	$res[] = $line[0];
-	*/
-	// going with a less elegant but more WP-friendly approach
-	$q = "select $attr from booking $filter order by $attr limit $cnt offset $offset";
-	$slice = fetch_all_n( $q );
-	if ( sizeof( $slice ) == 0 ) return false;
-	$first = array_shift( $slice );
-	$last = array_pop( $slice );
-	return array( $first[0], $last[0] );
-}
-
 function get_booking($id) {
   if ($zou = get_bookings("booking.id=$id")) {
     //    print_r($zou);
