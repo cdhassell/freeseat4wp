@@ -25,16 +25,12 @@ add_filter( 'query_vars', __NAMESPACE__ . '\\freeseat_express_checkout_query' );
 
 function freeseat_plugin_init_paypalpro() {
     global $freeseat_plugin_hooks;
-
+    
+	$freeseat_plugin_hooks['ccard_exists']['paypalpro'] = 'paypalpro_true';
 	$freeseat_plugin_hooks['params_edit_ccard']['paypalpro'] = 'paypalpro_editparams';
 	$freeseat_plugin_hooks['params_post']['paypalpro'] = 'paypalpro_postedit';
-	
-	$freeseat_plugin_hooks['ccard_exists']['paypalpro'] = 'paypalpro_true';
 	$freeseat_plugin_hooks['ccard_confirm_button']['paypalpro'] = 'paypalpro_form';
 	$freeseat_plugin_hooks['confirm_process']['paypalpro'] = 'paypalpro_process'; 	
-	
-	// $freeseat_plugin_hooks['check_session']['paypalpro'] = 'paypalpro_checksession';
-	
 	$freeseat_plugin_hooks['kill_booking_done']['paypalpro'] = 'paypalpro_cleanup';
 	init_language('paypalpro');
 }
@@ -75,7 +71,7 @@ function freeseat_ipn( $repost ) {
 			case "Pending": 
 				// ok but status is pending, don't record it yet
 				sys_log("Paypal IPN verified with status Pending GID=$groupid Amt=$unsafeamount ");
-				paypal_extend( $groupid );
+				paypalpro_extend( $groupid );
 				break;
 			default: 
 				// wtf?
@@ -99,6 +95,7 @@ function freeseat_express_checkout( $data ) {
 		case 1:
 			// payment successful
 			$token = urldecode(get_query_var('token'));
+			$payerid = urldecode(get_query_var('PayerID'));
 			$version = 109.0;
 			$args = array( 
 				'TOKEN' => $token, 
@@ -115,11 +112,11 @@ function freeseat_express_checkout( $data ) {
 					$status = urldecode($_REQUEST['PAYMENTREQUEST_0_PAYMENTSTATUS']);
 					$amount = urldecode($_REQUEST['PAYMENTREQUEST_0_AMT']);
 					$transid = urldecode($_REQUEST['PAYMENTREQUEST_0_TRANSACTIONID']);
-					// FIXME  now what?  we need a post or page to land on
-					sys_log('paypalpro_express_checkout success');
-					freeseat_finish();
-					// wp_redirect(replace_fsp(get_permalink($postid),PAGE_FINISH));
-					// exit();
+					sys_log("paypalpro_express_checkout success: status = $status, amount = $amount, transid = $transid");
+					if ($status=='Completed')
+						process_ccard_transaction($groupid,$transid,$amount);
+					if ($status=='Pending')
+						paypalpro_extend( $groupid );
 				} else {
 					sys_log("DoExpressCheckoutPayment failed");
 				}
@@ -140,11 +137,7 @@ function freeseat_express_checkout( $data ) {
 
 function paypalpro_cancel() {
 	global $lang;
-	show_head();
-	printf($lang["paypalpro_failure_page"], replace_fsp(get_permalink(), PAGE_PAY ));
-	echo "<pre>".print_r($_REQUEST,1)."</pre>";
-	show_foot();
-	exit();
+	kaboom( printf($lang["paypalpro_failure_page"], replace_fsp(get_permalink(), PAGE_PAY )) );
 }
 
 /** 
@@ -209,15 +202,21 @@ function paypalpro_process() {
 	sys_log('paypalpro_process called');
 }
 
+/**
+ *  The function is called on the template_redirect action hook 
+ *  If we have to redirect to the paypal site, we need to do it before the page is printed
+ *  Uses the $_POST['x'] variable to distinguish between Express Checkout and Direct Payment
+ */
 function freeseat_paypalpro_go() {
 	global $lang;
 	
 	if ( empty( $_REQUEST['freeseat-form'] ) ) return;
-	// if ( get_query_var( 'fsp' )!=PAGE_FINISH ) return;
+	if ( get_query_var( 'fsp' )!=PAGE_FINISH ) return;
+	paypalpro_process();
 	foreach ($_SESSION["seats"] as $n => $s) {
 		// book each seat here with status ST_BOOKED
 		if (($bookid = book($_SESSION,$s))!==FALSE) { 
-			// seats are now booked, so capture the groupid
+			// assign the groupid as the first booked seat in the group
 			$_SESSION["seats"][$n]["bookid"] = $bookid;
 			if (!(isset($_SESSION["groupid"]) && $_SESSION["groupid"]!=0))
 				$_SESSION["groupid"] = $bookid;
@@ -239,8 +238,8 @@ function freeseat_paypalpro_go() {
 			'ZIP'			=> $_SESSION['postalcode'],
 			'COUNTRYCODE'	=> $_SESSION['country'],
 			'INVNUM'		=> $_SESSION['groupid'],
-			'RETURNURL'		=> add_query_arg( array( 'freeseat-return' => 1 ), get_permalink() ),
-			'CANCELURL'		=> add_query_arg( array( 'freeseat-return' => 2 ), get_permalink() ),
+			'RETURNURL'		=> add_query_arg( array( 'freeseat-return' => 1, 'fsp' => PAGE_FINISH ), get_permalink() ),
+			'CANCELURL'		=> add_query_arg( array( 'freeseat-return' => 2, 'fsp' => PAGE_FINISH ), get_permalink() ),
 			'PAYMENTREQUEST_0_AMT' => price_to_string(get_total()),
 			'PAYMENTREQUEST_0_CURRENCYCODE' => $lang['paypalpro_currency'],
 			'PAYMENTREQUEST_0_PAYMENTACTION' => 'Sale',
@@ -366,26 +365,6 @@ function paypalpro_editparams($options) {
 <?php
 }
 
-function paypalpro_checksession($level) {
-	global $lang;
-	if ($level == 4) {
-		if (($_SESSION["payment"]==PAY_CCARD) && !(
-			isset($_SESSION["firstname"]) && ($_SESSION["firstname"]!='') &&
-			isset($_SESSION["address"]) && ($_SESSION["address"]!='') &&
-			isset($_SESSION["postalcode"]) && ($_SESSION["postalcode"]!='') &&
-			isset($_SESSION["city"]) && ($_SESSION["city"]!='') &&
-		 	isset($_SESSION["paypalpro_type"]) && ($_SESSION["paypalpro_type"]!='') &&
-			isset($_SESSION["paypalpro_account"]) && ($_SESSION["paypalpro_account"]!='') &&
-			isset($_SESSION["paypalpro_exp"]) && ($_SESSION["paypalpro_exp"]!='') &&
-			isset($_SESSION["paypalpro_cvv2"]) && ($_SESSION["paypalpro_cvv2"]!='') 
-		)) {
-    		kaboom($lang["paypalpro_err"]);
-    		return true; // not good.
-		}
-	}
-	return false; // all is fine
-}
-
 function paypalpro_user_ip() {
 	if ( ! empty( $_SERVER['HTTP_CLIENT_IP'] ) ) {
 		$ip = $_SERVER['HTTP_CLIENT_IP'];
@@ -423,6 +402,13 @@ function paypalpro_cleanup() {
 	unset($_SESSION['paypalpro_expmonth']);
 	unset($_SESSION['paypalpro_expyear']);
 	unset($_SESSION['paypalpro_cvv2']);
+}
+
+function paypalpro_extend($groupid) {
+	// Extend the expiration of a pending payment 
+	$extend_date = date("Y-m-d H:i:s",time()+86400*4);
+	$q="UPDATE booking SET timestamp='$extend_date' WHERE booking.groupid=$groupid OR booking.id=$groupid";
+	if (!freeseat_query( $q )) sys_log(freeseat_mysql_error());
 }
 
 

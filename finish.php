@@ -46,8 +46,6 @@ function freeseat_finish( $page_url ) {
 			}
 		}
 		$_SESSION["booking_done"] = ST_BOOKED;
-		// did we get the payment already?
-		if (do_hook_function('finish_ccard')) $_SESSION["booking_done"] = ST_PAID;
 	}
 	
 	if ( $_SESSION["payment"]==PAY_CCARD) {
