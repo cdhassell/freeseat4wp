@@ -135,12 +135,7 @@ $lang["immediately"] = 'immediately';
 $lang["import"] = 'Upload this file';
 $lang["in"] = 'in %1$s'; // as in "in <ten days>"
 $lang["index_head"] = 'Our Current Shows';
-$lang["intro_ccard"] = <<<EOD
- <h2>Thank you for your reservation!</h2>
-
-<p class="main">Please wait ... </p>
-EOD;
-
+$lang["intro_ccard"] = '<h2>Thank you for your reservation!</h2>';
 $lang["intro_confirm"] = 'Please check and make any required changes before confirming your reservation';
 $lang["intro_finish"] = 'ENTRY TICKET<br> Please print this page and bring it to the show.';
 $lang["intro_params"] = <<<EOD
@@ -462,8 +457,7 @@ $lang["remail"] = 'Have you lost your ticket? Click here for %1$sReservation ret
 $lang["reminders"] = 'Reminders';
 $lang["remove"] = 'Remove';
 $lang["remove_items"] = 'Remove checked items';
-$lang["reqd_info"] = 'Please provide all of the following information.  Double check your email address.<br>
-If you enter an incorrect email address, we will not be able to send you a receipt.';
+$lang["reqd_info"] = 'Please provide all of the following information.  Double check your email address.  If you enter an incorrect email address, we will not be able to send you a receipt.';
 $lang["reserved-header"] = 'Reserved Seat Tickets';
 $lang["row"] = 'Row';
 

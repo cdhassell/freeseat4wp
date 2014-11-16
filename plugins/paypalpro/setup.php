@@ -41,6 +41,8 @@ function paypalpro_true($void) {
 
 function freeseat_express_checkout_query($vars) {
 	$vars[] = 'freeseat-return';
+	$vars[] = 'fsp';
+	$vars[] = 'token';
 	return $vars;
 }
 
@@ -88,14 +90,14 @@ function freeseat_express_checkout( $data ) {
 	global $lang;
 	// check to see if we are returning from paypal on express checkout
 	// go through all of the steps to confirm the payment in this function
-	// http://test.hbg-cpac.org/freeseat_1/?freeseat-return=1&token=EC-29J24760XE004145C&PayerID=6L2CBG9GT6U6W
+	// http://test.hbg-cpac.org/freeseat_1/?freeseat-return=1&fsp=5&token=EC-88441505LY3895544&PayerID=6L2CBG9GT6U6W
 	$qv = get_query_var( 'freeseat-return' );
 	if ( empty($qv) ) return;
 	switch ( $qv ) {
 		case 1:
 			// payment successful
 			$token = urldecode(get_query_var('token'));
-			$payerid = urldecode(get_query_var('PayerID'));
+			// $payerid = urldecode(get_query_var('PayerID'));
 			$version = 109.0;
 			$args = array( 
 				'TOKEN' => $token, 
@@ -137,7 +139,12 @@ function freeseat_express_checkout( $data ) {
 
 function paypalpro_cancel() {
 	global $lang;
-	kaboom( printf($lang["paypalpro_failure_page"], replace_fsp(get_permalink(), PAGE_PAY )) );
+	
+	if (isset($_REQUEST['L_LONGMESSAGE0'])) {
+		$msg = $_REQUEST['L_ERRORCODE0']." ".$_REQUEST['L_SEVERITYCODE0'].": ".$_REQUEST['L_LONGMESSAGE0'];
+		sys_log($msg);
+	}	
+	kaboom( $lang["paypalpro_failure_page"] );  // replace_fsp(get_permalink(), PAGE_PAY )) );
 }
 
 /** 
@@ -170,7 +177,7 @@ function paypalpro_form() {
 		</p>
 		<p class="main">
 			<?php echo $lang['paypalpro_nameoncard']; ?>&emsp;
-			<?php input_field("firstname"); ?>&emsp;
+			<?php input_field("firstname"); ?>
 			<?php input_field("lastname"); ?>
 		</p>
 		<p class="main">
@@ -211,7 +218,7 @@ function freeseat_paypalpro_go() {
 	global $lang;
 	
 	if ( empty( $_REQUEST['freeseat-form'] ) ) return;
-	if ( get_query_var( 'fsp' )!=PAGE_FINISH ) return;
+	// if ( get_query_var( 'fsp' )!=PAGE_FINISH ) return;
 	paypalpro_process();
 	foreach ($_SESSION["seats"] as $n => $s) {
 		// book each seat here with status ST_BOOKED
