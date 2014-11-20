@@ -267,6 +267,7 @@ function check_seats() {
     	//       echo "\nunion = "; print_r($seats); echo "</pre>";
 		if (count($expanded)<$s["cnt"]) {$success = false;}
 	}
+	// since we are now carrying a shopping cart in the session, don't replace the seats array
 	// $_SESSION["seats"] = $seats;
 	return $success;
 }

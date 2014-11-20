@@ -5,6 +5,10 @@ if (!class_exists('DOMPDF')) {
 }
 $dompdf = new \DOMPDF();
 
+add_action( 'template_redirect', __NAMESPACE__ . '\\freeseat_pdftickets_redirect' );
+add_filter( 'query_vars', __NAMESPACE__ . '\\freeseat_pdftickets_query' );
+
+
 /** pdftickets/setup.php
   *
   * Copyright (c) 2010 by twowheeler
@@ -20,7 +24,7 @@ $dompdf = new \DOMPDF();
  *  Rewritten for Wordpress, with everything in this file.
  *  In WP, we have to prevent any output prior to issuing the header
  *  call for the download.  That is done with ob_start() hooked on 
- *  the add_action('init') call.
+ *  the add_action() call.
  *  
  *  This plugin stores a series of tickets into SESSION["pdftickets"], 
  *  and on a second pass returns here to generate the pdf file or
@@ -33,51 +37,37 @@ function freeseat_plugin_init_pdftickets() {
     $freeseat_plugin_hooks['ticket_render']['pdftickets'] = 'pdftickets_render';
     $freeseat_plugin_hooks['ticket_finalise']['pdftickets'] = 'pdftickets_finalise';
     $freeseat_plugin_hooks['kill_booking_done']['pdftickets'] = 'pdftickets_cleanup';
-    add_action( 'init', __NAMESPACE__ . '\\freeseat_pdftickets_redirect' );
     init_language('pdftickets');
 }
 
-function pdftickets_prepare() {}
+function freeseat_pdftickets_query($vars) {
+	$vars[] = 'freeseat-mode';
+	return $vars;
+}
+
+function pdftickets_prepare() 
+{ pdftickets_cleanup(); }
 
 function pdftickets_render($booking) {}
 
 function pdftickets_finalise() {
 	global $lang, $page_url, $dompdf;
-
-	if (isset($_GET['freeseat-ticket-mode'])) {
-		// create the html for the ticket output
-		if ( !isset($_SESSION['pdftickets'] )) {
-			$_SESSION['pdftickets'] = pdftickets_maketickets();
-		}
-		$html = $_SESSION['pdftickets']; 
-
-		/* Now convert $html to $pdf */
-		$dompdf = new \DOMPDF();  
-		$dompdf->load_html($html);
-		$dompdf->render();
-		if ( $_GET["freeseat-ticket-mode"] == 'pdf-mail' && !isset($_SESSION['pdftickets_emailsent'])) {
-			// ready to send by email
-			$pdf = $dompdf->output();
-			pdftickets_sendtickets($pdf);
-		} elseif ($_GET["freeseat-ticket-mode"] == 'pdf-file' ) {
-			// ready to download
-			ob_end_clean();
-			$dompdf->stream( 'mytickets.pdf' );
-			exit();
-		}
-	}
+	$_SESSION['pdftickets_return'] = $_SERVER['REQUEST_URI'];
 	// display the page to the user
 	echo "<div class='dontprint'>";
 	echo "<h2>".$lang['pdftickets_thankyou']."</h2><p class='main'></p>";  
 	echo "<p class='main'><table><tr><td>";
 	echo "<div id='download-image'>";
 	echo "<img src='".plugins_url( "down.png", __FILE__ )."'></div></td><td><p>";
-	printf($lang["pdftickets_download_link"],'[<a href="'.replace_fsp($page_url,PAGE_FINISH).'&freeseat-ticket-mode=pdf-file">','</a>]');
+	printf($lang["pdftickets_download_link"],'[<a href="'.add_query_arg(array('freeseat-mode'=>'file'), home_url()).'">','</a>]');
 	echo '</p>';
 	if (isset($_SESSION['email']) && is_email_ok($_SESSION['email'])) {
 		echo '<p>';
-		printf($lang["pdftickets_email_link"],'[<a href="'.replace_fsp($page_url,PAGE_FINISH).'&freeseat-ticket-mode=pdf-mail">','</a>]',$_SESSION['email'])."<div id='mailsent'></div>";
-		if (isset($_SESSION['pdftickets_emailsent'])) echo "&nbsp;&nbsp;&nbsp;<b> Sent!</b>";
+		if (isset($_SESSION['pdftickets_emailsent'])) {
+			printf($lang["pdftickets_email_text"],$_SESSION['email']);  
+		} else {
+			printf($lang["pdftickets_email_link"],'[<a href="'.add_query_arg(array('freeseat-mode'=>'mail'), home_url() ).'">','</a>]',$_SESSION['email']);
+		}
 		echo '</p>';
 	}
 	echo "</td></tr></table></p></div>";
@@ -137,28 +127,47 @@ function pdftickets_maketickets() {
 	return $html;
 }
 
-function pdftickets_sendtickets($pdf) {
-	global $smtp_sender, $lang;
-	// write contents to file
-	$attach_path = FS_PATH . "files/mytickets" . $_SESSION["groupid"] . ".pdf" ;
-	$eml = $_SESSION['email'];
-	sys_log("User emailing tickets to $eml");
-	file_put_contents($attach_path,$pdf);
-	// email file to user 
-	$result = send_message($smtp_sender,$eml,$lang['pdftickets_subject'],$lang['pdftickets_body'],$attach_path);
-	// set a session var so we only mail them once
-	if ($result)
-		$_SESSION['pdftickets_emailsent'] = true;
-	else
-		unset($_SESSION['pdftickets_emailsent']);
-}
-
 function freeseat_pdftickets_redirect() {
-	if( isset( $_REQUEST['freeseat-ticket-mode'] ) && $_REQUEST['freeseat-ticket-mode'] == 'pdf-file' ) {
-		// In order to download a file to the user, we have to hook to wordpress
-		// prior to any output being issued.  This call will suppress output until we are ready.
-		ob_start();
-    }
+	global $dompdf, $smtp_sender, $lang, $auto_email_signature, $sender_name;
+	if ( isset( $_GET['freeseat-mode'] )) {
+		$mode = $_GET['freeseat-mode'];
+		// create the html for the ticket output
+		if ( !isset($_SESSION['pdftickets'] )) {
+			$_SESSION['pdftickets'] = pdftickets_maketickets();
+		}
+		$html = $_SESSION['pdftickets']; 
+
+		/* Now convert $html to $pdf */
+		$dompdf = new \DOMPDF();  
+		$dompdf->load_html($html);
+		$dompdf->render();
+		$pdf = $dompdf->output();
+		if ( $mode == 'mail' && !isset($_SESSION['pdftickets_emailsent'])) {
+			// ready to send by email
+			// pdftickets_sendtickets($pdf);
+			
+			// write contents to file
+			$attach_path = FS_PATH . "files/mytickets" . $_SESSION["groupid"] . ".pdf" ;
+			sys_log("User emailing tickets to {$_SESSION['email']}");
+			file_put_contents($attach_path,$pdf);
+			$body = sprintf($lang['pdftickets_body'],$smtp_sender,$auto_email_signature,$sender_name);
+			// email file to user 
+			$result = send_message($smtp_sender,$_SESSION['email'],$lang['pdftickets_subject'],$body,$attach_path);
+			// set a session var so we only mail them once
+			if ($result) {
+				$_SESSION['pdftickets_emailsent'] = true;
+			} else {
+				unset($_SESSION['pdftickets_emailsent']);
+			}			
+			
+			wp_safe_redirect($_SESSION['pdftickets_return']);
+			exit();
+		} elseif ($mode == 'file' ) {
+			// ready to download
+			$dompdf->stream( 'mytickets.pdf' );
+			exit();
+		}
+	}
 }
 
 function pdftickets_cleanup() {

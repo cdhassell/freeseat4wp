@@ -375,7 +375,7 @@ function freeseat_render_list() {
 				<?php echo $lang['login_greeting']; ?>
 			</p>
 		<?php } else { ?>
-			<h2>Manage Reservations</h2>
+			<h2><?php echo $lang['manage_bookings']; ?></h2>
 		<?php } ?>
 		<form action="<?php echo $bookinglist_url; ?>" method="POST" name="filterform">
 			<?php if (function_exists('wp_nonce_field')) wp_nonce_field('freeseat-bookinglist-filterform'); ?>
@@ -464,28 +464,19 @@ function bookinglist_print($list) {
 	// creates a page for the print routine and then exits
 	do_hook('bookinglist_process');  // process parameters 	
 	$bookings = array();
-	if (!empty($list)) {
-		if (!is_array($list)) { $list = array($list); }
-		foreach ($list as $bookid) {
-			$booking = get_booking($bookid);
-			$bookings[$booking['seat']] = $booking;
-			$_SESSION['firstname'] = $booking['firstname'];
-			$_SESSION['lastname'] = $booking['lastname'];
-			$_SESSION['payment'] = $booking['payment'];
-		}
-		$_SESSION['seats'] = $bookings;
-	} else {
-		$bookings = $_SESSION['seats'];
+	if (!is_array($list)) { $list = array($list); }
+	foreach ($list as $bookid) {
+		$bookings[] = get_booking($bookid);
+		if (!isset($gid)) $gid = $bookid;
 	}
-	$page_url = admin_url( 'admin.php?action=print&page='.$_REQUEST['page'] );
+	bookinglist_setup_session( $bookings, $gid );
+	$page_url = ( (!admin_mode()) ? get_permalink() : $_SERVER['PHP_SELF'] );
 	show_head(true);
 	$hide_tickets = do_hook_exists('ticket_prepare_override');
-	
 	foreach ($bookings as $x) {
 		do_hook_function('ticket_render_override', $x);
 	}
 	do_hook('ticket_finalise_override');
-
 	if (!$hide_tickets) {
 		do_hook('ticket_prepare');
 		foreach ($bookings as $x) {
@@ -556,16 +547,17 @@ function bookinglist_pay($list) {
 	if (!is_array($list)) { $list = array($list); }
 	foreach ($list as $bookid) {
 		$bookings[] = get_booking($bookid);
+		if (!isset($gid)) $gid = $bookid;
 	}
 
 	if ( isset($_SESSION["lastname"]) && !empty($_SESSION["lastname"]) && 
 	isset($_SESSION["firstname"]) && !empty($_SESSION["firstname"]) && 
 	isset($_SESSION["email"]) && !empty($_SESSION["email"]) && is_email_ok($_SESSION["email"])) {
 		// we are ready to confirm and go
-		$default_fsp = 4;
+		$default_fsp = PAGE_CONFIRM;
 	} else {
 		// need user details, go back 
-		$default_fsp =3;
+		$default_fsp = PAGE_PAY;
 	}
 	$fsp = ( isset( $_REQUEST['fsp'] ) ? $_REQUEST['fsp'] : $default_fsp );
 	$page_url = ( (!admin_mode()) ? get_permalink() : $_SERVER['PHP_SELF'] );
@@ -574,7 +566,6 @@ function bookinglist_pay($list) {
 	bookinglist_setup_session( $bookings, $gid );
 	freeseat_switch( $fsp );
 	exit;
-
 }
 
 /** 
@@ -582,26 +573,25 @@ function bookinglist_pay($list) {
  */
 function bookinglist_setup_session( $bookings, $gid ) {
 	global $lockingtime;
-	$showid = $bookings[0]["showid"];	
+		
 	$seats = array();
 	$ninvite = 0; 
 	$nreduced = 0;
 	$_SESSION["until"] = time()+$lockingtime;
+	$_SESSION["showid"] = $bookings[0]["showid"];
 	foreach (array("firstname","lastname","phone","email", "payment", "address", "city", "us_state", "postalcode") as $n => $a) {
 		if (isset($bookings[0][$a])) $_SESSION[$a] = sanitize_text_field($bookings[0][$a]);
 	}
 	foreach ($bookings as $i => $data ) {
-		$seat = $data["seat"];
-		$seats[$seat] = array( "id" => $seat, "theatre" => $data["theatreid"], "cnt" => 1 );
+		$code = "carts{$data['showid']}s{$data['seat']}";
+		$seats[$code] = array( "id" => $data['seat'], "theatre" => $data["theatreid"], "cnt" => 1 );
 		foreach ( array("bookid", "row", "col", "extra", "zone", "class", "cat", "date", "time", "theatrename", "spectacleid", "showid", "x", "y" ) as $n => $a) {
-			if (isset($data[$a]))  $seats[$seat][$a] = $data[$a];
+			if (isset($data[$a]))  $seats[$code][$a] = $data[$a];
 		}
-		$seats[$seat]['cnt'] = 1;
 		if ($data['cat']==CAT_REDUCED) $nreduced++;
 		if ($data['cat']==CAT_FREE) $ninvite++; 
 	}
 	$_SESSION["seats"] = $seats;
-	$_SESSION["showid"] = $showid;
 	$_SESSION["groupid"] = $gid;
 	$_SESSION["ninvite"] = $ninvite;
 	$_SESSION["nreduced"] = $nreduced;

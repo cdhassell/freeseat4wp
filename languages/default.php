@@ -370,6 +370,7 @@ $lang["mail-sub-heywakeup"] = 'Reminder';
 $lang["mail-sub-remail"] = 'Reservation summary';
 $lang["make_default"] = 'Make this the active show.  Only one show can be active at a time.';
 $lang['make_payment'] = 'Make Your Payment';
+$lang["manage_bookings"] = 'Manage Reservations';
 $lang["max_seats"] = 'Maximum number of seats that can be reserved in one session';
 $lang["minute"] = 'min'; // abbreviated
 $lang["minutes"] = 'minutes';
