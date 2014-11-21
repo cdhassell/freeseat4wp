@@ -366,7 +366,8 @@ function freeseat_render_list() {
 	// start the main page with select boxes for booking status and showid
 	$bookinglist_url = sprintf('?page=%s&action=%s',$_REQUEST['page'],'filter');
 	?>
-	<div class="wrap"><div id="freeseat-wide">
+	<div class="wrap">
+		<div id="freeseat-wide">
 		<?php if (!admin_mode()) { ?>
 			<h2>
 				<?php echo $lang['login_recent_purchases']; ?>
@@ -381,8 +382,7 @@ function freeseat_render_list() {
 			<?php if (function_exists('wp_nonce_field')) wp_nonce_field('freeseat-bookinglist-filterform'); ?>
 			<p class="main"><?php if (admin_mode()) echo $lang[ "filter" ]; ?>
 			<select name="st" onchange="filterform.submit();"
-			<?php if (!admin_mode()) echo " style='display:none;' "; ?>
-			>
+			<?php if (!admin_mode()) echo " style='display:none;' "; ?>	>
 				<?php
 				foreach ( array(
 					 -ST_DELETED => "st_notdeleted",
@@ -453,8 +453,9 @@ function freeseat_render_list() {
 				<input type="hidden" name="page" value="<?php echo $_REQUEST['page'] ?>" />
 				<!-- Now we can render the completed list table -->
 				<?php $ListTable->display() ?>
-		</form>
-	</div></div>
+			</form>
+		</div>
+	</div>
 	<?php
 }
 
@@ -471,6 +472,7 @@ function bookinglist_print($list) {
 	}
 	bookinglist_setup_session( $bookings, $gid );
 	$page_url = ( (!admin_mode()) ? get_permalink() : $_SERVER['PHP_SELF'] );
+	
 	show_head(true);
 	$hide_tickets = do_hook_exists('ticket_prepare_override');
 	foreach ($bookings as $x) {
@@ -484,7 +486,6 @@ function bookinglist_print($list) {
 		}
 		do_hook('ticket_finalise');
 	}
-	$showid = $x['showid'];
 	$bookinglist_url = sprintf('?page=%s',$_REQUEST['page']);
 	echo "<p class='main'>";
 	printf($lang['backto'],"[<a href='$bookinglist_url'>".$lang["link_bookinglist"]."</a>] ");

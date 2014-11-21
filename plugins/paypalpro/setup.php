@@ -101,29 +101,31 @@ function freeseat_express_checkout( $data ) {
 			$args = array( 
 				'TOKEN' => $token, 
 				'VERSION' => $version,
-				'METHOD' => "GetExpressCheckoutDetails",
+				// 'METHOD' => "GetExpressCheckoutDetails",
 			);
-			if (sendMessage($args) && preg_match("/Success/i", urldecode($_REQUEST['ACK']))) {
-				$postid = urldecode($_REQUEST['CUSTOM']);
-				$groupid = urldecode($_REQUEST['INVNUM']);
+			// $response = sendMessage($args);
+			// if (isset($response['ACK']) && preg_match("/Success/i", urldecode($response['ACK']))) {
+				// $postid = urldecode($response['CUSTOM']);
+				$groupid = $_SESSION['groupid'];  // urldecode($response['INVNUM']);
 				$args['METHOD'] = 'DoExpressCheckoutPayment';
 				$args['PAYMENTREQUEST_0_PAYMENTACTION'] = 'Sale';
 				$args['PAYMENTREQUEST_0_AMT'] = price_to_string(get_total());
-				if (sendMessage($args) && preg_match("/Success/i", urldecode($_REQUEST['ACK']))) {
-					$status = urldecode($_REQUEST['PAYMENTREQUEST_0_PAYMENTSTATUS']);
-					$amount = urldecode($_REQUEST['PAYMENTREQUEST_0_AMT']);
-					$transid = urldecode($_REQUEST['PAYMENTREQUEST_0_TRANSACTIONID']);
+				$response2 = sendMessage($args);
+				if (isset($response2['ACK']) && preg_match("/Success/i", urldecode($response2['ACK']))) {
+					$status = urldecode($response2['PAYMENTREQUEST_0_PAYMENTSTATUS']);
+					$amount = urldecode($rsponse2['PAYMENTREQUEST_0_AMT']);
+					$transid = urldecode($response2['PAYMENTREQUEST_0_TRANSACTIONID']);
 					sys_log("paypalpro_express_checkout success: status = $status, amount = $amount, transid = $transid");
 					if ($status=='Completed')
 						process_ccard_transaction($groupid,$transid,$amount);
 					if ($status=='Pending')
 						paypalpro_extend( $groupid );
 				} else {
-					sys_log("DoExpressCheckoutPayment failed");
+					sys_log("DoExpressCheckoutPayment failed ".print_r($response2,1));
 				}
-			} else {
-				sys_log("GetExpressCheckoutDetails failed");	 
-			}
+			// } else {
+			//	sys_log("GetExpressCheckoutDetails failed ".print_r($response,1));	 
+			// }
 			break;
 		case 2:
 			// user cancelled payment
@@ -136,11 +138,11 @@ function freeseat_express_checkout( $data ) {
 	$_GET['fsp'] = PAGE_FINISH;
 }
 
-function paypalpro_cancel() {
+function paypalpro_cancel($resp = NULL) {
 	global $lang;
 	
-	if (isset($_REQUEST['L_LONGMESSAGE0'])) {
-		$msg = $_REQUEST['L_ERRORCODE0']." ".$_REQUEST['L_SEVERITYCODE0'].": ".$_REQUEST['L_LONGMESSAGE0'];
+	if (isset($resp['L_LONGMESSAGE0'])) {
+		$msg = $resp['L_ERRORCODE0']." ".$resp['L_SEVERITYCODE0'].": ".$resp['L_LONGMESSAGE0'];
 		sys_log($msg);
 	}	
 	kaboom( $lang["paypalpro_failure_page"] );  // replace_fsp(get_permalink(), PAGE_PAY )) );
@@ -204,7 +206,8 @@ function paypalpro_process() {
 	foreach (array("firstname", "lastname", "paypalpro_type", "paypalpro_account", "paypalpro_expmonth", "paypalpro_expyear", "paypalpro_cvv2") as $a) {
 		if (isset($_POST[$a])) $_SESSION[$a] = sanitize_text_field(nogpc($_POST[$a]));
 	}
-	$_SESSION['paypalpro_exp'] = $_SESSION['paypalpro_expmonth'].$_SESSION['paypalpro_expyear'];
+	if (isset($_SESSION['paypalpro_expmonth']) && isset($_SESSION['paypalpro_expyear']))
+		$_SESSION['paypalpro_exp'] = $_SESSION['paypalpro_expmonth'].$_SESSION['paypalpro_expyear'];
 	sys_log('paypalpro_process called');
 }
 
@@ -260,7 +263,7 @@ function freeseat_paypalpro_go() {
 			sendToExpressCheckout($token);
 		} else {
 			sys_log('sendToExpressCheckout failed with '.print_r($response,1));
-			paypalpro_cancel();
+			paypalpro_cancel($response);
 		} 
 	} else {
 		sys_log('paypalpro_calldirect called');
@@ -292,7 +295,7 @@ function freeseat_paypalpro_go() {
 			$_SESSION["booking_done"] = ST_PAID;
 		} else {
 			sys_log('paypalpro_calldirect failed with '.print_r($response,1));
-			paypalpro_cancel();
+			paypalpro_cancel($response);
 		}
 		$_GET['fsp'] = PAGE_FINISH;
 	}
@@ -437,8 +440,7 @@ class wpPayPalFramework {
 	
 	private function __construct() {
 		$this->_getSettings();
-		$this->_fixDebugEmails();
-
+		
 		/**
 		 * Add filters and actions
 		 */
@@ -558,20 +560,8 @@ class wpPayPalFramework {
 		// If the response was valid, decode it and return it.  Otherwise return a WP_Error
 		if ( !is_wp_error($resp) && $resp['response']['code'] >= 200 && $resp['response']['code'] < 300 ) {
 			// Used for debugging.
-			$request = $this->_sanitizeRequest($params['body']);
-			$message = __( 'Request:', 'paypal-framework' );
-			$message .= "\r\n".print_r($request, true)."\r\n\r\n";
-			$message .= __( 'Response:', 'paypal-framework' );
-			$message .= "\r\n".print_r(wp_parse_args( $resp['body'] ), true)."\r\n\r\n";
-			$this->_debug_mail( __( 'PayPal Framework - hashCall sent successfully', 'paypal-framework' ), $message );
 			return wp_parse_args($resp['body']);
 		} else {
-			$request = $this->_sanitizeRequest($params['body']);
-			$message = __( 'Request:', 'paypal-framework' );
-			$message .= "\r\n".print_r($request, true)."\r\n\r\n";
-			$message .= __( 'Response:', 'paypal-framework' );
-			$message .= "\r\n".print_r($resp, true)."\r\n\r\n";
-			$this->_debug_mail( __( 'PayPal Framework - hashCall failed', 'paypal-framework' ), $message );
 			if ( !is_wp_error($resp) )
 				$resp = new WP_Error('http_request_failed', $resp['response']['message'], $resp['response']);
 			return $resp;
@@ -622,7 +612,6 @@ class wpPayPalFramework {
 		// Try to validate the response to make sure it's from PayPal
 		if ($this->_validateMessage())
 			$this->_processMessage();
-
 		// Stop WordPress entirely
 		exit;
 	}
@@ -634,21 +623,9 @@ class wpPayPalFramework {
 		return $this->_url[$this->_settings['sandbox']];
 	}
 
-	public function _fixDebugEmails() {
-		$this->_settings['debugging_email'] = preg_split('/\s*,\s*/', $this->_settings['debugging_email']);
-		$this->_settings['debugging_email'] = array_filter($this->_settings['debugging_email'], 'is_email');
-		$this->_settings['debugging_email'] = implode(',', $this->_settings['debugging_email']);
-	}
-
-	private function _debug_mail( $subject, $message ) {
-		// Used for debugging.
-		if ( $this->_settings['debugging'] == 'on' && !empty($this->_settings['debugging_email']) )
-			wp_mail( $this->_settings['debugging_email'], $subject, $message );
-	}
-	
 	/**
-	 * Post a message to PayPal and get response
-	 * 
+	 *  Post a message to PayPal and get response
+	 *  Returns an array of responses or FALSE on error
 	 */
 	public function sendMessage($args) {
 		$params = array(
@@ -659,12 +636,11 @@ class wpPayPalFramework {
 		// Send the request
 		$resp = wp_remote_post( $this->_url[$this->_settings['sandbox']], $params );
 		// If the response was valid, check to see if the request was valid
-		if ( !is_wp_error($resp) && $resp['response']['code'] >= 200 && $resp['response']['code'] < 300 && (strcmp( $resp['body'], "Success") == 0)) {
-			$this->_debug_mail( __( 'Paypal Validation Succeeded', 'paypal-framework' ), $resp['body'] );
-			return true;
+		if ( !is_wp_error($resp) && $resp['response']['code'] >= 200 && $resp['response']['code'] < 300 ) {
+			return wp_parse_args($resp['body']);
 		} else {
 			// If we can't validate the message, assume it's bad
-			$this->_debug_mail( __( 'Paypal Validation Failed', 'paypal-framework' ), $resp['body'] );
+			sys_log( 'Paypal Validation Failed ' . print_r($resp));
 			return false;
 		}
 	}
@@ -686,25 +662,13 @@ class wpPayPalFramework {
 
 		// Send the request
 		$resp = wp_remote_post( $this->_url[$this->_settings['sandbox']], $params );
-
 		// Put the $_POST data back to how it was so we can pass it to the action
 		unset( $_POST['cmd'] );
-		$message = __('URL:', 'paypal-framework' );
-		$message .= "\r\n".print_r($this->_url[$this->_settings['sandbox']], true)."\r\n\r\n";
-		$message .= __('Options:', 'paypal-framework' );
-		$message .= "\r\n".print_r($this->_settings, true)."\r\n\r\n";
-		$message .= __('Response:', 'paypal-framework' );
-		$message .= "\r\n".print_r($resp, true)."\r\n\r\n";
-		$message .= __('Post:', 'paypal-framework' );
-		$message .= "\r\n".print_r($_POST, true);
-
 		// If the response was valid, check to see if the request was valid
 		if ( !is_wp_error($resp) && $resp['response']['code'] >= 200 && $resp['response']['code'] < 300 && (strcmp( $resp['body'], "VERIFIED") == 0)) {
-			$this->_debug_mail( __( 'IPN Listener Test - Validation Succeeded', 'paypal-framework' ), $message );
 			return true;
 		} else {
 			// If we can't validate the message, assume it's bad
-			$this->_debug_mail( __( 'IPN Listener Test - Validation Failed', 'paypal-framework' ), $message );
 			return false;
 		}
 	}
@@ -722,16 +686,9 @@ class wpPayPalFramework {
 	 */
 	private function _processMessage() {
 		do_action( 'paypal-ipn', $_POST );
-		$actions = array( 'paypal-ipn' );
-		$subject = sprintf( __( 'IPN Listener Test - %s', 'paypal-framework' ), '_processMessage()' );
 		if ( !empty($_POST['txn_type']) ) {
 			do_action("paypal-{$_POST['txn_type']}", $_POST);
-			$actions[] = "paypal-{$_POST['txn_type']}";
 		}
-		$message = sprintf( __( 'Actions thrown: %s', 'paypal-framework' ), implode( ', ', $actions ) );
-		$message .= "\r\n\r\n";
-		$message .= sprintf( __( 'Passed to actions: %s', 'paypal-framework' ), "\r\n" . print_r($_POST, true) );
-		$this->_debug_mail( $subject, $message );
 	}
 }
 
