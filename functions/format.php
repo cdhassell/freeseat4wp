@@ -90,19 +90,10 @@ function show_foot() {
 
 /* converts a mysql date into a user friendly date */
 function f_date($d) {
-  global $lang;
-
-  $t=strtotime($d);
-
-  /* can't use strftime directly because openbsd only has English
- locale :-( Don't feel like digging into citrus project for now */
-
-  $weekday = $lang["weekdays"][(int)strftime("%w",$t)];
-  $day = (int)substr($d, 8, 2);
-  $month = $lang["months"][(int)substr($d,5,2)];
-  $year = (int)substr($d, 0, 4);
-
-  return "$weekday $day $month $year";
+	$t=strtotime($d);
+	// windows bug workaround :P
+	$day = (int)strftime("%d",$t);
+	return strftime("%A $day %B %Y",$t);
 }
 
 /* converts a mysql time into a user friendly time */

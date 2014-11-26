@@ -128,7 +128,7 @@ function pdftickets_maketickets() {
 }
 
 function freeseat_pdftickets_redirect() {
-	global $dompdf, $smtp_sender, $lang, $auto_email_signature, $sender_name;
+	global $dompdf, $smtp_sender, $lang, $auto_email_signature, $sender_name, $websitename;
 	if ( isset( $_GET['freeseat-mode'] )) {
 		$mode = $_GET['freeseat-mode'];
 		// create the html for the ticket output
@@ -152,7 +152,7 @@ function freeseat_pdftickets_redirect() {
 			file_put_contents($attach_path,$pdf);
 			$body = sprintf($lang['pdftickets_body'],$smtp_sender,$auto_email_signature,$sender_name);
 			// email file to user 
-			$result = send_message($smtp_sender,$_SESSION['email'],$lang['pdftickets_subject'],$body,$attach_path);
+			$result = send_message($smtp_sender,$_SESSION['email'],sprintf($lang['pdftickets_subject'],$websitename),$body,$attach_path);
 			// set a session var so we only mail them once
 			if ($result) {
 				$_SESSION['pdftickets_emailsent'] = true;

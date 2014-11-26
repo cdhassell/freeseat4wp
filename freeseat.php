@@ -6,6 +6,8 @@ Description: FreeSeat for Wordpress implements a theatre ticketing system with o
 Version: 0.2
 Author: twowheeler
 Author URI: 
+Text Domain: freeseat4wp
+Domain Path: /languages
 */
 /*  This is a modified version of the stand-alone ticketing application
 FreeSeat written by Maxime Gamboni. See http://freeseat.sourceforge.net
