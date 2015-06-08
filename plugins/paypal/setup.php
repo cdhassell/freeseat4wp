@@ -154,7 +154,7 @@ function paypal_failure() {
 	show_foot();
 }
 
-function get_memo() {
+function paypal_get_memo() {
 	global $sender_name;
 	
 	$sh = get_show($_SESSION["showid"]);
@@ -215,7 +215,7 @@ function paypal_paymentform() {
 	$paypal['email'] = $_SESSION['email'];
 	$paypal['phone_1'] = $_SESSION['phone'];
 	$paypal['item_number'] = $_SESSION['groupid'];
-	$paypal['item_name'] = get_memo();		// construct memo field with summary
+	$paypal['item_name'] = paypal_get_memo();		// construct memo field with summary
 	$paypal['amount'] = price_to_string(get_total());
 	// $paypal['image_url'] = $ticket_logo;
 	sys_log("paypal return = {$paypal['return']}");

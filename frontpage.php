@@ -28,7 +28,7 @@ function freeseat_frontpage( $page_url ) {
 	if ( $ss === false )
 		fatal_error( $lang[ "err_connect" ] . mysql_error() );
 	else if ( !count( $ss ) )
-		kaboom( $lang[ "err_noavailspec" ] );
+		echo "<p class='main'>".$lang[ "err_noavailspec" ]."</p>";
 	
 	/* displays an image and text description of spectacles on opening page */
 	

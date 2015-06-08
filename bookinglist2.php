@@ -471,7 +471,7 @@ function bookinglist_print($list) {
 		if (!isset($gid)) $gid = $bookid;
 	}
 	bookinglist_setup_session( $bookings, $gid );
-	$page_url = ( (!admin_mode()) ? get_permalink() : $_SERVER['PHP_SELF'] );
+	$page_url = $_SERVER['PHP_SELF'];
 	
 	show_head(true);
 	$hide_tickets = do_hook_exists('ticket_prepare_override');
@@ -561,7 +561,7 @@ function bookinglist_pay($list) {
 		$default_fsp = PAGE_PAY;
 	}
 	$fsp = ( isset( $_REQUEST['fsp'] ) ? $_REQUEST['fsp'] : $default_fsp );
-	$page_url = ( (!admin_mode()) ? get_permalink() : $_SERVER['PHP_SELF'] );
+	$page_url = $_SERVER['PHP_SELF'];
 	$page_url = add_query_arg( array( 'page' => 'freeseat-user-menu' ), $page_url ); 
 	$page_url = replace_fsp( $page_url, $fsp );
 	bookinglist_setup_session( $bookings, $gid );

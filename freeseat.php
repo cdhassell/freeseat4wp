@@ -82,7 +82,7 @@ add_action('wp_login', __NAMESPACE__ . '\\freeseat_kill_session');
 add_filter( 'plugin_action_links_' . plugin_basename(__FILE__), __NAMESPACE__ . '\\freeseat_sample_data_link' );
 add_filter( 'plugin_action_links_'. plugin_basename(__FILE__), __NAMESPACE__ . '\\freeseat_plugin_settings_link', 10, 2 );
 add_action( 'activated_plugin', __NAMESPACE__ . '\\save_error');
-remove_action( "admin_color_scheme_picker", "admin_color_scheme_picker");
+remove_action( "admin_color_scheme_picker", "admin_color_scheme_picker");  // just because it is annoying
 
 
 function freeseat_start_session() {
@@ -139,8 +139,8 @@ require_once( FS_PATH . "bookinglist2.php" );
  *  Using the defines PAGE_*
  */
 function freeseat_switch( $shortcode_fsp = 0 ) {
-	// Where are we?  Switch to the right freeseat page based on fsp
-	global $post, $page_url;
+	// Switch to the right freeseat page based on fsp
+	global $page_url;
 	// if we are passed a page number from a shortcode call, use it
 	$fsp = ( $shortcode_fsp ? $shortcode_fsp : 0 );
 	// however a page number from GET will override that
@@ -151,7 +151,7 @@ function freeseat_switch( $shortcode_fsp = 0 ) {
 	}
 	// build a page URL
 	if ( !isset( $page_url ) ) 
-		$page_url = (( isset( $post ) ) ? get_permalink() : $_SERVER['PHP_SELF'].'?page=freeseat-admin' );
+		$page_url = $_SERVER['PHP_SELF'].'?page=freeseat-admin';
 	$page_url = replace_fsp( $page_url, $fsp );
 	// now call the right function and pass this url to it
 	switch( $fsp ) {
@@ -230,8 +230,8 @@ function freeseat_wordpress_version() {
 function freeseat_admin_menu() {
 	// Add menus - available only for Managers or Administrators 
 	// add_menu_page( $page_title, $menu_title, $capability, $menu_slug, $function, $icon_url, $position );
-	// add_submenu_page( $parent_slug, $page_title, $menu_title, $capability, $menu_slug, $function );
-	add_menu_page( 'Current Shows', 'FreeSeat', 'manage_freeseat', 'freeseat-admin', __NAMESPACE__ . '\\freeseat_switch', plugins_url( 'ticket.png', __FILE__ ) );
+	// add_submenu_page( $parent_slug, $page_title, $menu_title, $capability, $menu_slug, $function );	
+	add_menu_page( 'Current Shows', 'FreeSeat', 'read', 'freeseat-admin', __NAMESPACE__ . '\\freeseat_switch', plugins_url( 'ticket.png', __FILE__ ) );
 	add_submenu_page( 'freeseat-admin', 'Current Shows', 'Current Shows', 'manage_freeseat', 'freeseat-admin', __NAMESPACE__ . '\\freeseat_switch' );
 	add_submenu_page( 'freeseat-admin', 'View Reservations', 'Reservations', 'manage_freeseat', 'freeseat-listtable', __NAMESPACE__ . '\\freeseat_render_list' );
 	add_submenu_page( 'freeseat-admin', 'Show Setup', 'Show Setup', 'manage_freeseat', 'freeseat-showedit', __NAMESPACE__ . '\\freeseat_showedit' );
@@ -328,10 +328,13 @@ function freeseat_admin_styles( $hook ) {
  * Add freeseat administration capability to editor and administrator roles.
  */
 function freeseat_add_caps() {
-	add_role( 'freeseat_manager', 'Freeseat Manager', array('manage_freeseat') );
+	add_role( 'freeseat_manager', 'Freeseat Manager', array('manage_freeseat', 'use_freeseat') );
 	$role = get_role( 'administrator' );
 	$role->add_cap( 'administer_freeseat' );
 	$role->add_cap( 'manage_freeseat' );
+	$role->add_cap( 'use_freeseat' );
+	$role = get_role( 'subscriber' );
+	$role->add_cap( 'use_freeseat' );
 }
 
 /**

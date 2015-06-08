@@ -268,7 +268,6 @@ function freeseat_showedit()
 	}
 	/* ... while performances with an xnumber are new. */
 	for ( $i=0; isset($_POST["dx$i"]); $i++ ) {
-		// Déjà vu? RUN! They must have changed something in the Matrix
 		// NOTE: no need to use the copytodates wrapper here because these
 		// could not have sold tickets anyway
 		$dates["x$i"]['date'] = sanitise_date($_POST[ "dx$i" ]);
@@ -337,7 +336,6 @@ function freeseat_showedit()
 			if (!(set_spec_prices( $spec, $prices ) &&
 			      set_dates( $spec, $dates ))) {
 			    kaboom($lang["show_not_stored"]);
-		
 			    // the set_*()ing failed so we set ready to false to make
 			    // the interface editable again
 			    $ready = false;
@@ -347,6 +345,7 @@ function freeseat_showedit()
 			    // $_SESSION["messages"] = $messages;
 			    $perf['id'] = $spec;
 				$ready = false;
+				// sys_log("showedit saved array perf: ".print_r($perf,1));
 			    do_hook_function("showedit_save", $perf);
 			    show_post($perf);
 			    // clear variables and redisplay

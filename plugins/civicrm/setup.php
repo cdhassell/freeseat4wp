@@ -29,7 +29,6 @@ function freeseat_plugin_init_civicrm() {
 	
 	$freeseat_plugin_hooks['finish_end']['civicrm'] = 'civicrm_sync';
 	$freeseat_plugin_hooks['showedit_save']['civicrm'] = 'civicrm_showedit';
-	// $freeseat_plugin_hooks['config_db']['civicrm'] = 'civicrm_config_db';
 }
 
 /* 

@@ -1,6 +1,7 @@
 <?php namespace freeseat;
 
-/*  Copyright 2009  Aaron D. Campbell  (email : wp_plugins@xavisys.com)
+/*  Based on the Payal Framework plugin 
+	Copyright 2009  Aaron D. Campbell  (email : wp_plugins@xavisys.com)
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,6 +22,7 @@ add_action( 'paypal-ipn', __NAMESPACE__ . '\\freeseat_ipn');
 add_action( 'template_redirect', __NAMESPACE__ . '\\freeseat_express_checkout' );
 add_action( 'template_redirect', __NAMESPACE__ . '\\freeseat_paypalpro_go' );
 add_filter( 'query_vars', __NAMESPACE__ . '\\freeseat_express_checkout_query' );
+add_filter( 'paypal_framework_sslverify', '__return_true' );
 
 
 function freeseat_plugin_init_paypalpro() {
@@ -101,12 +103,14 @@ function freeseat_express_checkout( $data ) {
 			$args = array( 
 				'TOKEN' => $token, 
 				'VERSION' => $version,
-				// 'METHOD' => "GetExpressCheckoutDetails",
+				'METHOD' => "GetExpressCheckoutDetails",
 			);
-			// $response = sendMessage($args);
+			$response = sendMessage($args);
+			sys_log("Express checkout return value: ".$response);
 			// if (isset($response['ACK']) && preg_match("/Success/i", urldecode($response['ACK']))) {
 				// $postid = urldecode($response['CUSTOM']);
 				$groupid = $_SESSION['groupid'];  // urldecode($response['INVNUM']);
+				$args['PAYERID'] = $response['PAYERID'];
 				$args['METHOD'] = 'DoExpressCheckoutPayment';
 				$args['PAYMENTREQUEST_0_PAYMENTACTION'] = 'Sale';
 				$args['PAYMENTREQUEST_0_AMT'] = price_to_string(get_total());

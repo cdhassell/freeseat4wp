@@ -17,8 +17,7 @@ function freeseat_finish( $page_url ) {
 	global $lang, $messages, $sh, $auto_mail_signature, $smtp_sender, $admin_mail;
 	
 	prepare_log((admin_mode()?"admin":"user")." buying from ".$_SERVER["REMOTE_ADDR"]);
-	$sh = get_show($_SESSION["showid"]);
-	$spec = get_spectacle($sh["spectacleid"]);
+	// sys_log("finish session: ".print_r($_SESSION,1));
 
 	if ((!isset($_SESSION["booking_done"])) || ($_SESSION["booking_done"]===false)) {
 		// first trip through finish.php, booking is not recorded yet
@@ -43,6 +42,7 @@ function freeseat_finish( $page_url ) {
 				$_SESSION["seats"][$n]["bookid"] = $bookid;
 				if (!(isset($_SESSION["groupid"]) && $_SESSION["groupid"]!=0))
 					$_SESSION["groupid"] = $bookid;
+				$spec = $_SESSION["seats"][$n]["spectacleid"];
 			}
 		}
 		$_SESSION["booking_done"] = ST_BOOKED;
