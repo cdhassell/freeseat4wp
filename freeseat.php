@@ -236,6 +236,7 @@ function freeseat_admin_menu() {
 	add_submenu_page( 'freeseat-admin', 'View Reservations', 'Reservations', 'manage_freeseat', 'freeseat-listtable', __NAMESPACE__ . '\\freeseat_render_list' );
 	add_submenu_page( 'freeseat-admin', 'Show Setup', 'Show Setup', 'manage_freeseat', 'freeseat-showedit', __NAMESPACE__ . '\\freeseat_showedit' );
 	add_submenu_page( 'freeseat-admin', 'Seatmaps', 'Seatmaps', 'manage_freeseat', 'freeseat-upload', __NAMESPACE__ . '\\freeseat_upload' );
+	add_submenu_page( 'freeseat-admin', 'Settings', 'Settings', 'administer_freeseat', 'freeseat-system', __NAMESPACE__ . '\\freeseat_params' );
 	// add_options_page( $page_title, $menu_title, $capability, $menu_slug, $function);
 	add_options_page('Settings', 'FreeSeat', 'administer_freeseat', 'freeseat-system', __NAMESPACE__ . '\\freeseat_params');
 }
