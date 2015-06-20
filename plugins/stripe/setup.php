@@ -70,7 +70,7 @@ function freeseat_plugin_init_stripe() {
 	$freeseat_plugin_hooks['ccard_exists']['stripe'] = 'stripe_true';
 	$freeseat_plugin_hooks['ccard_confirm_button']['stripe'] = 'stripe_confirm_button';
 	$freeseat_plugin_hooks['ccard_partner']['stripe'] = 'stripe_partner';
-	// $freeseat_plugin_hooks['ccard_paymentform']['stripe'] = 'stripe_paymentform';
+	$freeseat_plugin_hooks['ccard_paymentform']['stripe'] = 'stripe_paymentform';
 	$freeseat_plugin_hooks['check_session']['stripe'] = 'stripe_checksession';
 	$freeseat_plugin_hooks['params_edit_ccard']['stripe'] = 'stripe_editparams';
 	init_language('stripe');
@@ -137,8 +137,8 @@ function stripe_get_memo() {
 function stripe_confirm_button() {
 	global $lang;
 	echo '<p class="emph">' . $lang['stripe_lastchance'] . '</p>';
-	// submit_button( $lang[ "stripe_checkout" ], 'primary', 'submit', false );
-	stripe_paymentform();
+	submit_button( $lang[ "stripe_checkout" ], 'primary', 'submit', false );
+	// stripe_paymentform();
 }
 
 /** Triggers the Stripe payment form overlay **/
@@ -148,6 +148,7 @@ function stripe_paymentform() {
 	// details will be determined by the freeseat_stripe_return() function
 	$url1 = home_url('/?page=freeseat-stripe-return');
 	$url2 = home_url('/?page=freeseat-stripe-review');
+	echo "<div id='freeseat-stripe-click'>";
 	echo do_shortcode( $shortcode =
 		"[stripe".
 		" name=\"$websitename\"".
@@ -160,6 +161,7 @@ function stripe_paymentform() {
 		" payment_button_label=\"{$lang["stripe_checkout"]}\"".
 		"]"
 	);
+	echo "</div>";
 	sys_log("stripe paymentform called with: $shortcode");
 }
 
@@ -180,4 +182,10 @@ function stripe_checksession($level) {
   return false; // all is fine
 }
 
+// add an action to auto-click the stripe button
+add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\\freeseat_stripe_jquery' ); 
+ 
+function freeseat_stripe_jquery() {
+	wp_enqueue_script( 'freeseat-stripe', plugins_url( 'freeseat-stripe.js', __FILE__ ), array( 'jquery' ),, TRUE );
+}
 
