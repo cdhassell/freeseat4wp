@@ -186,6 +186,6 @@ function stripe_checksession($level) {
 add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\\freeseat_stripe_jquery' ); 
  
 function freeseat_stripe_jquery() {
-	wp_enqueue_script( 'freeseat-stripe', plugins_url( 'freeseat-stripe.js', __FILE__ ), array( 'jquery' ),, TRUE );
+	wp_enqueue_script( 'freeseat-stripe', plugins_url( 'freeseat-stripe.js', __FILE__ ), array( 'jquery' ), FALSE, TRUE );
 }
 
