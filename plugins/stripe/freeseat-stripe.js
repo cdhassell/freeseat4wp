@@ -1,5 +1,3 @@
 jQuery(function(){
-	jQuery('#freeseat-stripe-click')(function () {
-		jQuery('.sc-payment-btn').click();
-	});
+	jQuery('#freeseat-stripe-click .sc-payment-btn').click();
 });
