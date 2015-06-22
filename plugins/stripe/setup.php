@@ -2,6 +2,9 @@
 
 /*
 Integration for the Stripe Checkout plugin for accepting stripe payments
+
+Fatal error: Uncaught exception 'Stripe\Error\InvalidRequest' with message 'Invalid source object: must be a dictionary or a non-empty string. See API docs at https://stripe.com/docs'' in /home/danhassell/wordpress/wp-content/plugins/stripe-checkout-pro/libraries/stripe-php/lib/ApiRequestor.php:97 Stack trace: #0 /home/danhassell/wordpress/wp-content/plugins/stripe-checkout-pro/libraries/stripe-php/lib/ApiRequestor.php(209): Stripe\ApiRequestor->handleApiError('{? "error": {?...', 400, Array) #1 /home/danhassell/wordpress/wp-content/plugins/stripe-checkout-pro/libraries/stripe-php/lib/ApiRequestor.php(60): Stripe\ApiRequestor->_interpretResponse('{? "error": {?...', 400) #2 /home/danhassell/wordpress/wp-content/plugins/stripe-checkout-pro/libraries/stripe-php/lib/ApiResource.php(105): Stripe\ApiRequestor->request('post', '/v1/customers', Array, Array) #3 /home/danhassell/wordpress/wp-content/plugins/stripe-checkout-pro/libraries/stripe-php/lib/ApiResource.php(137): Stripe\ApiResource::_staticRequest('post', '/v1/custome in /home/danhassell/wordpress/wp-content/plugins/stripe-checkout-pro/libraries/stripe-php/lib/ApiRequestor.php on line 97
+
 */
 
 if ( !function_exists( 'is_plugin_inactive' ) ) 
@@ -25,7 +28,7 @@ function freeseat_stripe_return() {
 		} else {
 			// this depends on the format of stripe_get_memo() being correct
 			$gary = explode( ":", $charge_response->description );
-			$_SESSION['groupid'] = $groupid = (int)$gary[1];
+			$_SESSION['groupid'] = $groupid = (int)$array_pop($gary);
 		}
 		$transid = $charge_response->id;
 		// or $transid = $_GET['charge'];
@@ -159,7 +162,7 @@ function stripe_paymentform() {
 		" success_redirect_url=\"$url1\"".
 		" failure_redirect_url=\"$url2\"".
 		" payment_button_label=\"{$lang["stripe_checkout"]}\"".
-		"]"
+		"][/stripe]"
 	);
 	echo "</div>";
 	sys_log("stripe paymentform called with: $shortcode");
