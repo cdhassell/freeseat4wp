@@ -8,4 +8,4 @@ $lang["paypal_failure_page"] = "<h3>We're sorry, but your payment was not comple
 $lang["paypal_button_text"] = 'Finish Ticket Purchase';
 $lang["paypal_thanks"] = 'Thank You';
 $lang["paypal_sorry"] = 'Sorry';
-$lang["paybutton"] = 'Proceed to payment';
+
