@@ -63,6 +63,12 @@ add_action( 'wp_ajax_nopriv_freeseat_ipn_action', __NAMESPACE__ . '\\freeseat_ip
 add_filter( 'query_vars', __NAMESPACE__ . '\\freeseat_query_vars' );
 // add_action( 'wp_loaded', __NAMESPACE__ . '\\freeseat_paypal_return' );
 
+// add an action to auto-click the button
+add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\\freeseat_paypal_jquery' ); 
+ 
+function freeseat_paypal_jquery() {
+	wp_enqueue_script( 'freeseat-paypal', plugins_url( 'freeseat-paypal.js', __FILE__ ), array( 'jquery' ), FALSE, TRUE );
+}
 
 function freeseat_query_vars($vars) {
 	// add to the valid list of variables
@@ -220,7 +226,7 @@ function paypal_paymentform() {
 	// $paypal['image_url'] = $ticket_logo;
 	sys_log("paypal return = {$paypal['return']}");
 	sys_log("paypal cancel = {$paypal['cancel_return']}");
-	// echo '<body onload="document.gopaypal.submit()">';
+	echo '<div id="freeseat-paypal-click">';
 	echo '<form method="post" name="gopaypal" action="'.$paypal["url"].'">';
 	// if (function_exists('wp_nonce_field')) wp_nonce_field('freeseat-paypal-paymentform');
 	// show paypal hidden variables
@@ -232,6 +238,7 @@ function paypal_paymentform() {
 	printf($lang["paybutton"],'<input type="submit" value="','">');
 	echo '</p>';
 	echo '</form>';
+	echo '</div>';
 }
 
 function paypal_checksession($level) {
@@ -405,3 +412,43 @@ function freeseat_ipn_listener() {
 	log_done();	
 	exit();
 }
+
+/*
+
+add_action( 'wp_loaded', __NAMESPACE__ . '\\freeseat_stripe_return' );
+
+function freeseat_stripe_return() {
+	// we land here when returning from stripe with success
+	if (is_page('freeseat-stripe-return')) {
+		$charge_id = esc_html( $_GET['charge'] );
+		// https://stripe.com/docs/api/php#charges
+		$charge_response = \Stripe\Charge::retrieve( $charge_id );
+		$amount = $charge_response->amount;  // in cents as usual in freeseat
+		if ( isset( $_SESSION[ 'groupid' ] ) ) {
+			$groupid = $_SESSION['groupid'];
+		} else {
+			// this depends on the format of stripe_get_memo() being correct
+			$gary = explode( ":", $charge_response->description );
+			$_SESSION['groupid'] = $groupid = (int)$array_pop($gary);
+		}
+		$transid = $charge_response->id;
+		// or $transid = $_GET['charge'];
+		$ok = process_ccard_transaction( $groupid, $transid, $amount );
+		sys_log( "Stripe process success = $ok" );
+		echo do_shortcode( '[freeseat-finish groupid="'.$groupid.'" ]' );
+	}
+}
+
+add_action( 'wp_loaded', __NAMESPACE__ . '\\freeseat_stripe_review' );
+
+function freeseat_stripe_review() {
+	// we land here when returning from stripe with failure
+	if (is_page('freeseat-stripe-review')) {
+		$charge = esc_html( $_GET['charge'] );
+		$charge_response = \Stripe\Charge::retrieve( $charge );
+		sys_log( "Stripe process failure" . $charge_response->failure_message );
+		stripe_failure( $charge_response->failure_message );
+	}
+}
+
+*/

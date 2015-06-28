@@ -79,7 +79,7 @@ function freeseat_cron() {
 		$output .= "\nMail $mail_count";
 	
 	// expire posts after all dates have passed
-	$sql = "select distinct spectacle from shows where date > curdate()";
+	/* $sql = "select distinct spectacle from shows where date > curdate()";
 	$blob = fetch_all($sql);
 	$list = array();
 	foreach($blob as $item) {
@@ -100,7 +100,7 @@ function freeseat_cron() {
 			);
 			wp_update_post($newpost);
 		}
-	}
+	} */
 	do_hook('cron');
 	$output .= "\nDone.";
 	sys_log( $output );
