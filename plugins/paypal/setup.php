@@ -64,7 +64,7 @@ add_filter( 'query_vars', __NAMESPACE__ . '\\freeseat_query_vars' );
 // add_action( 'wp_loaded', __NAMESPACE__ . '\\freeseat_paypal_return' );
 
 // add an action to auto-click the button
-add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\\freeseat_paypal_jquery' ); 
+add_action( 'init', __NAMESPACE__ . '\\freeseat_paypal_jquery' ); 
  
 function freeseat_paypal_jquery() {
 	wp_enqueue_script( 'freeseat-paypal', plugins_url( 'freeseat-paypal.js', __FILE__ ), array( 'jquery' ), FALSE, TRUE );
