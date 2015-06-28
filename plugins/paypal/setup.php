@@ -61,7 +61,33 @@ $Id: confirm.php 279 2010-10-30 16:38:43Z tendays $
 
 add_action( 'wp_ajax_nopriv_freeseat_ipn_action', __NAMESPACE__ . '\\freeseat_ipn_listener' );
 add_filter( 'query_vars', __NAMESPACE__ . '\\freeseat_query_vars' );
-// add_action( 'wp_loaded', __NAMESPACE__ . '\\freeseat_paypal_return' );
+
+add_action( 'wp_loaded', __NAMESPACE__ . '\\freeseat_paypal_return' );
+
+function freeseat_paypal_return() {
+	global $groupid;
+	// we land here when returning from paypal with success
+	if (is_page('freeseat-paypal-return')) {
+		if ( isset( $_SESSION[ 'groupid' ] ) ) { 
+			$groupid = $_SESSION['groupid'];
+		} elseif ( isset( $_GET['custom'] ) ) {
+			$groupid = $_GET[ 'custom' ];
+		}
+		sys_log( "Paypal processing groupid = $groupid" );
+		echo do_shortcode( '[freeseat-finish groupid="'.$groupid.'" ]' );
+	}
+}
+
+add_action( 'wp_loaded', __NAMESPACE__ . '\\freeseat_paypal_review' );
+
+function freeseat_paypal_review() {
+	// we land here when returning from paypal with failure
+	if (is_page('freeseat-paypal-review')) {
+		sys_log( "Paypal process failure" );
+		paypal_failure();
+	}
+}
+
 
 // add an action to auto-click the button
 add_action( 'init', __NAMESPACE__ . '\\freeseat_paypal_jquery' ); 
@@ -72,13 +98,13 @@ function freeseat_paypal_jquery() {
 
 function freeseat_query_vars($vars) {
 	// add to the valid list of variables
-	$new_vars = array('freeseat-ipn', 'freeseat-return');
+	$new_vars = array('freeseat-ipn');
 	$vars = $new_vars + $vars;
     return $vars;
 }
 
 function freeseat_plugin_init_paypal() {
-    global $freeseat_plugin_hooks, $paypal, $paypal_sandbox, $paypal_account;
+    global $freeseat_plugin_hooks, $paypal, $paypal_sandbox, $paypal_account, $paypal_sandbox_account;
 
 	$freeseat_plugin_hooks['ccard_confirm_button']['paypal'] = 'paypal_confirm_button';
 	$freeseat_plugin_hooks['ccard_exists']['paypal'] = 'paypal_true';
@@ -97,13 +123,81 @@ function freeseat_plugin_init_paypal() {
 		"https://www.sandbox.paypal.com/cgi-bin/webscr" :	// for the sandbox
 		"https://www.paypal.com/cgi-bin/webscr"				// for the real thing
 	);
-	$paypal["business"] = $paypal_account;
-	// freeseat_paypal_return();
+	$paypal["business"] = ( $paypal_sandbox ? $paypal_account : $paypal_sandbox_account );
 }
 
 function paypal_true($void) {
   return true;
 }
+
+////////////////////////////////////////////////////////////////////////
+
+function paypal_postedit( &$options ) {
+	// use WP post-form validation
+	// called in freeseat_validate_options()
+	if ( is_array( $options ) ) {
+		$options['paypal_account'] = wp_filter_nohtml_kses($options['paypal_account']); 
+		// $options['paypal_password'] = wp_filter_nohtml_kses($options['paypal_password']);
+		$options['paypal_signature'] = wp_filter_nohtml_kses($options['paypal_signature']);
+		$options['paypal_sandbox_account'] = wp_filter_nohtml_kses($options['paypal_sandbox_account']);
+		// $options['paypal_sandbox_password'] = wp_filter_nohtml_kses($options['paypal_sandbox_password']);
+		$options['paypal_sandbox_signature'] = wp_filter_nohtml_kses($options['paypal_sandbox_signature']);
+		if (!isset($options['paypal_sandbox'])) $options['paypal_sandbox'] = 0;
+	}
+	return $options;
+}
+
+function paypal_editparams($options) {
+	global $lang;
+	// the options parameter should be an array 
+	if ( !is_array( $options ) ) return;
+	if ( !isset( $options['paypal_account'] ) ) $options['paypal_account'] = '';
+	// if ( !isset( $options['paypal_password'] ) ) $options['paypal_password'] = '';
+	if ( !isset( $options['paypal_signature'] ) ) $options['paypal_signature'] = '';
+	if ( !isset( $options['paypal_sandbox_account'] ) ) $options['paypal_sandbox_account'] = '';
+	// if ( !isset( $options['paypal_sandbox_password'] ) ) $options['paypal_sandbox_password'] = '';
+	if ( !isset( $options['paypal_sandbox_signature'] ) ) $options['paypal_sandbox_signature'] = '';
+	if ( !isset( $options['paypal_sandbox'] ) ) $options['paypal_sandbox'] = 0;
+?>  
+<!-- paypal stuff -->
+<tr>
+	<td>
+		&emsp;<?php _e( 'Paypal Settings' ); ?>
+	</td>
+	<td>
+		<?php _e( 'Paypal live account' ); ?><br />
+		<input type="text" name="freeseat_options[paypal_account]" value="<?php echo $options['paypal_account']; ?>" />
+	</td>
+	<?php   /* <td>
+		<?php _e( 'Paypal live password' ); ?><br />
+		<input type="text" name="freeseat_options[paypal_password]" value="<?php echo $options['paypal_password']; ?>" />
+	</td>	*/ ?>
+	<td colspan="2">
+		<?php _e( 'Paypal live signature' ); ?><br />
+		<input type="text" size="30" name="freeseat_options[paypal_signature]" value="<?php echo $options['paypal_signature']; ?>" />
+	</td>
+</tr>
+<tr>
+	<td>
+		&emsp;<label><input name="freeseat_options[paypal_sandbox]" type="checkbox" value="1" <?php if (isset($options['paypal_sandbox'])) { checked('1', $options['paypal_sandbox']); } ?> /> <?php _e( 'Sandbox mode' ); ?></label>	
+	</td>
+	<td>
+		<?php _e( 'Paypal sandbox account' ); ?><br />
+		<input type="text" name="freeseat_options[paypal_sandbox_account]" value="<?php echo $options['paypal_sandbox_account']; ?>" />
+	</td>
+	<?php /* <td>
+		<?php _e( 'Paypal sandbox password' ); ?><br />
+		<input type="text" name="freeseat_options[paypal_sandbox_password]" value="<?php echo $options['paypal_sandbox_password']; ?>" />
+	</td>	*/ ?>
+	<td colspan="2">
+		<?php _e( 'Paypal sandbox signature' ); ?><br />
+		<input type="text" size="30" name="freeseat_options[paypal_sandbox_signature]" value="<?php echo $options['paypal_sandbox_signature']; ?>" />
+	</td>
+</tr>
+<?php
+}
+
+/*
 
 function paypal_postedit( &$options ) {
 	// use WP post-form validation
@@ -142,7 +236,7 @@ function paypal_editparams($options) {
 </tr>
 <?php
 }
-
+*/
 
 function paypal_partner() {
   global $lang;
@@ -183,14 +277,13 @@ function paypal_confirm_button() {
 /** Displays a button/link (a form with hidden fields from _SESSION)
 that will redirect the user to the ccard provider's payment form **/
 function paypal_paymentform() {
-	global $paypal, $lang, $paypal_account, $ticket_logo;
+	global $paypal, $lang, $paypal_account, $paypal_sandbox_account, $paypal_sandbox, $ticket_logo;
 	
 	//Configuration Settings
-	$paypal["business"] = $paypal_account;
+	$paypal["business"] = ( $paypal_sandbox ? $paypal_sandbox_account : $paypal_account );
 	// details will be determined by the freeseat_paypal_return() function
-	$url = home_url('/?page=freeseat-paypal-return');
-	$paypal["cancel_return" ] = $url;
-	$paypal["return"] = $url;
+	$paypal["return" ] = home_url( '/?page=freeseat-paypal-return' );
+	$paypal["cancel_return"] = home_url( '/?page=freeseat-paypal-review' );
 	
 	$vars = array( 'freeseat-ipn' => 'erfolg', 'action' => 'freeseat_ipn_action' );
 	$paypal["notify_url"] = add_query_arg( $vars, admin_url('admin-ajax.php') );
@@ -266,7 +359,7 @@ function paypal_checksession($level) {
  *  Pass $groupid as parameter.
  **/
 function paypal_pdt_check($groupid) { 
-	global $paypal, $freeseat_vars, $lang, $page_url, $transid, $smtp_sender, $admin_mail;
+	global $paypal, $lang, $page_url, $transid, $smtp_sender, $admin_mail, $paypal_sandbox, $paypal_signature, $paypal_sandbox_signature;
 	
 	// Did we get the IPN? If so nothing further is needed
 	$sql = "SELECT count(numxkp) FROM ccard_transactions WHERE groupid=$groupid";
@@ -274,7 +367,7 @@ function paypal_pdt_check($groupid) {
 	sys_log("No IPN record found");
 	// If not, make a call to paypal to verify sale
 	$success = FALSE;
-	$paypal_auth_token = $freeseat_vars['paypal_auth_token'];
+	$paypal_auth_token = ( $paypal_sandbox ? $paypal_sandbox_signature : $paypal_signature ); 
 	if (!isset($paypal_auth_token)) return FALSE; // nothing to check
 	if (isset($_GET['tx'])) {
 		$tx_token = $_GET['tx'];
@@ -413,42 +506,4 @@ function freeseat_ipn_listener() {
 	exit();
 }
 
-/*
 
-add_action( 'wp_loaded', __NAMESPACE__ . '\\freeseat_stripe_return' );
-
-function freeseat_stripe_return() {
-	// we land here when returning from stripe with success
-	if (is_page('freeseat-stripe-return')) {
-		$charge_id = esc_html( $_GET['charge'] );
-		// https://stripe.com/docs/api/php#charges
-		$charge_response = \Stripe\Charge::retrieve( $charge_id );
-		$amount = $charge_response->amount;  // in cents as usual in freeseat
-		if ( isset( $_SESSION[ 'groupid' ] ) ) {
-			$groupid = $_SESSION['groupid'];
-		} else {
-			// this depends on the format of stripe_get_memo() being correct
-			$gary = explode( ":", $charge_response->description );
-			$_SESSION['groupid'] = $groupid = (int)$array_pop($gary);
-		}
-		$transid = $charge_response->id;
-		// or $transid = $_GET['charge'];
-		$ok = process_ccard_transaction( $groupid, $transid, $amount );
-		sys_log( "Stripe process success = $ok" );
-		echo do_shortcode( '[freeseat-finish groupid="'.$groupid.'" ]' );
-	}
-}
-
-add_action( 'wp_loaded', __NAMESPACE__ . '\\freeseat_stripe_review' );
-
-function freeseat_stripe_review() {
-	// we land here when returning from stripe with failure
-	if (is_page('freeseat-stripe-review')) {
-		$charge = esc_html( $_GET['charge'] );
-		$charge_response = \Stripe\Charge::retrieve( $charge );
-		sys_log( "Stripe process failure" . $charge_response->failure_message );
-		stripe_failure( $charge_response->failure_message );
-	}
-}
-
-*/
