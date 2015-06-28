@@ -56,10 +56,10 @@ function freeseat_add_defaults() {
 			// 'opening_cash' => 0,
 			'closing_cash' => 60,
 			'disabled_cash' => false,
-			'paydelay_post' => 5,
-			'shakedelay_post' => 3,
-			'closing_post' => 1440,
-			'disabled_post' => true,
+			// 'paydelay_post' => 5,
+			// 'shakedelay_post' => 3,
+			// 'closing_post' => 1440,
+			// 'disabled_post' => true,
 			'groupdiscount' => '100',
 			'groupdiscount_min' => 15,
 			'language' => 'english',
@@ -296,7 +296,7 @@ function freeseat_params() {
 					<td>
 					</td>
 				</tr>			
-				<tr>
+				<?php /* <tr>
 					<th scope="row">
 						<?php _e( 'Swiss Postal Payments' ); ?><br />
 						<label><input name="freeseat_options[disabled_post]" type="checkbox" value="1" <?php if (isset($options['disabled_post'])) { checked('1', $options['disabled_post']); } ?> /> <?php _e( 'Disable' ); ?></label>
@@ -314,7 +314,7 @@ function freeseat_params() {
 					</td>
 					<td>
 					</td>
-				</tr>	
+				</tr>	*/ ?>
 				<tr valign="top" style="border-top:#dddddd 1px solid;"><!-- Major Heading -->
 					<th scope="col" style="padding:0;">
 						<h3>

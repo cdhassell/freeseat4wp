@@ -88,7 +88,6 @@ function freeseat_paypal_review() {
 	}
 }
 
-
 // add an action to auto-click the button
 add_action( 'init', __NAMESPACE__ . '\\freeseat_paypal_jquery' ); 
  
@@ -129,8 +128,6 @@ function freeseat_plugin_init_paypal() {
 function paypal_true($void) {
   return true;
 }
-
-////////////////////////////////////////////////////////////////////////
 
 function paypal_postedit( &$options ) {
 	// use WP post-form validation
@@ -196,47 +193,6 @@ function paypal_editparams($options) {
 </tr>
 <?php
 }
-
-/*
-
-function paypal_postedit( &$options ) {
-	// use WP post-form validation
-	// called in freeseat_validate_options()
-	if ( is_array( $options ) ) {
-		$options['paypal_account'] = wp_filter_nohtml_kses($options['paypal_account']); 
-		$options['paypal_auth_token'] = wp_filter_nohtml_kses($options['paypal_auth_token']);
-		if (!isset($options['paypal_sandbox'])) $options['paypal_sandbox'] = 0;
-	}
-	return $options;
-}
-
-function paypal_editparams($options) {
-	global $lang;
-	// the options parameter should be an array 
-	if ( !is_array( $options ) ) return;
-	if ( !isset( $options['paypal_account'] ) ) $options['paypal_account'] = 'Paypal account email';
-	if ( !isset( $options['paypal_auth_token'] ) ) $options['paypal_auth_token'] = '';
-	if ( !isset( $options['paypal_sandbox'] ) ) $options['paypal_sandbox'] = 0;
-?>  
-<!-- paypal stuff -->
-<tr>
-	<td>
-	</td>
-	<td>
-		<?php _e( 'Paypal account email' ); ?><br />
-		<input type="text" size="25" name="freeseat_options[paypal_account]" value="<?php echo $options['paypal_account']; ?>" />
-	</td>
-	<td colspan="2">
-		<?php _e( 'Paypal account API token (optional)' ); ?><br />
-		<input type="text" size="60" name="freeseat_options[paypal_auth_token]" value="<?php echo $options['paypal_auth_token']; ?>" />
-	</td>
-	<td>
-		<label><input name="freeseat_options[paypal_sandbox]" type="checkbox" value="1" <?php if (isset($options['paypal_sandbox'])) { checked('1', $options['paypal_sandbox']); } ?> /> <?php _e( 'Sandbox mode' ); ?></label>
-	</td>
-</tr>
-<?php
-}
-*/
 
 function paypal_partner() {
   global $lang;
