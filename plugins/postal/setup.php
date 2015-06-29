@@ -33,7 +33,7 @@ function postal_editparams($options) {
 <tr>
 	<th scope="row">
 		<?php _e( 'Swiss Postal Payments' ); ?><br />
-		<label><input name="freeseat_options[disabled_post]" type="checkbox" value="1" <?php if (isset($options'disabled_post'])) { checked('1', $options['disabled_post']); } ?> /> <?php _e( 'Disable' ); ?></label>
+		<label><input name="freeseat_options[disabled_post]" type="checkbox" value="1" <?php if (isset($options['disabled_post'])) { checked('1', $options['disabled_post']); } ?> /> <?php _e( 'Disable' ); ?></label>
 	</th>
 	<td> 
 		<?php _e( 'Close postal reservations before show starts' ); ?><br />
