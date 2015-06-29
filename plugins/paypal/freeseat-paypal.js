@@ -1,3 +1,3 @@
 jQuery(function(){
-	$('#freeseat-paypal-click form[name="gopaypal"]').submit();
+	jQuery('#freeseat-paypal-click form[name="gopaypal"]').submit();
 });
