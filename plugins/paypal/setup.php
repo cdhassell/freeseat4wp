@@ -113,11 +113,8 @@ function freeseat_plugin_init_paypal() {
 	// $freeseat_plugin_hooks['finish_post_booking']['paypal'] = 'paypal_pdt_check';
 	$freeseat_plugin_hooks['params_post']['paypal'] = 'paypal_postedit';
 	$freeseat_plugin_hooks['params_edit_ccard']['paypal'] = 'paypal_editparams';
-	// $freeseat_plugin_hooks['finish_ccard_failure']['paypal'] = 'paypal_failure';  
 	init_language('paypal');
 	$paypal = array();
-	$paypal["currency_code"]="USD"; // FIXME should be configurable [USD,GBP,JPY,CAD,EUR]
-	$paypal["lc"]="US";
 	$paypal["url"] = ( $paypal_sandbox ? 
 		"https://www.sandbox.paypal.com/cgi-bin/webscr" :	// for the sandbox
 		"https://www.paypal.com/cgi-bin/webscr"				// for the real thing
@@ -140,6 +137,7 @@ function paypal_postedit( &$options ) {
 		// $options['paypal_sandbox_password'] = wp_filter_nohtml_kses($options['paypal_sandbox_password']);
 		$options['paypal_sandbox_signature'] = wp_filter_nohtml_kses($options['paypal_sandbox_signature']);
 		if (!isset($options['paypal_sandbox'])) $options['paypal_sandbox'] = 0;
+		$options['paypal_currency'] = wp_filter_nohtml_kses($options['paypal_currency']);
 	}
 	return $options;
 }
@@ -165,6 +163,17 @@ function paypal_editparams($options) {
 		<?php _e( 'Paypal live account' ); ?><br />
 		<input type="text" name="freeseat_options[paypal_account]" value="<?php echo $options['paypal_account']; ?>" />
 	</td>
+	<td>
+		<?php _e( 'Paypal Currency' ); ?><br />
+		<select name='freeseat_options[paypal_currency]'>
+			<?php 
+				foreach ( array( 'USD', 'GBP', 'JPY', 'CAD', 'EUR' ) as $l ) {
+					echo "<option value='$l' ".selected($l,$options['paypal_currency']).">$l</option>";
+				}
+			?>
+		</select>
+	</td>	
+	
 	<?php   /* <td>
 		<?php _e( 'Paypal live password' ); ?><br />
 		<input type="text" name="freeseat_options[paypal_password]" value="<?php echo $options['paypal_password']; ?>" />
@@ -186,6 +195,7 @@ function paypal_editparams($options) {
 		<?php _e( 'Paypal sandbox password' ); ?><br />
 		<input type="text" name="freeseat_options[paypal_sandbox_password]" value="<?php echo $options['paypal_sandbox_password']; ?>" />
 	</td>	*/ ?>
+	<td></td>
 	<td colspan="2">
 		<?php _e( 'Paypal sandbox signature' ); ?><br />
 		<input type="text" size="30" name="freeseat_options[paypal_sandbox_signature]" value="<?php echo $options['paypal_sandbox_signature']; ?>" />
@@ -236,6 +246,7 @@ function paypal_paymentform() {
 	global $paypal, $lang, $paypal_account, $paypal_sandbox_account, $paypal_sandbox, $ticket_logo;
 	
 	//Configuration Settings
+	$paypal["currency_code"] = get_config( "paypal_currency" );
 	$paypal["business"] = ( $paypal_sandbox ? $paypal_sandbox_account : $paypal_account );
 	// details will be determined by the freeseat_paypal_return() function
 	$paypal["return" ] = home_url( '/?page=freeseat-paypal-return' );
@@ -272,7 +283,7 @@ function paypal_paymentform() {
 	$paypal['item_number'] = $_SESSION['groupid'];
 	$paypal['item_name'] = paypal_get_memo();		// construct memo field with summary
 	$paypal['amount'] = price_to_string(get_total());
-	// $paypal['image_url'] = $ticket_logo;
+	$paypal['image_url'] = $ticket_logo;
 	sys_log("paypal return = {$paypal['return']}");
 	sys_log("paypal cancel = {$paypal['cancel_return']}");
 	echo '<div id="freeseat-paypal-click">';

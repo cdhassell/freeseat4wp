@@ -64,3 +64,22 @@ Shaking state=2 and '2015-06-24 18:53:36' > timestamp and payment=2
 Shake 1 
 Mail 1
 Done.
+Mon 29 Jun 2015 10:28 AM : cronjob : setting 51 to 5 (Deleted)
+Mon 29 Jun 2015 10:28 AM : cronjob : delete from seat_locks where until < 1435573683
+delete from booking where state=5 and firstname='Disabled' and lastname='Seat'
+
+Deleting state=3 and '2015-06-26 10:28:03' > timestamp and payment=1
+Deleting state=3 and '2015-06-24 10:28:03' > timestamp and payment=2
+Shaking state=2 and '2015-06-27 10:28:03' > timestamp and payment=1
+Shaking state=2 and '2015-06-26 10:28:03' > timestamp and payment=2
+Delete 1 
+Mail 1
+Done.
+Mon 29 Jun 2015 10:32 AM : cronjob : delete from seat_locks where until < 1435573958
+delete from booking where state=5 and firstname='Disabled' and lastname='Seat'
+
+Deleting state=3 and '2015-06-26 10:32:38' > timestamp and payment=1
+Deleting state=3 and '2015-06-29 10:32:38' > timestamp and payment=2
+Shaking state=2 and '2015-06-27 10:32:38' > timestamp and payment=1
+Shaking state=2 and '2015-06-29 10:32:38' > timestamp and payment=2
+Done.

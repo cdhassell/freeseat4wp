@@ -56,10 +56,10 @@ function freeseat_add_defaults() {
 			// 'opening_cash' => 0,
 			'closing_cash' => 60,
 			'disabled_cash' => false,
-			// 'paydelay_post' => 5,
-			// 'shakedelay_post' => 3,
-			// 'closing_post' => 1440,
-			// 'disabled_post' => true,
+			'paydelay_post' => 5,
+			'shakedelay_post' => 3,
+			'closing_post' => 1440,
+			'disabled_post' => true,
 			'groupdiscount' => '100',
 			'groupdiscount_min' => 15,
 			'language' => 'english',
@@ -295,26 +295,7 @@ function freeseat_params() {
 					</td>
 					<td>
 					</td>
-				</tr>			
-				<?php /* <tr>
-					<th scope="row">
-						<?php _e( 'Swiss Postal Payments' ); ?><br />
-						<label><input name="freeseat_options[disabled_post]" type="checkbox" value="1" <?php if (isset($options['disabled_post'])) { checked('1', $options['disabled_post']); } ?> /> <?php _e( 'Disable' ); ?></label>
-					</th>
-					<td> 
-						<?php _e( 'Close postal reservations before show starts' ); ?><br />
-						<input type="number" min="0" name="freeseat_options[closing_post]" value="<?php echo $options['closing_post']; ?>" /> Minutes
-					</td>
-					<td>
-						<?php _e( 'Send reminders about unpaid reservations for' ); ?><br />
-						<input type="number" min="0" width="3" name="freeseat_options[shakedelay_post]" value="<?php echo $options['shakedelay_post']; ?>" /> Days
-					</td>					<td>
-						<?php _e( 'Cancel unpaid postal reservations after' ); ?><br />
-						<input type="number" min="0" name="freeseat_options[paydelay_post]" value="<?php echo $options['paydelay_post']; ?>" /> Days
-					</td>
-					<td>
-					</td>
-				</tr>	*/ ?>
+				</tr>
 				<tr valign="top" style="border-top:#dddddd 1px solid;"><!-- Major Heading -->
 					<th scope="col" style="padding:0;">
 						<h3>
