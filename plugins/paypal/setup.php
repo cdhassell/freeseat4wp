@@ -164,6 +164,10 @@ function paypal_editparams($options) {
 		<input type="text" name="freeseat_options[paypal_account]" value="<?php echo $options['paypal_account']; ?>" />
 	</td>
 	<td>
+		<?php _e( 'Paypal live signature' ); ?><br />
+		<input type="text" size="30" name="freeseat_options[paypal_signature]" value="<?php echo $options['paypal_signature']; ?>" />
+	</td>
+	<td>
 		<?php _e( 'Paypal Currency' ); ?><br />
 		<select name='freeseat_options[paypal_currency]'>
 			<?php 
@@ -178,10 +182,6 @@ function paypal_editparams($options) {
 		<?php _e( 'Paypal live password' ); ?><br />
 		<input type="text" name="freeseat_options[paypal_password]" value="<?php echo $options['paypal_password']; ?>" />
 	</td>	*/ ?>
-	<td colspan="2">
-		<?php _e( 'Paypal live signature' ); ?><br />
-		<input type="text" size="30" name="freeseat_options[paypal_signature]" value="<?php echo $options['paypal_signature']; ?>" />
-	</td>
 </tr>
 <tr>
 	<td>
@@ -195,11 +195,11 @@ function paypal_editparams($options) {
 		<?php _e( 'Paypal sandbox password' ); ?><br />
 		<input type="text" name="freeseat_options[paypal_sandbox_password]" value="<?php echo $options['paypal_sandbox_password']; ?>" />
 	</td>	*/ ?>
-	<td></td>
-	<td colspan="2">
+	<td>
 		<?php _e( 'Paypal sandbox signature' ); ?><br />
 		<input type="text" size="30" name="freeseat_options[paypal_sandbox_signature]" value="<?php echo $options['paypal_sandbox_signature']; ?>" />
 	</td>
+	<td></td>
 </tr>
 <?php
 }

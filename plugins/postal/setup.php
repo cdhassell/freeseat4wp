@@ -5,7 +5,7 @@ function freeseat_plugin_init_postal() {
     global $freeseat_plugin_hooks;
 
 	$freeseat_plugin_hooks['params_post']['postal'] = 'postal_postedit';
-	$freeseat_plugin_hooks['params_edit']['postal'] = 'postal_editparams';
+	$freeseat_plugin_hooks['params_edit_ccard']['postal'] = 'postal_editparams';
 }
 
 function postal_postedit( &$options ) {
