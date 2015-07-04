@@ -151,7 +151,7 @@ function freeseat_switch( $shortcode_fsp = 0 ) {
 	}
 	// build a page URL
 	if ( !isset( $page_url ) ) 
-		$page_url = $_SERVER['PHP_SELF'].'?page=freeseat-admin';
+		$page_url = esc_url( add_query_arg( 'page', 'freeseat-admin', get_permalink() ) );
 	$page_url = replace_fsp( $page_url, $fsp );
 	// now call the right function and pass this url to it
 	switch( $fsp ) {
@@ -186,9 +186,7 @@ function freeseat_switch( $shortcode_fsp = 0 ) {
 function replace_fsp( $url, $newpage ) {
 	$url = remove_query_arg( 'fsp', $url );
 	$url = add_query_arg( array( 'fsp'=>$newpage ), $url);
-	/* $sid = session_id();
-	sys_log("session id = $sid");
-	if (!empty($sid)) $url = add_query_arg( array( 'session_id'=>$sid ), $url); */
+	$url = esc_url( $url );
 	return $url;
 }
 

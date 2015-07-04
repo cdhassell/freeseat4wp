@@ -23,7 +23,7 @@ function freeseat_pay( $page_url )
 	if ( isset( $_GET[ 'showid' ] ) && !isset( $_SESSION[ 'showid' ] ) ) {
 		$_SESSION[ 'showid' ] = $_GET[ 'showid' ];
 	}
-	// print '<pre>Get = '.print_r($_GET,1).'</pre>';
+	// print '<pre>Session = '.print_r($_SESSION,1).'</pre>';
 	// print '<pre>Post = '.print_r($_POST,1).'</pre>';
 	check_session(1); // just to avoid warnings on missing show id
 	
