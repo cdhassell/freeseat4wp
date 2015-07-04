@@ -43,7 +43,7 @@ function check_session( $n, $quiet=false ) {
 	overkill (checking @ the end would suffice but anyway we are more
 	consistent this way)
 	*/
-			
+	sys_log( "Session = ".print_r($_SESSION,1));
 	/* still-not-booked. Note, if this is false then we should
 	 "normally" always succeed. The checks done here are useful in
 	 case there is a bug in the code. */
@@ -146,6 +146,7 @@ function kill_booking_done() {
 				unset($_SESSION["ncat$cat"]);
 		}
 		do_hook('kill_booking_done');
+		sys_log("kill booking done");
 	}
 }
 

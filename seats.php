@@ -20,26 +20,14 @@ function freeseat_seats( $page_url )
 	kill_booking_done();
 	if ( isset( $_GET[ "showid" ] ) && ( !isset( $_SESSION[ "showid" ] ) || 
 		( $_SESSION[ "showid" ] != (int)( $_GET[ "showid"] ) ) ) ) {
-		// $prevSelected = ( isset( $_SESSION[ "seats" ] ) ? $_SESSION["seats"] : array() );
-		
-		// We must unlock the seats before changing the show id otherwise the
-		// things will get confused.
-		// unlock_seats();
 		$_SESSION["showid"] = (int)($_GET["showid"]);
 		
 		check_session(1); // check showid
 		// note that if check_session fails then any previous seat selection is lost.
 		
 		$sh = get_show($_SESSION["showid"]);
-		/* The following call makes sure all seats are in the theatre
-			corresponding to the current show, but not whether they're
-			available. check_seats() below does that work. */
-		// load_seats($prevSelected);
 		if (!check_seats())
 			kaboom($lang["err_occupied"]);
-		/* load_seats lost any existing category selection so we need to
-			put it back. (Maybe that should be done by load_seats itself?) */
-		// compute_cats();
 	} else { // showid unchanged
 		check_session(1); // check showid
 		$sh = get_show($_SESSION["showid"]);
