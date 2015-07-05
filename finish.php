@@ -27,16 +27,8 @@ function freeseat_finish( $page_url ) {
 		check_session(4,true); 
 		foreach ($_SESSION["seats"] as $n => $s) {
 			// book each seat here with status ST_BOOKED
-			if (($bookid = book($_SESSION,$s))===false) { // || $_GET["panic"]=="NOW") {
-				// booking failed so send message to admin and bail
-				$body = " \$_SESSION = \n".print_r($_SESSION,true)." \$messages = \n";
-				$body .= flush_messages_text();
-				send_message($smtp_sender,$admin_mail,"PANIC",$body);
-				show_head(true);
-				echo $lang["panic"];
-				show_foot();
-				log_done();
-				exit;
+			if (($bookid = book($_SESSION,$s))===false) { 
+				cant_book();
 			} else {
 				// seats are now booked, so capture the groupid
 				$_SESSION["seats"][$n]["bookid"] = $bookid;
@@ -176,3 +168,15 @@ function freeseat_finish( $page_url ) {
 	log_done();
 }	// end of freeseat_finish
 
+function cant_book() {
+	global $smtp_sender, $admin_mail, $lang;
+	// booking failed so send message to admin and bail
+	$body = " \$_SESSION = \n".print_r($_SESSION,true)." \$messages = \n";
+	$body .= flush_messages_text();
+	send_message( $smtp_sender, $admin_mail, "PANIC", $body );
+	show_head(true);
+	echo $lang["panic"];
+	show_foot();
+	log_done();
+	exit;
+}

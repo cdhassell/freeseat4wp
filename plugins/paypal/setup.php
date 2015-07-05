@@ -62,22 +62,26 @@ $Id: confirm.php 279 2010-10-30 16:38:43Z tendays $
 add_action( 'wp_ajax_nopriv_freeseat_ipn_action', __NAMESPACE__ . '\\freeseat_ipn_listener' );
 add_filter( 'query_vars', __NAMESPACE__ . '\\freeseat_query_vars' );
 add_action( 'template_redirect', __NAMESPACE__ . '\\freeseat_paypal_return' );
-// add_action( 'wp_loaded', __NAMESPACE__ . '\\freeseat_paypal_return' );
 
 function freeseat_paypal_return() {
 	global $groupid;
-	// we land here when returning from paypal 
 	if ( !isset( $_REQUEST['freeseat-form'] ) ) return;
+	// we land here when returning from paypal 
 	if ( get_query_var('freeseat-form') == 'return' ) {
 		if ( isset( $_SESSION[ 'groupid' ] ) ) { 
 			$groupid = $_SESSION['groupid'];
 		} elseif ( isset( $_GET['custom'] ) ) {
+			// maybe we lost the session?
 			$groupid = $_GET[ 'custom' ];
+			// let's borrow the bookinglist function to set up the session
+			$bookings = get_bookings( "booking.groupid=$groupid or booking.id=$groupid" ); 
+			bookinglist_setup_session( $bookings, $groupid );
+			$_SESSION["booking_done"] = TRUE;
 		}
 		sys_log( "Paypal processing groupid = $groupid" );
 		echo do_shortcode( '[freeseat-finish groupid="'.$groupid.'" ]' );
 	} else {
-		sys_log( "Paypal process failure" );
+		sys_log( "Paypal cancelled" );
 		paypal_failure();
 	}
 }
@@ -279,7 +283,6 @@ function paypal_paymentform() {
 	$paypal['amount'] = price_to_string(get_total());
 	$paypal['image_url'] = $ticket_logo;
 	sys_log("paypal return = {$paypal['return']}");
-	sys_log("paypal cancel = {$paypal['cancel_return']}");
 	echo '<div id="freeseat-paypal-click">';
 	echo '<form method="post" name="gopaypal" action="'.$paypal["url"].'">';
 	// if (function_exists('wp_nonce_field')) wp_nonce_field('freeseat-paypal-paymentform');
