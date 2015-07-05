@@ -61,13 +61,14 @@ $Id: confirm.php 279 2010-10-30 16:38:43Z tendays $
 
 add_action( 'wp_ajax_nopriv_freeseat_ipn_action', __NAMESPACE__ . '\\freeseat_ipn_listener' );
 add_filter( 'query_vars', __NAMESPACE__ . '\\freeseat_query_vars' );
-
-add_action( 'wp_loaded', __NAMESPACE__ . '\\freeseat_paypal_return' );
+add_action( 'template_redirect', __NAMESPACE__ . '\\freeseat_paypal_return' );
+// add_action( 'wp_loaded', __NAMESPACE__ . '\\freeseat_paypal_return' );
 
 function freeseat_paypal_return() {
 	global $groupid;
-	// we land here when returning from paypal with success
-	if (is_page('freeseat-paypal-return')) {
+	// we land here when returning from paypal 
+	if ( !isset( $_REQUEST['freeseat-form'] ) ) return;
+	if ( get_query_var('freeseat-form') == 'return' ) {
 		if ( isset( $_SESSION[ 'groupid' ] ) ) { 
 			$groupid = $_SESSION['groupid'];
 		} elseif ( isset( $_GET['custom'] ) ) {
@@ -75,14 +76,7 @@ function freeseat_paypal_return() {
 		}
 		sys_log( "Paypal processing groupid = $groupid" );
 		echo do_shortcode( '[freeseat-finish groupid="'.$groupid.'" ]' );
-	}
-}
-
-add_action( 'wp_loaded', __NAMESPACE__ . '\\freeseat_paypal_review' );
-
-function freeseat_paypal_review() {
-	// we land here when returning from paypal with failure
-	if (is_page('freeseat-paypal-review')) {
+	} else {
 		sys_log( "Paypal process failure" );
 		paypal_failure();
 	}
@@ -97,7 +91,7 @@ function freeseat_paypal_jquery() {
 
 function freeseat_query_vars($vars) {
 	// add to the valid list of variables
-	$new_vars = array('freeseat-ipn');
+	$new_vars = array( 'freeseat-ipn', 'freeseat-form' );
 	$vars = $new_vars + $vars;
     return $vars;
 }
@@ -243,14 +237,14 @@ function paypal_confirm_button() {
 /** Displays a button/link (a form with hidden fields from _SESSION)
 that will redirect the user to the ccard provider's payment form **/
 function paypal_paymentform() {
-	global $paypal, $lang, $paypal_account, $paypal_sandbox_account, $paypal_sandbox, $ticket_logo;
+	global $paypal, $lang, $paypal_account, $paypal_sandbox_account, $paypal_sandbox, $ticket_logo, $page_url;
 	
 	//Configuration Settings
 	$paypal["currency_code"] = get_config( "paypal_currency" );
 	$paypal["business"] = ( $paypal_sandbox ? $paypal_sandbox_account : $paypal_account );
 	// details will be determined by the freeseat_paypal_return() function
-	$paypal["return" ] = home_url( '/?page=freeseat-paypal-return' );
-	$paypal["cancel_return"] = home_url( '/?page=freeseat-paypal-review' );
+	$paypal["return" ] = add_query_arg( 'freeseat-form', 'return', $page_url ); 
+	$paypal["cancel_return"] = add_query_arg( 'freeseat-form', 'review', $page_url );
 	
 	$vars = array( 'freeseat-ipn' => 'erfolg', 'action' => 'freeseat_ipn_action' );
 	$paypal["notify_url"] = add_query_arg( $vars, admin_url('admin-ajax.php') );
