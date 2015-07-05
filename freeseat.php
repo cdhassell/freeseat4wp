@@ -152,7 +152,7 @@ function freeseat_switch( $shortcode_fsp = 0 ) {
 	}
 	// build a page URL
 	if ( !isset( $page_url ) ) 
-		$page_url = add_query_arg( 'page', 'freeseat-admin', get_permalink() );  
+		$page_url = get_permalink();  // add_query_arg( 'page', 'freeseat-admin', get_permalink() );  
 	$page_url = replace_fsp( $page_url, $fsp );
 	// now call the right function and pass this url to it
 	switch( $fsp ) {
@@ -324,7 +324,9 @@ function freeseat_admin_styles( $hook ) {
 }
 
 /**
- * Add freeseat administration capability to editor and administrator roles.
+ *  Add freeseat administration capability to editor and administrator roles.
+ *  Creates a role for a Freeseat Manager, with capabilities to run the box office
+ *  But not to change the system settings. 
  */
 function freeseat_add_caps() {
 	add_role( 'freeseat_manager', 'Freeseat Manager', array('manage_freeseat', 'use_freeseat') );
