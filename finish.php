@@ -42,7 +42,7 @@ function freeseat_finish( $page_url ) {
 				$_SESSION["seats"][$n]["bookid"] = $bookid;
 				if (!(isset($_SESSION["groupid"]) && $_SESSION["groupid"]!=0))
 					$_SESSION["groupid"] = $bookid;
-				$spec = $_SESSION["seats"][$n]["spectacleid"];
+				$spec = get_spectacle( $_SESSION["seats"][$n]["spectacleid"] );
 			}
 		}
 		$_SESSION["booking_done"] = ST_BOOKED;
