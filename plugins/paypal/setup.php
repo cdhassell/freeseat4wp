@@ -247,16 +247,11 @@ function paypal_confirm_button() {
 }
 
 function unparse_url($parsed_url) {
-	$scheme   = isset($parsed_url['scheme']) ? $parsed_url['scheme'] . '://' : '';
-	$host     = isset($parsed_url['host']) ? $parsed_url['host'] : '';
-	$port     = isset($parsed_url['port']) ? ':' . $parsed_url['port'] : '';
-	$user     = isset($parsed_url['user']) ? $parsed_url['user'] : '';
-	$pass     = isset($parsed_url['pass']) ? ':' . $parsed_url['pass']  : '';
-	$pass     = ($user || $pass) ? "$pass@" : '';
+	$scheme   = 'https';
+	$host     = isset($parsed_url['host']) ? $parsed_url['host'] : $_SERVER['SERVER_NAME'];
 	$path     = isset($parsed_url['path']) ? $parsed_url['path'] : '';
 	$query    = isset($parsed_url['query']) ? '?' . $parsed_url['query'] : '';
-	$fragment = isset($parsed_url['fragment']) ? '#' . $parsed_url['fragment'] : '';
-	return "$scheme$user$pass$host$port$path$query$fragment";
+	return "$scheme$host$path$query";
 } 
 
 /** Displays a button/link (a form with hidden fields from _SESSION)
@@ -264,8 +259,8 @@ that will redirect the user to the ccard provider's payment form **/
 function paypal_paymentform() {
 	global $paypal, $lang, $paypal_account, $paypal_sandbox_account, $paypal_sandbox, $ticket_logo, $page_url;
 	
+	$page_url =	replace_fsp( get_permalink(), PAGE_FINISH );
 	$parts = parse_url( $page_url );
-	$parts['scheme'] = 'https';
 	$page_url = unparse_url( $parts );
 	//Configuration Settings
 	$paypal["currency_code"] = get_config( "paypal_currency" );
