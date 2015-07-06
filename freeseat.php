@@ -151,8 +151,7 @@ function freeseat_switch( $shortcode_fsp = 0 ) {
 		kill_booking_done();
 	}
 	// build a page URL
-	if ( !isset( $page_url ) ) 
-		$page_url = get_permalink();  // add_query_arg( 'page', 'freeseat-admin', get_permalink() );  
+	$page_url = ( isset( $page_url ) ? $page_url : get_permalink() ); 
 	$page_url = replace_fsp( $page_url, $fsp );
 	// now call the right function and pass this url to it
 	switch( $fsp ) {
