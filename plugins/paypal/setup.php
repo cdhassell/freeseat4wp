@@ -247,7 +247,7 @@ function paypal_confirm_button() {
 }
 
 function unparse_url($parsed_url) {
-	$scheme   = 'https';
+	$scheme   = 'https://';
 	$host     = isset($parsed_url['host']) ? $parsed_url['host'] : $_SERVER['SERVER_NAME'];
 	$path     = isset($parsed_url['path']) ? $parsed_url['path'] : '';
 	$query    = isset($parsed_url['query']) ? '?' . $parsed_url['query'] : '';

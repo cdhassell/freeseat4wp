@@ -63,7 +63,7 @@ function freeseat_add_defaults() {
 			'groupdiscount' => '100',
 			'groupdiscount_min' => 15,
 			'language' => 'english',
-			'ticket_logo' => plugins_url( $upload_path.'ticket-big.png', __FILE__ ),
+			'ticket_logo' => plugins_url( 'files/ticket-big.png', __FILE__ ),
 			'websitename' => 'The Globe Theatre',
 			'auto_email_signature' => 'Sincerely, Will',
 			'pref_country_code' => 'US',
