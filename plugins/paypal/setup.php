@@ -69,15 +69,23 @@ function freeseat_paypal_return() {
 	// we land here when returning from paypal 
 	if ( get_query_var('freeseat-form') == 'return' ) {
 		if ( isset( $_SESSION[ 'groupid' ] ) ) { 
+			sys_log( "Paypal return using session" );
 			$groupid = $_SESSION['groupid'];
+		} elseif ( isset( $_POST['item_number' ] ) ) {
+			sys_log( "Paypal return using post" );
+			$groupid = $_POST[ 'item_number' ];
 		} elseif ( isset( $_GET['custom'] ) ) {
-			// maybe we lost the session?
+			sys_log( "Paypal return using get" );
 			$groupid = $_GET[ 'custom' ];
-			// let's borrow the bookinglist function to set up the session
-			$bookings = get_bookings( "booking.groupid=$groupid or booking.id=$groupid" ); 
-			bookinglist_setup_session( $bookings, $groupid );
-			$_SESSION["booking_done"] = TRUE;
+		} else {
+			// we got nothing
+			paypal_failure();
+			return;
 		}
+		// let's borrow the bookinglist function to set up the session
+		$bookings = get_bookings( "booking.groupid=$groupid or booking.id=$groupid" ); 
+		bookinglist_setup_session( $bookings, $groupid );
+		$_SESSION["booking_done"] = TRUE;
 		sys_log( "Paypal processing groupid = $groupid" );
 		echo do_shortcode( '[freeseat-finish groupid="'.$groupid.'" ]' );
 	} else {
@@ -243,6 +251,9 @@ that will redirect the user to the ccard provider's payment form **/
 function paypal_paymentform() {
 	global $paypal, $lang, $paypal_account, $paypal_sandbox_account, $paypal_sandbox, $ticket_logo, $page_url;
 	
+	$parts = parse_url( $page_url );
+	$parts['scheme'] = 'https';
+	$page_url = http_build_url( $page_url, $parts );
 	//Configuration Settings
 	$paypal["currency_code"] = get_config( "paypal_currency" );
 	$paypal["business"] = ( $paypal_sandbox ? $paypal_sandbox_account : $paypal_account );
