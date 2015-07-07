@@ -71,20 +71,14 @@ function freeseat_paypal_return() {
 	sys_log( "GET = " . print_r($_GET,1) );
 	// we land here when returning from paypal 
 	if ( get_query_var('freeseat-form') == 'return' ) {
-		if ( isset( $_POST[ 'item_number' ] ) ) { 
-			// this *should* work
+		if ( isset( $_POST[ 'item_number' ] ) && 
+			isset( $_POST[ 'payment_status' ] ) && 
+			$_POST['payment_status']=="Completed" ) { 
+			// success
 			sys_log( "Paypal return using post" );
 			$groupid = $_POST['item_number'];
-		} elseif ( isset( $_SESSION['groupid' ] ) ) {
-			// No POST.  Did we lose the session too?
-			sys_log( "Paypal return using session" );
-			$groupid = $_SESSION[ 'groupid' ];
-		} elseif ( isset( $_GET['custom'] ) ) {
-			// if all else fails try to recover from GET
-			sys_log( "Paypal return using get" );
-			$groupid = $_GET[ 'custom' ];
 		} else {
-			// we got nothing
+			// bail out
 			paypal_failure();
 			return;
 		}

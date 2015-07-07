@@ -34,7 +34,6 @@ function freeseat_finish( $page_url ) {
 				$_SESSION["seats"][$n]["bookid"] = $bookid;
 				if (!(isset($_SESSION["groupid"]) && $_SESSION["groupid"]!=0))
 					$_SESSION["groupid"] = $bookid;
-				$spec = get_spectacle( $_SESSION["seats"][$n]["spectacleid"] );
 			}
 		}
 		$_SESSION["booking_done"] = ST_BOOKED;
@@ -108,6 +107,8 @@ function freeseat_finish( $page_url ) {
 	
 		/* Now send a confirmation message if that hasn't been done already. */
 		if (($_SESSION["email"]!="") && (!isset($_SESSION["mail_sent"]))) {
+			$top = array_shift( $_SESSION["seats"] );
+			$spec = get_spectacle( $top["spectacleid"] );
 			$body  = sprintf($lang["mail-booked"],$spec["name"]);
 			$body .= $lang["name"].": ".$_SESSION["firstname"]." ".$_SESSION["lastname"]."\n";
 			$body .= "\n";
