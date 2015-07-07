@@ -245,7 +245,11 @@ function paypal_confirm_button() {
 	echo '<p class="emph">' . $lang['paypal_lastchance'] . '</p>';
     echo '<div align="center"><input type="image" src="'.plugins_url("express-checkout-hero.png", __FILE__).'" border="0" name="submit" alt="Make payments with PayPal - it\'s fast, free and secure!"></div>';
 }
-
+/**
+ *  Construct a URL for returning from paypal to our site.
+ *  Force the use of https, and pick up the server name since
+ *  get_permalink() does not always return an absolute URL.
+ **/
 function unparse_url($parsed_url) {
 	$scheme   = 'https://';
 	$host     = isset($parsed_url['host']) ? $parsed_url['host'] : $_SERVER['SERVER_NAME'];
