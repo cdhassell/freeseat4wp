@@ -1,0 +1,6 @@
+logs/*.log
+*~
+plugins/pdftickets/dompdf/lib/fonts/log.htm
+plugins/stripe/solid@3x.png
+*.tar.gz
+*.tar.bz2
