@@ -66,15 +66,21 @@ add_action( 'template_redirect', __NAMESPACE__ . '\\freeseat_paypal_return' );
 function freeseat_paypal_return() {
 	global $groupid;
 	if ( !isset( $_REQUEST['freeseat-form'] ) ) return;
+	sys_log( "POST = " . print_r($_POST,1) );
+	sys_log( "SESSION = " . print_r($_SESSION,1) );
+	sys_log( "GET = " . print_r($_GET,1) );
 	// we land here when returning from paypal 
 	if ( get_query_var('freeseat-form') == 'return' ) {
-		if ( isset( $_SESSION[ 'groupid' ] ) ) { 
-			sys_log( "Paypal return using session" );
-			$groupid = $_SESSION['groupid'];
-		} elseif ( isset( $_POST['item_number' ] ) ) {
+		if ( isset( $_POST[ 'item_number' ] ) ) { 
+			// this *should* work
 			sys_log( "Paypal return using post" );
-			$groupid = $_POST[ 'item_number' ];
+			$groupid = $_POST['item_number'];
+		} elseif ( isset( $_SESSION['groupid' ] ) ) {
+			// No POST.  Did we lose the session too?
+			sys_log( "Paypal return using session" );
+			$groupid = $_SESSION[ 'groupid' ];
 		} elseif ( isset( $_GET['custom'] ) ) {
+			// if all else fails try to recover from GET
 			sys_log( "Paypal return using get" );
 			$groupid = $_GET[ 'custom' ];
 		} else {
@@ -85,9 +91,9 @@ function freeseat_paypal_return() {
 		// let's borrow the bookinglist function to set up the session
 		$bookings = get_bookings( "booking.groupid=$groupid or booking.id=$groupid" ); 
 		bookinglist_setup_session( $bookings, $groupid );
-		$_SESSION["booking_done"] = TRUE;
+		$_SESSION["booking_done"] = ST_PAID;
 		sys_log( "Paypal processing groupid = $groupid" );
-		echo do_shortcode( '[freeseat-finish groupid="'.$groupid.'" ]' );
+		freeseat_switch( 5 );
 	} else {
 		sys_log( "Paypal cancelled" );
 		paypal_failure();
