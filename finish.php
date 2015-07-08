@@ -52,9 +52,9 @@ function freeseat_finish( $page_url ) {
 		// expecting credit card payment so display the payment form and jump to credit card site
 		show_head();
 		echo $lang["intro_ccard"];  // Thank you for your reservation, please wait ...
-		do_hook('ccard_paymentform');
+		do_hook('ccard_paymentform');  // If using a credit card, here is where we make the jump
 	} else { 
-		// not a credit card sale, or coming back from credit card processor
+		// not a credit card sale, or coming back from credit card processor (Pass #2)
 		$config = get_config();
 		if (($_SESSION["payment"]==PAY_CCARD) && (get_total()>0)) {
 			/* if the payment is done by credit card, check if tickets have

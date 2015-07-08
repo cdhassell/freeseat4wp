@@ -321,6 +321,9 @@ function paypal_paymentform() {
 	echo '</div>';
 }
 
+/**
+ *  Check for the presence of all the user data before processing a credit card
+ **/
 function paypal_checksession($level) {
   global $lang;
   if ($level == 4) {

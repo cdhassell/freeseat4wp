@@ -435,7 +435,7 @@ for sale to another patron.
 EOD;
 //'
 
-$lang["paybutton"] = 'Click here to proceed with payment:&nbsp;%1$sContinue%2$s';
+$lang["paybutton"] = 'Please wait. If you are not automatically redirected within 15 seconds, click here to proceed with payment:&nbsp;%1$sContinue%2$s';
 $lang["payment"] = 'Payment';
 $lang['payment_received'] = 'Your payment has been received.  Thank you!';
 $lang['paypal_id'] = 'PayPal Transaction ID: ';
