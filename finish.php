@@ -43,9 +43,10 @@ function freeseat_finish( $page_url ) {
 		// returning from credit card site, check for payment
 		$sql = "SELECT count(numxkp) FROM ccard_transactions WHERE groupid={$_SESSION['groupid']}";	
 		if (m_eval($sql)) $_SESSION['booking_done'] = ST_PAID;
-		check_session(4); // a valid user name and payment method must exist at this point
-	} else {
-		$_SESSION["booking_done"] = ST_PAID;
+		// check_session(4); // a valid user name and payment method must exist at this point
+	// } else {
+	//	$_SESSION["booking_done"] = ST_PAID;
+	// not sure if any of this is necessary 
 	}
 	
 	if (($_SESSION["payment"]==PAY_CCARD) && ($_SESSION["booking_done"]!=ST_PAID) && (get_total()>0)) {
