@@ -96,7 +96,7 @@ function freeseat_start_session() {
 	} else {
 		if(!isset($_SESSION)) session_start();
 	}
-	// sys_log("session id = ".session_id());
+	sys_log("session id = ".session_id());
 }
 
 function freeseat_kill_session() {
