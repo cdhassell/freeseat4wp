@@ -43,7 +43,7 @@ function check_session( $n, $quiet=false ) {
 	overkill (checking @ the end would suffice but anyway we are more
 	consistent this way)
 	*/
-	// sys_log( "Session = ".print_r($_SESSION,1));
+
 	/* snb = still-not-booked. Note, if this is false then we should
 	 "normally" always succeed. The checks done here are useful in
 	 case there is a bug in the code. */
@@ -51,6 +51,8 @@ function check_session( $n, $quiet=false ) {
 	$snb = (!isset($_SESSION["booking_done"])) || !$_SESSION["booking_done"];
 	if ( !isset( $_SESSION[ "showid" ] ) ) {
 		kaboom($lang["err_session"]." ($n)");
+		sys_log( "Lost Session!  Session = ".print_r($_SESSION,1));
+		sys_log( "Post = ".print_r($_POST,1));
 		$url = PAGE_INDEX;  // "index";
 	} else if (do_hook_exists("check_session", 0)) {
 		$url = PAGE_INDEX;  // "index";
