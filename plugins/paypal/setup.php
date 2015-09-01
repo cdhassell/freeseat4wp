@@ -87,7 +87,6 @@ function freeseat_paypal_return() {
 		bookinglist_setup_session( $bookings, $groupid );
 		$_SESSION["booking_done"] = ST_PAID;
 		sys_log( "Paypal processing groupid = $groupid" );
-		// freeseat_switch( 5 );
 	} else {
 		sys_log( "Paypal cancelled" );
 		paypal_failure();
