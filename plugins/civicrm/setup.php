@@ -284,10 +284,11 @@ function civicrm_showedit($spec) {
 				) 
 			);
 			if ($result['is_error'] == 0 && ($result['count'] > 0)) {
-				// we got  one
+				// we got  one, update it with new values
 				$found = $result['values'][0];
+				// sys_log("Update of civievent {$date['civicrm_id']} with ".print_r($found,1));
 				$found['title'] = $name;
-				$found['summary'] = mysql_real_escape_string( $desc );
+				$found['summary'] = array_shift(preg_split('/[.?!]/',$desc));
 				$found['start_date'] = $date['date'].' '.$date['time'];
 				// FIXME assumes that all shows are 2 hours - should make that configurable
 				$found['end_date'] = $date['date'].' '. date('H:i', strtotime("{$date['time']} +2 hours"));
@@ -305,13 +306,12 @@ function civicrm_showedit($spec) {
 			// create new event
 			$template_id = civicrm_get_template();
 			$date['new'] = TRUE;
-			$summ = array_shift(preg_split('/[.?!]/',$desc));
 			$params = array (
 				'template_id' => $template_id,
 				'is_public' => 1, 
-				'title' => mysql_real_escape_string($name),
-				'summary' => mysql_real_escape_string($summ),
-				'description' => mysql_real_escape_string($desc),
+				'title' => $name,
+				'summary' => array_shift(preg_split('/[.?!]/',$desc)),
+				'description' => $desc,
 				'start_date' => $date['date'].' '.$date['time'],
 				'end_date' => $date['date'].' '. date('H:i', strtotime("{$date['time']} +2 hours")),
 				'registration_begin_date' => date("Y-m-d H:i"),
@@ -327,25 +327,24 @@ function civicrm_showedit($spec) {
 		}
 	}
 	
-	// record civicrm_id in shows table
 	foreach ($dates as &$date) {
-		if (isset($date['civicrm_id']) && ($date['civicrm_id']) && ($date['new'])) {
+		if ( isset($date['civicrm_id']) && ($date['civicrm_id']) ) {
+			// record civicrm_id in shows table
 			$sql = "UPDATE shows set civicrm_id={$date['civicrm_id']} WHERE id={$date['id']}";
 			freeseat_query($sql);
+			
+			// make a price set to handle these tickets
+			$price_set = civicrm_price_set_get($spec['id']);
+			$price_set = civicrm_price_set_create( $dates, $prices, $price_set, $date['civicrm_id'], $spec );		
 		}
 	}
-	
-	// make a price set to handle these tickets
-	$price_set = civicrm_price_set_get($spec['id']);
-	civicrm_price_set_create( $dates, $prices, $price_set, $date['civicrm_id'] );
 	return;
 }
 
 function civicrm_price_set_get( $id ) {
 	$params = array(
-		'name' => 'Tickets_'.$id
+		'name' => 'tickets_'.$id
 	);
-
 	try{
 		$result = civicrm_api3('PriceSet', 'get', $params);
 	}
@@ -356,46 +355,90 @@ function civicrm_price_set_get( $id ) {
 	return $result['id'];
 }
 
-function civicrm_price_set_create( $dates, $prices, $price_set = NULL, $entity_id ) {
+function civicrm_price_set_create( $dates, $prices, $price_set = NULL, $entity_id, $spec ) {
 	global $lang;
 	$params = array(
 		'entity_table' => 'civicrm_event',
 		'entity_id' => $entity_id,
-		'name' => 'Tickets',
-		'title' => 'Tickets',
+		'name' => 'tickets_'.$spec['id'],
+		'title' => 'Tickets for '.$spec['name'],
 		'extends' => 1,
 	);
-	if ($price_set) $params['id'] = $price_set;
-	$fields = array();
+	$ids = array();
+	/*  Structure of $ids array
+		[price field name] = price field id
+		[price field value name] = price field value id
+	*/
+	if ($price_set) {
+		$params['id'] = $price_set;
+		//  price set exists, so get its price field ids
+		$fields_params = array(
+			'price_set_id' => $price_set,
+		);
+		try{
+			$fields_result = civicrm_api3('PriceField', 'get', $fields_params);
+		}
+		catch (CiviCRM_API3_Exception $e) {}
+		if (is_array($fields_result) && $fields_result['count'] > 0) {
+			// we got the price fields
+			foreach ($fields_result['values'] as $fieldid => $item) {
+				$fieldname = $item['name'];
+				$ids[$fieldname] = $fieldid;
+				// now get the price field values
+				$values_params = array(
+					'price_field_id' => $fieldid,
+				);
+				try{
+					$values_result = civicrm_api3('PriceFieldValue', 'get', $values_params);
+				}
+				catch (CiviCRM_API3_Exception $e) {}
+				if (is_array($values_result) && $values_result['count'] > 0) {
+					foreach ($values_result['values'] as $valueid => $value) {
+						// sys_log("Found field value = ".print_r($value,1));
+						$valuename = $value['name'];
+						$ids[$valuename] = $valueid;
+					}
+				}
+			}
+		}
+		
+	}
+	// sys_log("Array ids = ".print_r($ids,1));
 	foreach ($prices as $class => $cats) {
 		// one price field for each class of ticket
 		if ( $cats[CAT_NORMAL] == 0 && $cats[CAT_REDUCED] == 0 ) continue;
-		$fields[] = array(
-			'name' => 'class_'.$class,
-			'label' => (isset($cats['comment']) && strlen($cats['comment'])>0 ? $cats['comment'] : 'class_'.$class),
-			'html_type' => 'Text',
-			'is_enter_qty' => 1,
-			'is_active' => 1,
-			// one price field value for each category (regular, discount, comp)
-			'api.price_field_value.create' => array(
-				array(
-					'name' => 'category_'.CAT_REDUCED,
-					'label' => $lang['cat_reduced'],
-					'amount' => $cats[CAT_REDUCED],
+		foreach ( array(CAT_NORMAL, CAT_REDUCED) as $cat ) {
+			if ( $cats[$cat] == 0 ) continue;
+			$field_name = 'class_'.$class.'_category_'.$cat;		
+			$field_label = (isset($cats['comment']) && strlen($cats['comment'])>0 ? $cats['comment'] : 'class_'.$class)." - ".($cat == CAT_NORMAL ? $lang['cat_normal'] : $lang['cat_reduced']);
+			$fields[$field_name] = array(
+				'price_set_id' => $price_set,
+				'name' => $field_name,
+				'label' => $field_label,
+				'html_type' => 'Text',
+				'is_enter_qty' => 1,
+				'is_active' => 1,
+				// 'options_per_line' => '2',
+				'api.price_field_value.create' => array(
+					'name' => $field_name.'_value',
+					'label' => $field_label.' Price',
+					'amount' => price_to_string($cats[$cat]),
 					'is_active' => 1,
-					'financial_type_id' => 2,
+					'financial_type_id' => FINANCIAL_TYPE,
 				),
-				array(
-					'name' => 'category_'.CAT_NORMAL,
-					'label' => $lang['cat_normal'],
-					'amount' => $cats[CAT_NORMAL],
-					'is_active' => 1,
-					'financial_type_id' => 2,
-				)
-			),
-		);
+			);
+			if (isset($ids[$field_name])) {
+				$fields[$field_name]['id'] = $ids[$field_name];
+				if (isset($ids[$field_name.'_value'])) {
+					$fields[$field_name]['api.price_field_value.create']['id'] = $ids[$field_name.'_value'];
+				}
+			}
+		}
 	}
-	$params['api.price_field.create'] = $fields;
+	// transfer field data to the params array, and run it
+	foreach ($fields as $name => $field) {
+		$params['api.price_field.create'][] = $field;
+	}
 	// sys_log( "creating price set ".print_r($params,1) );
 	try{
 		$result = civicrm_api3('PriceSet', 'create', $params);
@@ -409,16 +452,17 @@ function civicrm_price_set_create( $dates, $prices, $price_set = NULL, $entity_i
 function civicrm_get_template() {
 	// Search for a FreeSeat template
 	// Use it if it exists, create one if not
-	$result=civicrm_api3("Event","get", 
+	$result = civicrm_api3("Event","get", 
 		array (
 			'title' => 'FreeSeat', 
 			'is_template' => 1,
 			'sequential' => 1
 		) 
 	);
-	if ($result['is_error'] == 0 && isset($result['values'][0]) ) {
+	if (is_array($result) && $result['count']>0 && empty($result['is_error'])) {
 		// we have an event template, let's use it
 		// assumes that the user has not messed with it too much
+		// sys_log("Found a template result = ".print_r($result,1));
 		$found = $result['values'][0];
 		return $found['id'];
 	} else {
@@ -441,7 +485,7 @@ function civicrm_get_template() {
 			'title' => 'FreeSeat',
 			'template_title' => 'FreeSeat show template',
 			'summary' => 'FreeSeat Event Template',
-			'description' => 'This is a FreeSeat event template. Please edit cautiously. Changes you make here will be repeated in all FreeSeat events.',
+			'description' => 'This is a FreeSeat event template. Please edit cautiously. Changes you make here will be repeated in all future FreeSeat events.',
 			// set dates in the past so this event does not show up on public lists
 			'start_date' => date("Y-m-d H:i", strtotime("-24 hours")),
 			'end_date' => date("Y-m-d H:i", strtotime("-22 hours")),
@@ -451,9 +495,9 @@ function civicrm_get_template() {
 			'registration_begin_date' => date("Y-m-d H:i", strtotime("-48 hours")),
 			'registration_end_date' => date("Y-m-d H:i", strtotime("-25 hours")),
 		);
-		// sys_log( "creating event template ".print_r($params,1) );
+		// sys_log( "Creating event template ".print_r($params,1) );
 		$result=civicrm_api3( "Event", "create", $params );
-		if ($result['is_error'] == 0) {
+		if (is_array($result) && empty($result['is_error'])) {
 			sys_log("Created {$result['id']} as template in civicrm. ");
 			return $result['id'];
 		} else {
@@ -464,14 +508,14 @@ function civicrm_get_template() {
 }
 
 // hook into civicrm_pre
-add_filter( 'civicrm_pre', __NAMESPACE__ . '\\freeseat_civicrm_pre_callback', 10, 4 );
+// add_filter( 'civicrm_pre', __NAMESPACE__ . '\\freeseat_civicrm_pre_callback', 10, 4 );
 function freeseat_civicrm_pre_callback( $op, $objectName, $objectId, &$objectRef ) {
 	// your code here
 	sys_log("Civicrm pre callback: ");
 	sys_log("op = ".print_r($op,1));
 	sys_log("objectname = ".print_r($objectName,1));
 	sys_log("objectid = ".print_r($objectId,1));
-	sys_log("objectref = ".print_r($objectRef,1));
+	// sys_log("objectref = ".print_r($objectRef,1));
 }
 
 /**
@@ -537,28 +581,12 @@ function freeseat_civicrm_buildAmount( $pageType, &$form, &$amount ) {
 			$eventid = $form->_eventId;
 			sys_log("Civicrm buildAmount callback: ");
 			sys_log("priceSetId = ".print_r($priceSetId,1));
-			sys_log("form = ".print_r($form,1));
+			// sys_log("form = ".print_r($form,1));
 			sys_log("amount = ".print_r($amount,1));
-			sys_log("feeBlock = ".print_r($feeBlock,1));
+			// sys_log("feeBlock = ".print_r($feeBlock,1));
 		}
 	}
 }
-
-/*
-This hook is called when composing the tabs interface used for events. 
-Parameters
-    $tabset   - name of the screen or visual element      
-    $tabs      - the array of tabs that will be displayed
-    $context   - extra data about the screen or context in which the tab is used 
- */
-// add_filter( 'civicrm_tabset', __NAMESPACE__ . '\\freeseat_civicrm_tabset', 10, 4 ); 
-function freeseat_civicrm_tabset($tabsetName, &$tabs, $context) {
-	sys_log("Civicrm tabset callback: ");
-	sys_log("tabsetName = ".print_r($tabsetName,1));
-	sys_log("tabs = ".print_r($tabs,1));
-	sys_log("context = ".print_r($context,1));
-}
-
 
 
 /* function civicrm_config_db($user) {
