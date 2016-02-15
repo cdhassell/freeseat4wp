@@ -55,7 +55,7 @@ function freeseat_pay( $page_url )
 	if (!isset($_SESSION["payment"])) $_SESSION["payment"]= PAY_CCARD;
 	
 	/* If the price doesn't depend on the category, then don't offer
-	 discout option. */
+	 discount option. */
 	$discount_option = price_depends_on_cat($sh["spectacleid"]);
 	
 	/* All categories from which the user may choose, mapped to their $lang key. */

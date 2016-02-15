@@ -105,11 +105,13 @@ function freeseat_finish( $page_url ) {
 		}
 		do_hook('finish_end');
 		echo '<p class="main"><b>'.$lang["mail-thankee"].'</b></p>';
-	
+		$seats_copy = $_SESSION["seats"];
+		$top = array_shift( $seats_copy );
+		// sys_log("top = " . print_r($top,1));
+		$spec = get_spectacle( $top["spectacleid"] );
+			
 		/* Now send a confirmation message if that hasn't been done already. */
 		if (($_SESSION["email"]!="") && (!isset($_SESSION["mail_sent"]))) {
-			$top = array_shift( $_SESSION["seats"] );
-			$spec = get_spectacle( $top["spectacleid"] );
 			$body  = sprintf($lang["mail-booked"],$spec["name"]);
 			$body .= $lang["name"].": ".$_SESSION["firstname"]." ".$_SESSION["lastname"]."\n";
 			$body .= "\n";

@@ -21,19 +21,12 @@ function freeseat_seats( $page_url )
 	if ( isset( $_GET[ "showid" ] ) && ( !isset( $_SESSION[ "showid" ] ) || 
 		( $_SESSION[ "showid" ] != (int)( $_GET[ "showid"] ) ) ) ) {
 		$_SESSION["showid"] = (int)($_GET["showid"]);
-		
-		check_session(1); // check showid
-		// note that if check_session fails then any previous seat selection is lost.
-		
-		$sh = get_show($_SESSION["showid"]);
-		if (!check_seats())
-			kaboom($lang["err_occupied"]);
-	} else { // showid unchanged
-		check_session(1); // check showid
-		$sh = get_show($_SESSION["showid"]);
-		if (!check_seats())
-			kaboom($lang["err_occupied"]);
-	}
+	}	
+	// note that if check_session fails then any previous seat selection is lost.
+	check_session(1); // check showid		
+	$sh = get_show($_SESSION["showid"]);
+	if (!check_seats())
+		kaboom($lang["err_occupied"]);
 	
 	/* Decide whether to show the prices or not (i.e. whether they
 		depend on category or not) */

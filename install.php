@@ -74,7 +74,9 @@ function freeseat_install() {
 	cat int(2) DEFAULT NULL,
 	class int(3) DEFAULT NULL,
 	amount int(11) DEFAULT NULL,
-	KEY spectacle (spectacle,cat,class)
+	field_id int(10) UNSIGNED NULL DEFAULT NULL, 
+	KEY spectacle (spectacle,cat,class),
+	KEY field_id (field_id)
     );";
 
 	dbDelta( $sql );

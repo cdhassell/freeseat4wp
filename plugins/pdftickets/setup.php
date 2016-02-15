@@ -1,8 +1,8 @@
 <?php namespace freeseat;
 
-if (!class_exists('DOMPDF')) {
+// if (!class_exists('DOMPDF')) {
 	require_once( "dompdf/dompdf_config.inc.php" );
-}
+// }
 $dompdf = new \DOMPDF();
 
 add_action( 'template_redirect', __NAMESPACE__ . '\\freeseat_pdftickets_redirect' );

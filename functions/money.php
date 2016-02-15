@@ -69,11 +69,14 @@ function get_seat_price($seat) {
    class $class  */
 function get_spec_prices( $spec ) 
 {
-	if ($p = fetch_all("SELECT cat, class, amount from price " . 
+	if ($p = fetch_all("SELECT cat, class, amount, field_id from price " . 
 		"where spectacle=$spec order by class, cat desc")) {
 		$prices = array();
-		foreach ( $p as $item ) 
-			$prices[$item['class']][$item['cat']] = $item['amount'];
+		foreach ( $p as $item ) {
+			$prices[$item['class']][$item['cat']]['amt'] = $item['amount'];
+			if (isset($item['field_id'])) 
+				$prices[$item['class']][$item['cat']]['fid'] = $item['field_id'];
+		}
 	} else {
 		kaboom(mysql_error());
 		return false;

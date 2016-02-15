@@ -15,28 +15,36 @@ Wordpress plugin with more links to Civicrm API
 Use civicrm workflow to capture payment
 No freeseat payment processor plugins required
 
-Event registration:
-Start in civicrm, redirect to seat selection and back
-Return to civievent for confirmation and payment
-Or, start in freeseat and jump to civievent URL after seat selection
-	
 Post-checkout hook:
 Attach ticket PDF to confirmation email
 
 Event setup: OK
-Write dates, times to civicrm via API
-Write ticket prices to price sets
-Maintain showid to eventid link
+Write dates, times to civicrm via API: OK
+Write ticket prices to price sets: OK
+Maintain showid to eventid link: OK
+Adding contribution transact call: WIP
 
 Registration maintenance:
 Handle delete or edit registration
 Use freeseat POS interface
+http://localhost/wordpress/wp-admin/admin.php?page=CiviCRM&q=civicrm%2Fparticipant%2Fadd&reset=1&action=add&context=standalone&eid=18
+http://localhost/wordpress/wp-admin/admin.php?page=CiviCRM&q=civicrm%2Fevent%2Finfo&id=18&reset=1
+
 
 Comments:
 Price set must have recognizable tags by cat and class
 Must allow multiple signups on one email
 No ccard table in freeseat
 Booking table - Booking links to participant
+
+Info page:
+http://localhost/wordpress/civicrm?page=CiviCRM&q=civicrm/event/info&reset=1&id=16
+
+Registration page:
+http://localhost/wordpress/civicrm?page=CiviCRM&q=civicrm/event/register&reset=1&id=16
+
+Sample
+http://localhost/wordpress/?page=CiviCRM&q=civicrm/event/register&page_id=7&id=16&reset=1
 
 */
 
@@ -49,20 +57,29 @@ if ( is_plugin_inactive( 'civicrm/civicrm.php' ) )
 define( 'PARTICIPANT_ROLE',	1 );	// attendee
 define( 'FINANCIAL_TYPE',	4 );	// event fee
 define( 'EVENT_TYPE',		5 );	// performance
-define( 'DESCRIPTION_TEXT', "<p>For tickets please visit <a>".home_url()."</a></p>" );
+define( 'SHOWLEN',			2 );	// std show length in hours
 
 function freeseat_plugin_init_civicrm() {
 	global $freeseat_plugin_hooks;
 	
-	$freeseat_plugin_hooks['finish_end']['civicrm'] = 'civicrm_sync';
+	$freeseat_plugin_hooks['ccard_exists']['civicrm'] = 'civicrm_true';
+	$freeseat_plugin_hooks['ccard_paymentform']['civicrm'] = 'civicrm_sync';
 	$freeseat_plugin_hooks['showedit_save']['civicrm'] = 'civicrm_showedit';
+	$freeseat_plugin_hooks['ccard_confirm_button']['civicrm'] = 'civicrm_form';
+	$freeseat_plugin_hooks['confirm_process']['civicrm'] = 'civicrm_process'; 	
+	$freeseat_plugin_hooks['kill_booking_done']['civicrm'] = 'civicrm_cleanup';
+	init_language('civicrm');	
+}
+
+function civicrm_true($void) {
+	return TRUE;
 }
 
 /* 
  *  Save session user data from ticket purchase to civicrm
  *  Search for a matching contact, and if one is found, use it
  *  If no match is found, create a new contact first
- *  
+ *  Called on do_hook('ccard_paymentform')
  */
 function civicrm_sync() {
 	global $currency, $post;
@@ -72,7 +89,7 @@ function civicrm_sync() {
 		sys_log("Aborting civicrm integration, civicrm not found" ); 
 		return; 
 	}	
-	
+	sys_log("starting civicrm_sync");
 	// get freeseat booking data from session
 	$showid = $_SESSION["showid"];
 	$sh = get_show( $showid ); 
@@ -88,12 +105,15 @@ function civicrm_sync() {
 	$groupid = $_SESSION['groupid'];
 	$phone = $_SESSION['phone'];
 	$email = $_SESSION['email'];
+	$country = $_SESSION['country'];
 	$amount = get_total();
 	$amtstr = $currency . price_to_string( $amount );
 	$detail = "$sp_name on $date ticket #$groupid for $amtstr";
 	sys_log("Recording ticket sale to $groupid for $amtstr ");
 	$eventid = m_eval( "SELECT civicrm_id FROM shows WHERE id=$showid" );
 	$detail .= ( isset($post) ? " at ".get_page_link() : '' );
+	$seats = $_SESSION['seats'];
+	$prices = get_spec_prices( $sh["spectacleid"] );
 	// Check for reservations we don't want to keep
 	if (strpos($firstname.' '.$lastname,'Disabled') !== FALSE ||
 		strpos($firstname.' '.$lastname,'Office') !== FALSE ||
@@ -101,13 +121,24 @@ function civicrm_sync() {
 		strlen(trim($firstname.$lastname)) == 0) {
 		return; 
 	}
-	
+	// summarize the seats array into price field amounts
+	$field_counts = array();
+	foreach ($seats as $seat) {
+		$field_id = $prices[$seat['class']][$seat['cat']]['fid'];
+		if (!isset($field_counts[$field_id])) {
+			$field_counts[$field_id] = array('total' => 0, 'price' => 0, 'count' => 0 );
+		}
+		$field_counts[$field_id]['total'] += $prices[$seat['class']][$seat['cat']]['amt'];
+		$field_counts[$field_id]['price'] = $prices[$seat['class']][$seat['cat']]['amt'];
+		$field_counts[$field_id]['count']++;
+	}
+
   	// now do it the WordPress way
   	require_once ABSPATH."wp-content/plugins/civicrm/civicrm.settings.php";
 	require_once 'CRM/Core/Config.php';
 	$config = \CRM_Core_Config::singleton( );
 	require_once 'api/api.php';
-	
+	sys_log("booting civicrm");
 	// check if we have a saved contact id for the logged in user
 	$cid = civicrm_getvalue('civicrm-contactid');
 	if ($cid) { 
@@ -143,41 +174,17 @@ function civicrm_sync() {
 				'phone' => $phone,
 				'location_type_id' => 1,
 				'phone_type_id' => 1,
-			),			
-			'api.participant' => array(
-				'event_id' => $eventid,
-				'status_id' => 1,
-				'role_id' => PARTICIPANT_ROLE,
-				'note' => $detail,
-				// 'format.only_id' => 1,
 			)
 		);
-		/*  We could record the money transaction but that is too complex
-			Requires setup of price sets for ticket prices
-		if ( isset( $amtstr ) ) {
-			$params[ 'api.contribution.create' ] = array(
-				'financial_type_id' => FINANCIAL_TYPE,
-				'total_amount' => $amtstr,
-				'format.only_id' => 1,
-				'receive_date' => date("Y-m-d H:i:s"),
-				'payment_instrument_id' => 1,
-				'invoice_id' => $groupid,
-				'source' => 'Tickets',
-				'contribution_status_id' => 1,				
-			);
-			$params[ 'api.participant_payment.create' ] = array(
-				'contribution_id' => '$value.api.contribution.create',
-				'participant_id' => '$value.api.participant'
-			);
-		}
-		*/
+
 		$contact_create=civicrm_api3("Contact","create", $params);
 		if ($contact_create['is_error'] == 0) {
 			$cid = $contact_create['id'];
+
 			sys_log( "Created $cid in civicrm for $groupid" );
 		} else sys_log( "Cannot create civicrm contact for $groupid: ".print_r($contact_create,1) );
 	}
-	// if one/more is found, get the contact_id then add a participant
+	// if one/more is found, get the contact_id 
 	else {
 		if (!$cid) { // skip the search if we have the id already
 			$params = array (
@@ -199,43 +206,125 @@ function civicrm_sync() {
 				}
 			} else {
 				sys_log( "Cannot get civicrm contact for $groupid ".print_($contact_get,1) );
+				civicrm_delvalue( 'civicrm-contactid' );
 				return;
 			}
 		}
-		// at this point we have a contact id
-		$params = array (
-			'contact_id' => $cid,
-			'event_id' => $eventid,
-			'status_id' => 1,
-			'role_id' => PARTICIPANT_ROLE,
-			'note' => $detail,
+	}
+	// at this point we have a contact id
+	sys_log("Found contact $cid");
+	// save the contact id for next time
+	civicrm_setvalue( 'civicrm-contactid', $cid );
+	
+	if ( isset( $amtstr ) ) {
+		// first get the payment processor id
+		$result = civicrm_api3('PaymentProcessor', 'getsingle', array(
+			'sequential' => 1,
+			'is_active' => 1,
+			// 'is_default' => 1,
+			'is_test' => 1,  // test mode?
+			'billing_mode' => 3,
+		));
+		$payment_processor = $result['id'];
+		if (empty($payment_processor)) return FALSE;
+		
+		// now get the payment through the contribution transact API
+		$locationTypes = \CRM_Core_PseudoConstant::get('CRM_Core_DAO_Address', 'location_type_id', array(), 'validate');
+		$bltID = array_search('Billing', $locationTypes);
+		$contributionparams = array();
+		$isrecur = FALSE;
+		$contributionparams = array(
+			"billing_first_name" => $firstname,
+			"first_name" => $firstname,
+			"billing_last_name" => $lastname,
+			"last_name" => $lastname,
+			"billing_street_address-{$bltID}" => $street,
+			"street_address" => $street,
+			"billing_city-{$bltID}" => $city,
+			"city" => $city,
+			"billing_country_id-{$bltID}" => $country,
+			"country_id" => $country,
+			"country" => $country,
+			"billing_state_province_id-{$bltID}" => $us_state,
+			"state_province_id" => $us_state,
+			"state_province" => \CRM_Core_PseudoConstant::stateProvince($us_state),
+			"billing_postal_code-{$bltID}" => $postalcode,
+			"postal_code" => $postalcode,
+			"year" => $_SESSION["civicrm_card_expyear"],
+			"month" => $_SESSION["civicrm_card_expmonth"],
+			"email" => $email,
+			"contribution_page_id" => "",
+			"event_id" => $eventid,  // is this needed?
+			"contribution_recur_id" => '',
+			"payment_processor_id" => $payment_processor,
+			"is_test" => TRUE,   // $_SESSION['isTest'],
+			"is_pay_later" => FALSE, 
+			"total_amount"=> $amtstr,
+			"invoice_id" => $groupid,
+			"financial_type_id" => FINANCIAL_TYPE,
+			"currency" => 'USD',
+			"skipLineItem" => 0,
+			"skipRecentView" => 1,
+			"is_email_receipt" => 1,
+			"contact_id" => $cid,
+			"source" => "Tickets",
+			"currencyID" => 'USD',
+			"ip_address" => $_SERVER['REMOTE_ADDR'],
+			"payment_action" => "Sale",
+			'api.ParticipantPayment.create' => array (
+				'contact_id' => $cid,
+				'event_id' => $eventid,
+				'status_id' => 1,
+				'role_id' => PARTICIPANT_ROLE,
+				'note' => $detail,
+				'contribution_id' => '$value.contribution_id',
+			),
 		);
-		/*
-		if ( isset( $amtstr ) ) {
-			$params[ 'api.contribution.create' ] = array(
+		$priceparams = array();
+		// now get the price set & price field data & create the line items
+		foreach ($field_counts as $field_id => $fid) {
+			$priceparams[] = array(
+				'price_field_id' => array( 0 => $field_id ),
+				'qty' => $fid['count'],
+				'line_total' => $fid['total'],
+				'unit_price' => $fid['price'],
 				'financial_type_id' => FINANCIAL_TYPE,
-				'total_amount' => $amtstr,
-				'format.only_id' => 1,
-				'receive_date' => date("Y-m-d H:i:s"),
-				'payment_instrument_id' => 1,
-				'invoice_id' => $groupid,
-				'source' => 'Tickets',
-				'contribution_status_id' => 1,				
-			);
-			$params[ 'api.participant_payment.create' ] = array(
-				'contribution_id' => '$value.api.contribution.create',
-				'participant_id' => '$value.api.participant'
 			);
 		}
-		*/
-		// make a participant record
-		$result = civicrm_api3( "participant", "create", $params );
-		if ($result['is_error'] != 0)  // if there was an error then delete the id
-			civicrm_delvalue( 'civicrm-contactid' );
-		else  // otherwise save the contact id for next time
-			civicrm_setvalue( 'civicrm-contactid', $cid );
+		if (!empty($priceparams)) $contributionparams['api.line_item.create'] = $priceparams;
+			
+		$contributionparams['credit_card_number'] = $_SESSION['civicrm_card_account'];
+		$contributionparams['cvv2'] = $_SESSION['civicrm_card_cvv2'];
+		$contributionparams['credit_card_type'] = $_SESSION['civicrm_card_type'];
+		//***************************************************************************
+		//call transact api
+		sys_log("Calling api with contribution record: ".print_r($contributionparams,1));
+		try {
+			$result = civicrm_api3('Contribution', 'transact', $contributionparams);
+		}
+		catch (CiviCRM_API3_Exception $e) {
+			$error = $e->getMessage();
+			sys_log( "Error in contribution transact ". $error );
+			return $error;
+		}
+		//**************************************************************************
+		// from wf_crm_webform_postprocess.inc webform-civicrm
+		if ($result['error']) {
+			return $result['error'];
+		} else if ($result){
+			$contributionID = $result['id'];
+			sys_log("Contribution result = ".print_r($result,1));
+			// Send receipt
+			civicrm_api3('contribution', 'sendconfirmation', array('id' => $contributionID) + $contributionparams);
+			
+			$ok = process_ccard_transaction( $groupid, $contributionID, $amtstr );
+			sys_log("Paypal process success");			
+			
+			return $result;
+		}
+		// make a participant record $result = civicrm_api3( "participant", "create", $params ); $pid = $result['participant_id'];
 	}
-	return;
+	return $pid;
 }
 
 /*
@@ -290,8 +379,7 @@ function civicrm_showedit($spec) {
 				$found['title'] = $name;
 				$found['summary'] = array_shift(preg_split('/[.?!]/',$desc));
 				$found['start_date'] = $date['date'].' '.$date['time'];
-				// FIXME assumes that all shows are 2 hours - should make that configurable
-				$found['end_date'] = $date['date'].' '. date('H:i', strtotime("{$date['time']} +2 hours"));
+				$found['end_date'] = $date['date'].' '. date('H:i', strtotime("{$date['time']} +".SHOWLEN." hours"));
 				$found['event_type_id'] = EVENT_TYPE;
 				$result = civicrm_api3("Event","create",$found);
 				if ( $result['is_error'] == 0 )
@@ -406,9 +494,9 @@ function civicrm_price_set_create( $dates, $prices, $price_set = NULL, $entity_i
 	// sys_log("Array ids = ".print_r($ids,1));
 	foreach ($prices as $class => $cats) {
 		// one price field for each class of ticket
-		if ( $cats[CAT_NORMAL] == 0 && $cats[CAT_REDUCED] == 0 ) continue;
+		if ( $cats[CAT_NORMAL]['amt'] == 0 && $cats[CAT_REDUCED]['amt'] == 0 ) continue;
 		foreach ( array(CAT_NORMAL, CAT_REDUCED) as $cat ) {
-			if ( $cats[$cat] == 0 ) continue;
+			if ( $cats[$cat]['amt'] == 0 ) continue;
 			$field_name = 'class_'.$class.'_category_'.$cat;		
 			$field_label = (isset($cats['comment']) && strlen($cats['comment'])>0 ? $cats['comment'] : 'class_'.$class)." - ".($cat == CAT_NORMAL ? $lang['cat_normal'] : $lang['cat_reduced']);
 			$fields[$field_name] = array(
@@ -417,12 +505,13 @@ function civicrm_price_set_create( $dates, $prices, $price_set = NULL, $entity_i
 				'label' => $field_label,
 				'html_type' => 'Text',
 				'is_enter_qty' => 1,
+				'is_required' => 0,
 				'is_active' => 1,
 				// 'options_per_line' => '2',
 				'api.price_field_value.create' => array(
 					'name' => $field_name.'_value',
 					'label' => $field_label.' Price',
-					'amount' => price_to_string($cats[$cat]),
+					'amount' => price_to_string($cats[$cat]['amt']),
 					'is_active' => 1,
 					'financial_type_id' => FINANCIAL_TYPE,
 				),
@@ -446,12 +535,26 @@ function civicrm_price_set_create( $dates, $prices, $price_set = NULL, $entity_i
 	catch (CiviCRM_API3_Exception $e) {
 		return NULL;
 	}
+	// write field ids into the price table
+	foreach ($prices as $class => $cats) {
+		if ( $cats[CAT_NORMAL] == 0 && $cats[CAT_REDUCED] == 0 ) continue;
+		foreach ( array(CAT_NORMAL, CAT_REDUCED) as $cat ) {
+			$field_name = 'class_'.$class.'_category_'.$cat;
+			if (isset($fields[$field_name]) && !empty($fields[$field_name])) { 
+				$field_id = $fields[$field_name]['id'];
+				$sql = "UPDATE price set field_id=$field_id WHERE cat=$cat AND class=$class and spectacle={$spec['id']}";
+				// sys_log( "writing field IDs into the price table with ".print_r($field_id,1) );
+				freeseat_query($sql);
+			}			
+		}
+	}
 	return $result['id'];
 }
 
 function civicrm_get_template() {
 	// Search for a FreeSeat template
 	// Use it if it exists, create one if not
+	global $lang;
 	$result = civicrm_api3("Event","get", 
 		array (
 			'title' => 'FreeSeat', 
@@ -483,14 +586,14 @@ function civicrm_get_template() {
 			'is_share' => 1,
 			'is_email_confirm' => 1,
 			'title' => 'FreeSeat',
-			'template_title' => 'FreeSeat show template',
-			'summary' => 'FreeSeat Event Template',
-			'description' => 'This is a FreeSeat event template. Please edit cautiously. Changes you make here will be repeated in all future FreeSeat events.',
+			'template_title' => $lang["civicrm_template_title"],
+			'summary' => '',
+			'description' => $lang["civicrm_template_description"],
 			// set dates in the past so this event does not show up on public lists
 			'start_date' => date("Y-m-d H:i", strtotime("-24 hours")),
 			'end_date' => date("Y-m-d H:i", strtotime("-22 hours")),
 			'event_type_id' => EVENT_TYPE,
-			'is_multiple_registrations' => 1,
+			'is_multiple_registrations' => 0,  // don't change this
 			'allow_same_participant_emails' => 1, 
 			'registration_begin_date' => date("Y-m-d H:i", strtotime("-48 hours")),
 			'registration_end_date' => date("Y-m-d H:i", strtotime("-25 hours")),
@@ -511,17 +614,17 @@ function civicrm_get_template() {
 // add_filter( 'civicrm_pre', __NAMESPACE__ . '\\freeseat_civicrm_pre_callback', 10, 4 );
 function freeseat_civicrm_pre_callback( $op, $objectName, $objectId, &$objectRef ) {
 	// your code here
-	sys_log("Civicrm pre callback: ");
-	sys_log("op = ".print_r($op,1));
-	sys_log("objectname = ".print_r($objectName,1));
-	sys_log("objectid = ".print_r($objectId,1));
+	print("Civicrm pre callback: ");
+	print("op = ".print_r($op,1));
+	print("objectname = ".print_r($objectName,1));
+	print("objectid = ".print_r($objectId,1));
 	// sys_log("objectref = ".print_r($objectRef,1));
 }
 
 /**
  * Alter fields for an event registration to make them into a demo form.
  */
-add_filter( 'civicrm_alterContent', __NAMESPACE__ . '\\freeseat_civicrm_alterContent', 10, 4 );
+// add_filter( 'civicrm_alterContent', __NAMESPACE__ . '\\freeseat_civicrm_alterContent', 10, 4 );
 function freeseat_civicrm_alterContent( &$content, $context, $tplName, &$object ) {
   if($context == "form") {
     if($tplName == "CRM/Event/Form/Registration/Register.tpl") {
@@ -538,60 +641,198 @@ function freeseat_civicrm_alterContent( &$content, $context, $tplName, &$object 
 /**
  *  This hook is invoked when a CiviCRM form is submitted. If the module has injected
 any form elements, this hook should save the values in the database.  This hook is not called when using the API, only when using the regular forms. If you want to have an action that is triggered no matter if it's a form or an API, use the pre and post hooks instead.
+
+postProcess CRM_Event_Form_Registration_Register form = CRM_Event_Form_Registration_Register Object
+    [_totalAmount] => 43
+    [_eventId] => 16
+    [_params:protected] => Array
+        (
+            [0] => Array
+                (
+                    [first_name] => Dan
+                    [last_name] => Hassell
+                    [email-Primary] => cdhassell@gmail.com
+                    [priceSetId] => 24
+                    [price_14] => Array
+                        (
+                            [16] => 1
+                        )
+                    [price_15] => 0
+                    [price_16] => Array
+                        (
+                            [18] => 1
+                        )
+                    [price_17] => 0
+                    [amount] => 43.00
+                    [payment_action] => Sale
+
  */
-add_filter( 'civicrm_postProcess', __NAMESPACE__ . '\\freeseat_civicrm_postProcess', 10, 4 );
+// add_filter( 'civicrm_postProcess', __NAMESPACE__ . '\\freeseat_civicrm_postProcess', 10, 4 );
 function freeseat_civicrm_postProcess( $formName, &$form ) {
-	sys_log("Civicrm postProcess callback: ");
-	sys_log("formName = ".print_r($formName,1));
-	// sys_log("form = ".print_r($form,1));
+	print("<pre>Civicrm postProcess callback formName = ".print_r($formName,1)." postProcess</pre>");
+	sys_log("postProcess ".print_r($formName,1)." form = ".print_r($form,1));
+
+	$values = $form->getVar( '_values' );
+	if (isset($values['event']['template_title']) && stripos($values['event']['template_title'],'FreeSeat')!==FALSE) {
+		if ( is_a( $form, 'CRM_Event_Form_Registration_Register' ) ) {
+			// get event id
+			$eventid = $form->getVar( '_eventId' );
+			$params  = $form->getVar( '_params'  );
+			// get freeseat spectacle
+			$sql = "SELECT spectacle FROM shows WHERE civicrm_id=$eventid";
+			$specid = m_eval($sql);
+			if ($specid) {
+				// get an array of price field ids
+				$sql = "SELECT field_id FROM price WHERE spectacle=$specid";
+				$fieldids = fetch_all($sql);
+				foreach ($fieldids as $field) {
+					$pricefield = $params[0][ "price_$field" ];
+					
+				}
+			} else {
+				// nothing to do, give up
+				return;
+			}
+			// get user data
+			$_SESSION['firstname'] = $params[0]['first_name'];
+			$_SESSION['lastname'] = $params[0]['last_name'];
+			$_SESSION['email'] = $params[0]['email-Primary'];
+			$price_set = $params[0]['priceSetId'];
+			$amount = $params[0]['amount'];			
+			// capture seat choices from freeseat and lock seats
+			
+			// write totals into civi fields
+			
+		} elseif ( is_a( $form, 'CRM_Event_Form_Registration_Confirm' ) ) {
+			// capture cat choices from freeseat
+			
+		}
+	}	
 }
 
-/*
-Parameters
-    string $formName - the name of the form
-    object $form - reference to the form object
- */
 add_filter( 'civicrm_preProcess', __NAMESPACE__ . '\\freeseat_civicrm_preProcess', 10, 4 );
 function freeseat_civicrm_preProcess($formName, &$form) {
-	sys_log("Civicrm preProcess callback: ");
-	sys_log("formName = ".print_r($formName,1));
-	// sys_log("form = ".print_r($form,1));
-}
-
-/*
-This hook is called when building the amount structure for a Contribution or Event Page. It allows you to modify the set of radio buttons representing amounts for contribution levels and event registration fees.
-Parameters
-    $pageType - is this a 'contribution', 'event', or 'membership'
-    $form - reference to the form object
-    $amount - the amount structure to be displayed
- */
-add_filter( 'civicrm_buildAmount', __NAMESPACE__ . '\\freeseat_civicrm_buildAmount', 10, 4 );
-function freeseat_civicrm_buildAmount( $pageType, &$form, &$amount ) {
-	//sample to modify priceset fee
-	$priceSetId = $form->get( 'priceSetId' );
-	if ( !empty( $priceSetId ) ) {
-		$feeBlock =& $amount;
-		// if you use this in sample data, u'll see changes in
-		// contrib page id = 1, event page id = 1 and
-		if (!is_array( $feeBlock ) || empty( $feeBlock ) ) {
-			return;
-		}
-		//in case of event we get eventId,
-		if ( $pageType == 'event' ) {
-			$eventid = $form->_eventId;
-			sys_log("Civicrm buildAmount callback: ");
-			sys_log("priceSetId = ".print_r($priceSetId,1));
-			// sys_log("form = ".print_r($form,1));
-			sys_log("amount = ".print_r($amount,1));
-			// sys_log("feeBlock = ".print_r($feeBlock,1));
+	global $page_url;
+	// is this a freeseat event?
+	$values = $form->getVar( '_values' );
+	if (isset($values['event']['template_title']) && stripos($values['event']['template_title'],'FreeSeat')!==FALSE) {
+		sys_log("preProcess ".print_r($formName,1)." form = ".print_r($form,1));
+		if ( is_a( $form, 'CRM_Event_Form_Registration_Register' ) ) {
+			// display seats
+			$eventid = $form->getVar( '_eventId' );
+			// get freeseat spectacle
+			$sql = "SELECT id FROM shows WHERE civicrm_id=$eventid";
+			$showid = m_eval($sql);
+			if ($showid) {
+				$_SESSION['showid'] = $showid;
+				freeseat_seats($page_url);
+			}
+			// js to set fields
+		} elseif ( is_a( $form, 'CRM_Event_Form_Registration_Confirm' ) ) {
+			// 
+			// display cat choices
+		} elseif ( is_a( $form, 'CRM_Event_Form_Registration_ThankYou' ) ) {
+			
+			// make final booking and display or email ticket
 		}
 	}
 }
 
+/** 
+ *  Called at the bottom of the confirm page
+ *  Display the paypal credit card form 
+ */
+function civicrm_form() {
+	global $lang;
+	// displayed within the paymentinfo div
+	// prompt for the credit card info
+	$months = array();
+	$years = array();
+	for($i=0; $i<12; $i++) { 
+		$mstr = sprintf('%02d', $i+1);
+		$y = date('Y')+$i; 
+		$months[(string)($i+1)] = "$mstr - ". date('M', mktime(0,0,0,$i+1,date('j'),date('Y')));
+		$years["$y"]  = "$y";
+	}
+	?>
+		<p class="main">
+			<?php echo $lang['civicrm_message']; ?>
+		</p>
+		<p class="main">
+			<input type="hidden" name="freeseat-form" value="1">
+			<input type="image" src="https://www.paypal.com/en_US/i/btn/btn_xpressCheckout.gif">
+		</p>
+		<hr />
+		<p class="main emph">
+			<?php echo $lang['civicrm_title']; ?>
+		</p>
+		<p class="main">
+			<?php echo $lang['civicrm_nameoncard']; ?>&emsp;
+			<?php input_field("firstname"); ?>
+			<?php input_field("lastname"); ?>
+		</p>
+		<p class="main">
+			<?php 
+				civicrm_select_one("civicrm_card_type", array( 'visa'=> 'Visa','mastercard' => 'MasterCard', 'amex' => 'American Express', 'discover' => 'Discover' ));
+				input_field("civicrm_card_account", "", " size=20");
+			?>
+		</p>
+		<p class="main">
+			<?php
+				civicrm_select_one("civicrm_card_expmonth", $months);
+				civicrm_select_one("civicrm_card_expyear", $years);
+				input_field("civicrm_card_cvv2", "", " size=5 title='{$lang['civicrm_card_cvv2_text']}'");
+			?>
+		</p>
+		<p class="main">
+			<input class="button button-primary" type="submit" value="<?php echo $lang["continue"]; ?>">
+		</p>
+	<?php
+	sys_log('civicrm_form called');
+}
 
-/* function civicrm_config_db($user) {
-	return config_checksql_for('plugins/civicrm/setup.sql', $user);
-} */
+function civicrm_process() {
+	global $lang;
+	foreach (array("firstname", "lastname", "civicrm_card_type", "civicrm_card_account", "civicrm_card_expmonth", "civicrm_card_expyear", "civicrm_card_cvv2", "isTest" ) as $a) {
+		if (isset($_POST[$a])) $_SESSION[$a] = sanitize_text_field(nogpc($_POST[$a]));
+	}
+	if (isset($_SESSION['civicrm_card_expmonth']) && isset($_SESSION['civicrm_card_expyear'])) {
+		$_SESSION['civicrm_exp'] = $_SESSION['civicrm_card_expmonth'].$_SESSION['civicrm_card_expyear'];
+		$currentYear = date("y");
+		if (($_SESSION['civicrm_card_expyear'] < $currentYear) || 
+			(($_SESSION['civicrm_card_expyear'] == $currentYear && $civicrm_card_expmonth < date("m")) )) {
+			kaboom( "Card is Expired");
+		}
+	}
+	sys_log('civicrm_process called');
+}
+
+function civicrm_select_one( $name, $options ) {
+	global $lang;
+	// $name = variable name
+	// $options = array of slug => label options
+	?>
+	<label><?php echo $lang[$name]; ?>&nbsp;
+		<select name="<?php echo $name; ?>">
+			<?php foreach ($options as $key => $val) {  ?>
+				<option value="<?php echo $key; ?>" <?php if (isset($_SESSION[$name]) && $_SESSION[$name]==$key) echo " selected"; ?> >
+				<?php echo $val;  ?> 
+				</option>
+			<?php } ?>
+		</select>
+	</label>
+	<?php
+}
+
+function civicrm_cleanup() {
+	// clear credit card session variables after use
+	unset($_SESSION['civicrm_card_type']);
+	unset($_SESSION['civicrm_card_account']);
+	unset($_SESSION['civicrm_exp']);
+	unset($_SESSION['civicrm_card_expmonth']);
+	unset($_SESSION['civicrm_card_expyear']);
+	unset($_SESSION['civicrm_card_cvv2']);
+}
 
 function civicrm_getvalue( $metakey ) {
 	// retrieves an arbitrary value from the usermeta table
